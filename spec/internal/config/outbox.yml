@@ -1,0 +1,13 @@
+test:
+  bucket_size: 4
+
+  inbox_items:
+    test_inbox_item:
+      partition_size: 2
+      partition_strategy: number
+      retention: P1W
+      retry_strategies:
+        - exponential_backoff
+      transports:
+        test_inbox_item_transport:
+          source: "kafka_consumer"

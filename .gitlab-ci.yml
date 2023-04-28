@@ -16,6 +16,12 @@ tests:
   parallel:
     matrix:
       - RUBY_VERSION: ['2.7', '3.0', '3.1']
+  services:
+    - name: dreg.sbmt.io/dhub/library/postgres:13
+      alias: postgres
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
+    DATABASE_URL: postgres://postgres:secret@postgres:5432
   before_script:
     - gem install bundler -v 2.3.26
     - bin/setup
