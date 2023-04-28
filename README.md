@@ -28,7 +28,6 @@ dip provision
 
 2. Запуск тестов
 ```shell
-dip rake db:create db:migrate RAILS_ENV=test
 dip rspec
 ```
 

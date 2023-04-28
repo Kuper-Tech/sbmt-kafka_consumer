@@ -11,12 +11,26 @@ services:
       HISTFILE: /app/tmp/.bash_history
       BUNDLE_PATH: /usr/local/bundle
       BUNDLE_CONFIG: /app/.bundle/config
+      DATABASE_URL: postgres://postgres:@postgres:5432
+    depends_on:
+      postgres:
+        condition: service_healthy
     command: bash
     working_dir: /app
     volumes:
       - .:/app:cached
       - ${SBMT_RUBYGEMS_PATH:-..}:/app/vendor/gems:cached
       - bundler_data:/usr/local/bundle
+
+  postgres:
+    image: dreg.sbmt.io/dhub/library/postgres:13
+    environment:
+      POSTGRES_HOST_AUTH_METHOD: trust
+    ports:
+      - 5432
+    healthcheck:
+      test: pg_isready -U postgres -h 127.0.0.1
+      interval: 10s
 
 volumes:
   bundler_data:
