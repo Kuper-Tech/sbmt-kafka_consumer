@@ -36,6 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "sentry-rails", "> 5.2.0"
   spec.add_dependency "sbmt-outbox", ">= 4.1.0"
   spec.add_dependency "yabeda", ">= 0.11"
+  spec.add_dependency "anyway_config", ">= 2.4.0"
 
   spec.add_development_dependency "appraisal", ">= 2.4"
   spec.add_development_dependency "bundler", ">= 2.3"

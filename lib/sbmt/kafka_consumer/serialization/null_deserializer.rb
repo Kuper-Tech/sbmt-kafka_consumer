@@ -3,7 +3,7 @@
 module Sbmt
   module KafkaConsumer
     module Serialization
-      class NullDeserializer
+      class NullDeserializer < BaseDeserializer
         def call(message)
           message.raw_payload
         end

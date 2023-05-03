@@ -13,6 +13,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [Unreleased] - 2023-05-03
+
+### Added
+- base config loader via AnywayConfig
+
+### Changed
+
+### Fixed
+
 ## [Unreleased] - 2023-04-26
 
 ### Added

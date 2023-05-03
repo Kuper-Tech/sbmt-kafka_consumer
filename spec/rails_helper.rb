@@ -7,6 +7,11 @@ require "dry-monads"
 require "dry/monads/result"
 require "sbmt/kafka_consumer/testing"
 
+# when using with combustion, anyway is required earlier than rails
+# so it's railtie does nothing, but that require is cached
+# we must require it explicitly to force anyway autoload our configs
+require "anyway/rails" if defined?(Rails::Railtie)
+
 begin
   Combustion.initialize! :active_record do
     if ENV["LOG"].to_s.empty?
