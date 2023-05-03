@@ -17,6 +17,27 @@ gem "sbmt-kafka_consumer", "~> 0.1.0"
 bundle install
 ```
 
+Создать и настроить конфигурационный файл config/kafka_consumer.yml, пример конфига:
+```ruby
+default: &default
+  client_id: 'some-name'
+  auth:
+    kind: plaintext
+  kafka:
+    servers: "kafka:9092"
+    rdkafka:
+      allow.auto.create.topics: true
+development:
+  <<: *default
+test:
+  <<: *default
+  deliver: false
+staging: &staging
+  <<: *default
+production:
+  <<: *staging
+```
+
 ## Разработка
 
 ### Локальное окружение

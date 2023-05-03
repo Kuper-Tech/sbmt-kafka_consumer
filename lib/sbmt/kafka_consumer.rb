@@ -5,6 +5,9 @@ require "sbmt_karafka"
 require "active_record"
 require "yabeda"
 require "sentry-ruby"
+require "anyway_config"
+
+require_relative "kafka_consumer/railtie" if defined?(Rails::Railtie)
 
 module Sbmt
   module KafkaConsumer
@@ -29,5 +32,3 @@ loader.ignore("#{__dir__}/kafka_consumer/testing.rb")
 loader.ignore("#{__dir__}/kafka_consumer/testing/**/*.rb")
 loader.setup
 loader.eager_load
-
-require_relative "kafka_consumer/railtie" if defined?(Rails::Railtie)

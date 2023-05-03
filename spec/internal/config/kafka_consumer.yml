@@ -1,0 +1,17 @@
+default: &default
+  client_id: 'some-name'
+  auth:
+    kind: plaintext
+  kafka:
+    servers: "kafka:9092"
+    rdkafka:
+      allow.auto.create.topics: true
+development:
+  <<: *default
+test:
+  <<: *default
+  deliver: false
+staging: &staging
+  <<: *default
+production:
+  <<: *staging
