@@ -18,4 +18,8 @@ class Sbmt::KafkaConsumer::Logger
   def tagged(...)
     logger.tagged(...)
   end
+
+  def add(...)
+    logger.add(...)
+  end
 end

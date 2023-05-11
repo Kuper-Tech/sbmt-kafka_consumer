@@ -1,16 +1,24 @@
 # frozen_string_literal: true
 
-class Sbmt::KafkaConsumer::Config::Auth < Anyway::Config
-  config_name :kafka_consumer_auth
+class Sbmt::KafkaConsumer::Config::Auth < Dry::Struct
+  transform_keys(&:to_sym)
 
-  VALID_AUTH_KINDS = %w[plaintext sasl_plaintext].freeze
-  VALID_SASL_MECHANISMS = %w[PLAIN SCRAM-SHA-256 SCRAM-SHA-512].freeze
+  AVAILABLE_AUTH_KINDS = %w[plaintext sasl_plaintext].freeze
+  DEFAULT_AUTH_KIND = "plaintext"
 
-  attr_config :sasl_mechanism, :sasl_username, :sasl_password, kind: "plaintext"
+  AVAILABLE_SASL_MECHANISMS = %w[PLAIN SCRAM-SHA-256 SCRAM-SHA-512].freeze
+  DEFAULT_SASL_MECHANISM = "SCRAM-SHA-512"
 
-  on_load :ensure_options_are_valid
+  attribute :kind, Sbmt::KafkaConsumer::Types::Strict::String
+    .default(DEFAULT_AUTH_KIND)
+    .enum(*AVAILABLE_AUTH_KINDS)
+  attribute? :sasl_mechanism, Sbmt::KafkaConsumer::Types::Strict::String
+    .default(DEFAULT_SASL_MECHANISM)
+    .enum(*AVAILABLE_SASL_MECHANISMS)
+  attribute? :sasl_username, Sbmt::KafkaConsumer::Types::Strict::String
+  attribute? :sasl_password, Sbmt::KafkaConsumer::Types::Strict::String
 
-  def to_rdkafka_options
+  def to_kafka_options
     ensure_options_are_valid
 
     opts = {}
@@ -26,7 +34,7 @@ class Sbmt::KafkaConsumer::Config::Auth < Anyway::Config
     when "plaintext"
       opts[:"security.protocol"] = kind
     else
-      raise_validation_error "unknown auth kind: #{kind}"
+      raise Anyway::Config::ValidationError, "unknown auth kind: #{kind}"
     end
 
     opts.symbolize_keys
@@ -35,14 +43,14 @@ class Sbmt::KafkaConsumer::Config::Auth < Anyway::Config
   private
 
   def ensure_options_are_valid
-    raise_validation_error "unknown auth kind: #{kind}" unless VALID_AUTH_KINDS.include?(kind)
+    raise Anyway::Config::ValidationError, "unknown auth kind: #{kind}" unless AVAILABLE_AUTH_KINDS.include?(kind)
 
     case kind
     when "sasl_plaintext"
-      raise_validation_error "sasl_username is required for #{kind} auth kind" if sasl_username.blank?
-      raise_validation_error "sasl_password is required for #{kind} auth kind" if sasl_password.blank?
-      raise_validation_error "sasl_mechanism is required for #{kind} auth kind" if sasl_mechanism.blank?
-      raise_validation_error "invalid sasl_mechanism for #{kind} auth kind, available options are: [#{VALID_SASL_MECHANISMS.join(",")}]" unless VALID_SASL_MECHANISMS.include?(sasl_mechanism)
+      raise Anyway::Config::ValidationError, "sasl_username is required for #{kind} auth kind" if sasl_username.blank?
+      raise Anyway::Config::ValidationError, "sasl_password is required for #{kind} auth kind" if sasl_password.blank?
+      raise Anyway::Config::ValidationError, "sasl_mechanism is required for #{kind} auth kind" if sasl_mechanism.blank?
+      raise Anyway::Config::ValidationError, "invalid sasl_mechanism for #{kind} auth kind, available options are: [#{AVAILABLE_SASL_MECHANISMS.join(",")}]" unless AVAILABLE_SASL_MECHANISMS.include?(sasl_mechanism)
     end
   end
 end

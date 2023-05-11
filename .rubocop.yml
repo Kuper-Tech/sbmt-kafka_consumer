@@ -8,3 +8,8 @@ AllCops:
 RSpec/VerifiedDoubles:
   Exclude:
     - spec/**/*_spec.rb
+
+Rails/OverridingEnvVars:
+  Exclude:
+    - spec/spec_helper.rb
+    - exe/kafka_consumer

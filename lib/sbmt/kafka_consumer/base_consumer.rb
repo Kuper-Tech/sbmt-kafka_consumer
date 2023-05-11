@@ -11,6 +11,10 @@ module Sbmt
 
       attr_reader :trace_id
 
+      def self.consumer_klass(**attrs)
+        self
+      end
+
       def consume
         messages.each do |message|
           @trace_id = SecureRandom.base58

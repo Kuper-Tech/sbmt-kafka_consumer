@@ -4,8 +4,35 @@ default: &default
     kind: plaintext
   kafka:
     servers: "kafka:9092"
-    rdkafka:
+    kafka_options:
       allow.auto.create.topics: true
+  consumer_groups:
+    cg_with_single_topic:
+      topics:
+        - name: topic_with_inbox_items
+          consumer:
+            klass: "Sbmt::KafkaConsumer::InboxConsumer"
+            init_attrs:
+              name: "test_items"
+              inbox_item: "TestInboxItem"
+          deserializer:
+            klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
+    cg_with_multiple_topics:
+      topics:
+        - name: topic_with_json_data
+          consumer:
+            klass: "SimpleLoggingConsumer"
+          deserializer:
+            klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+        - name: topic_with_protobuf_data
+          consumer:
+            klass: "SimpleLoggingConsumer"
+          deserializer:
+            klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer"
+            init_attrs:
+              message_decoder_klass: "Sso::UserRegistration"
+              skip_decoding_error: true
+
 development:
   <<: *default
 test:

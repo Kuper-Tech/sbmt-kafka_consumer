@@ -37,6 +37,8 @@ Gem::Specification.new do |spec|
   spec.add_dependency "sbmt-outbox", ">= 4.1.0"
   spec.add_dependency "yabeda", ">= 0.11"
   spec.add_dependency "anyway_config", ">= 2.4.0"
+  spec.add_dependency "thor"
+  spec.add_dependency "dry-struct"
 
   spec.add_development_dependency "appraisal", ">= 2.4"
   spec.add_development_dependency "bundler", ">= 2.3"
@@ -46,4 +48,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "dry-monads", "~> 1.3"
   spec.add_development_dependency "factory_bot_rails"
   spec.add_development_dependency "pg"
+  spec.add_development_dependency "google-protobuf"
 end

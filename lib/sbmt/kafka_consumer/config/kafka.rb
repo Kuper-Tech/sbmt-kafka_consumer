@@ -1,26 +1,18 @@
 # frozen_string_literal: true
 
-class Sbmt::KafkaConsumer::Config::Kafka < Anyway::Config
-  SERVERS_REGEXP = /^[\w\d.\-:,]+$/.freeze
+class Sbmt::KafkaConsumer::Config::Kafka < Dry::Struct
+  transform_keys(&:to_sym)
 
-  config_name :kafka_consumer_kafka
-  attr_config :servers, rdkafka: {}
+  # srv1:port1,srv2:port2,...
+  SERVERS_REGEXP = /^[a-z\d.\-:]+(,[a-z\d.\-:]+)*$/.freeze
 
-  required :servers
-  coerce_types servers: {type: :string, array: false}
+  attribute :servers, Sbmt::KafkaConsumer::Types::String.constrained(format: SERVERS_REGEXP)
+  attribute? :kafka_options, Sbmt::KafkaConsumer::Types::ConfigAttrs.default({}.freeze)
 
-  on_load :ensure_options_are_valid
-
-  def to_rdkafka_options
-    # servers takes precedence over rdkafka
-    rdkafka
+  def to_kafka_options
+    # servers takes precedence over kafka_options
+    kafka_options
       .merge("bootstrap.servers": servers)
       .symbolize_keys
-  end
-
-  private
-
-  def ensure_options_are_valid
-    raise_validation_error "invalid servers: #{servers}, should be in format: \"host1:port1,host2:port2,...\"" unless SERVERS_REGEXP.match?(servers)
   end
 end
