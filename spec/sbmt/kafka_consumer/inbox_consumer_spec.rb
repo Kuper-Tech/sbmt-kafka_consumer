@@ -6,10 +6,10 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   include_context "with sbmt karafka consumer"
 
   let(:klass) do
-    described_class[
+    described_class.consumer_klass(
       name: "test_items",
       inbox_item: "TestInboxItem"
-    ]
+    )
   end
 
   let(:consumer) { build_consumer(klass.new) }

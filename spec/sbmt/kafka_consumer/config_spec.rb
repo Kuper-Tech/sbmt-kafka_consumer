@@ -18,9 +18,9 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
     }
     let(:config) { described_class.new }
 
-    it "properly merges rdkafka options" do
+    it "properly merges kafka options" do
       with_env(default_env) do
-        expect(config.to_rdkafka_options)
+        expect(config.to_kafka_options)
           .to eq(
             "bootstrap.servers": "server1:9092,server2:9092",
             "security.protocol": "sasl_plaintext",
@@ -30,6 +30,16 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
             # loaded from kafka_consumer.yml
             "allow.auto.create.topics": true
           )
+      end
+    end
+
+    it "has correct defaults" do
+      with_env(default_env) do
+        expect(config.deserializer_class).to eq("::Sbmt::KafkaConsumer::Serialization::NullDeserializer")
+        expect(config.monitor_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::SentryMonitor")
+        expect(config.logger_class).to eq("::Sbmt::KafkaConsumer::Logger")
+        expect(config.logger_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::LoggerListener")
+        expect(config.metrics_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener")
       end
     end
   end

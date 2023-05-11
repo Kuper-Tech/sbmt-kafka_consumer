@@ -5,13 +5,11 @@ module Sbmt
     class InboxConsumer < BaseConsumer
       IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
 
-      class << self
-        def [](name:, inbox_item:, event_name: nil)
-          klass = Class.new(self)
-          klass.const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
-          klass.const_set(:EVENT_NAME, event_name)
-          const_set("#{name.classify}Consumer", klass)
-        end
+      def self.consumer_klass(name:, inbox_item:, event_name: nil)
+        klass = Class.new(self)
+        klass.const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
+        klass.const_set(:EVENT_NAME, event_name)
+        const_set("#{name.classify}Consumer", klass)
       end
 
       private

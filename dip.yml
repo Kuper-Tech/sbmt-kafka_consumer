@@ -57,6 +57,23 @@ interaction:
     service: ruby
     command: bin/test
 
+  kafka-consumer:
+    description: Run kafka consumer
+    service: ruby
+    command: bundle exec kafka_consumer
+
+  kafka-producer:
+    description: Run kafka producer commands
+    service: kafka
+    command: kafka-console-producer.sh --bootstrap-server kafka:9092
+    subcommands:
+      inbox:
+        command: kafka-console-producer.sh --bootstrap-server kafka:9092 --topic topic_with_inbox_items
+      json:
+        command: kafka-console-producer.sh --bootstrap-server kafka:9092 --topic topic_with_json_data
+      protobuf:
+        command: kafka-console-producer.sh --bootstrap-server kafka:9092 --topic topic_with_protobuf_data
+
 provision:
   - dip compose down --volumes
   - cp -f lefthook-local.dip_example.yml lefthook-local.yml

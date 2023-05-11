@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+package sso;
+
+option go_package="gitlab.sbmt.io/paas/content/auth/auth-back/pkg/server/grpc/user_registrations";
+
+message UserRegistration {
+  string user_uuid = 1;
+  string phone = 2;
+  google.protobuf.Timestamp created_at = 4;
+}
