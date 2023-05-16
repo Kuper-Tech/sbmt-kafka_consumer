@@ -3,76 +3,226 @@
 require "rails_helper"
 
 describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
-  let(:event) { double("event") }
+  let(:message) { build(:messages_message) }
+  let(:messages) { OpenStruct.new(metadata: build(:messages_batch_metadata), count: 1) }
 
-  let(:inbox_name) { "inbox" }
-  let(:event_name) { "event" }
-  let(:status) { "status" }
+  describe ".on_statistics_emitted" do
+    let(:base_rdkafka_stats) {
+      {
+        "client_id" => "some-name",
+        "brokers" => {
+          "kafka:9092/1001" => {
+            "name" => "kafka:9092/1001",
+            "nodeid" => 1001,
+            "nodename" => "kafka:9092",
+            "tx" => 7,
+            "txbytes" => 338,
+            "txerrs" => 0,
+            "rx" => 7,
+            "rxbytes" => 827,
+            "rxerrs" => 0,
+            "rtt" => {
+              "avg" => 1984
+            }
+          }
+        }
+      }.freeze
+    }
+
+    context "when only base data is available" do
+      let(:event) do
+        Karafka::Core::Monitoring::Event.new(
+          "statistics.emitted",
+          {consumer_group_id: "consumer-group-id", statistics: base_rdkafka_stats}
+        )
+      end
+
+      it "reports only broker metrics" do
+        tags = {client: "some-name", broker: "kafka:9092"}
+        expect {
+          described_class.new.on_statistics_emitted(event)
+        }.to measure_yabeda_histogram(Yabeda.kafka_api.latency).with_tags(tags)
+          .and measure_yabeda_histogram(Yabeda.kafka_api.request_size).with_tags(tags)
+          .and measure_yabeda_histogram(Yabeda.kafka_api.response_size).with_tags(tags)
+          .and increment_yabeda_counter(Yabeda.kafka_api.calls).with_tags(tags)
+          .and increment_yabeda_counter(Yabeda.kafka_api.errors).with_tags(tags)
+          .and not_increment_yabeda_counter(Yabeda.kafka_consumer.consumer_group_rebalances)
+          .and not_update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag)
+      end
+    end
+
+    context "when consumer group data available" do
+      let(:event) do
+        Karafka::Core::Monitoring::Event.new(
+          "statistics.emitted", {
+            consumer_group_id: "consumer-group-id",
+            statistics: base_rdkafka_stats.merge(
+              "cgrp" => {
+                "state" => "up",
+                "rebalance_cnt" => 0
+              }
+            )
+          }
+        )
+      end
+
+      it "reports consumer group metrics" do
+        expect {
+          described_class.new.on_statistics_emitted(event)
+        }.to increment_yabeda_counter(Yabeda.kafka_consumer.consumer_group_rebalances)
+          .with_tags(client: "some-name", group_id: "consumer-group-id", state: "up")
+      end
+    end
+
+    context "when topic data available" do
+      let(:event) do
+        Karafka::Core::Monitoring::Event.new(
+          "statistics.emitted", {
+            consumer_group_id: "consumer-group-id",
+            statistics: base_rdkafka_stats.merge(
+              "topics" => {
+                "topic_with_json_data" => {
+                  "topic" => "topic_with_json_data",
+                  "partitions" => {
+                    "0" => {
+                      "partition" => 0,
+                      "consumer_lag" => 0
+                    },
+                    "-1" => {
+                      "partition" => -1,
+                      "consumer_lag" => -1
+                    }
+                  }
+                }
+              }
+            )
+          }
+        )
+      end
+
+      it "reports topic metrics" do
+        expect {
+          described_class.new.on_statistics_emitted(event)
+        }.to update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag)
+          .with_tags(client: "some-name", group_id: "consumer-group-id",
+            partition: "0", topic: "topic_with_json_data")
+      end
+    end
+  end
+
+  describe ".on_consumer_consumed" do
+    let(:topic) { OpenStruct.new(consumer_group: OpenStruct.new(id: "group_id")) }
+    let(:consumer) { OpenStruct.new(topic: topic, messages: messages) }
+    let(:event) { Karafka::Core::Monitoring::Event.new("consumer.consumed", caller: consumer, time: 10) }
+
+    tags = {
+      client: "some-name", group_id: "group_id",
+      partition: 0, topic: "topic"
+    }
+
+    it "reports batch consuming metrics" do
+      expect { described_class.new.on_consumer_consumed(event) }
+        .to measure_yabeda_histogram(Yabeda.kafka_consumer.batch_size).with_tags(tags)
+        .and measure_yabeda_histogram(Yabeda.kafka_consumer.process_batch_latency).with_tags(tags)
+        .and update_yabeda_gauge(Yabeda.kafka_consumer.time_lag).with_tags(tags)
+    end
+  end
 
   describe ".on_consumer_consumed_one" do
-    let(:message) { double("message") }
-    let(:metadata) { OpenStruct.new(topic: "topic", partition: 0) }
+    let(:topic) { OpenStruct.new(consumer_group: OpenStruct.new(id: "group_id")) }
+    let(:consumer) { OpenStruct.new(topic: topic, messages: messages) }
+    let(:event) { Karafka::Core::Monitoring::Event.new("consumer.consumed", caller: consumer, time: 10) }
 
-    it "increments consumer metric" do
-      expect(event).to receive(:[]).with(:message).and_return(message)
-      expect(message).to receive(:metadata).and_return(metadata).twice
+    tags = {
+      client: "some-name", group_id: "group_id",
+      partition: 0, topic: "topic"
+    }
 
+    it "reports consumed message metrics" do
       expect { described_class.new.on_consumer_consumed_one(event) }
-        .to increment_yabeda_counter(Yabeda.kafka_consumer.consumes)
-        .with_tags(topic: "topic", partition: 0)
+        .to increment_yabeda_counter(Yabeda.kafka_consumer.process_messages).with_tags(tags)
+        .and measure_yabeda_histogram(Yabeda.kafka_consumer.process_message_latency).with_tags(tags)
     end
   end
 
   describe ".on_consumer_inbox_consumed_one" do
-    it "increments consumer metric" do
-      expect(event).to receive(:[]).with(:inbox_name).and_return(inbox_name)
-      expect(event).to receive(:[]).with(:event_name).and_return(event_name)
-      expect(event).to receive(:[]).with(:status).and_return(status)
+    let(:inbox_tags) do
+      {
+        inbox_name: "inbox",
+        event_name: "event",
+        status: "status"
+      }
+    end
 
+    let(:event) do
+      Karafka::Core::Monitoring::Event.new(
+        "consumer.consumed",
+        inbox_tags
+      )
+    end
+
+    it "increments consumer metric" do
       expect { described_class.new.on_consumer_inbox_consumed_one(event) }
         .to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
-        .with_tags(
-          inbox_name: inbox_name,
-          event_name: event_name,
-          status: status
-        )
+        .with_tags(inbox_tags)
     end
   end
 
   describe ".on_error_occurred" do
-    let(:message) { double("message") }
-    let(:metadata) { OpenStruct.new(topic: "topic", partition: 0) }
-
-    it "increments consumer metric for base consumer" do
-      expect(event).to receive(:[]).with(:type).and_return("consumer.base.consume_one")
-      expect(event).to receive(:[]).with(:message).and_return(message)
-      expect(message).to receive(:metadata).and_return(metadata).twice
-
-      expect { described_class.new.on_error_occurred(event) }
-        .to increment_yabeda_counter(Yabeda.kafka_consumer.consumes)
-        .with_tags(topic: "topic", partition: 0)
+    let(:topic) { OpenStruct.new(consumer_group: OpenStruct.new(id: "group_id")) }
+    let(:consumer) { OpenStruct.new(topic: topic, messages: messages) }
+    let(:tags) do
+      {
+        client: "some-name", group_id: "group_id",
+        partition: 0, topic: "topic"
+      }
     end
 
-    it "increments consumer metric for inbox consumer" do
-      expect(event).to receive(:[]).with(:type).and_return("consumer.inbox.consume_one")
-      expect(event).to receive(:[]).with(:inbox_name).and_return(inbox_name)
-      expect(event).to receive(:[]).with(:event_name).and_return(event_name)
-      expect(event).to receive(:[]).with(:status).and_return(status)
+    context "when error type is consumer.revoked.error" do
+      let(:event) { Karafka::Core::Monitoring::Event.new("error.occurred", caller: consumer, type: "consumer.revoked.error") }
 
-      expect { described_class.new.on_error_occurred(event) }
-        .to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
-        .with_tags(
-          inbox_name: inbox_name,
-          event_name: event_name,
-          status: status
-        )
+      it "increments consumer leave group counter" do
+        expect { described_class.new.on_error_occurred(event) }
+          .to increment_yabeda_counter(Yabeda.kafka_consumer.leave_group_errors)
+          .with_tags(tags)
+      end
     end
 
-    it "doesn't increment consumer metric for other cases" do
-      expect(event).to receive(:[]).with(:type).and_return("other.error")
+    context "when error type is consumer.consume.error" do
+      let(:event) { Karafka::Core::Monitoring::Event.new("error.occurred", caller: consumer, type: "consumer.consume.error") }
 
-      expect { described_class.new.on_error_occurred(event) }
-        .not_to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+      it "increments consumer batch error counter" do
+        expect { described_class.new.on_error_occurred(event) }
+          .to increment_yabeda_counter(Yabeda.kafka_consumer.process_batch_errors)
+          .with_tags(tags)
+      end
+    end
+
+    context "when error type is consumer.base.consume_one" do
+      let(:event) { Karafka::Core::Monitoring::Event.new("error.occurred", caller: consumer, type: "consumer.base.consume_one") }
+
+      it "increments consumer error counter" do
+        expect { described_class.new.on_error_occurred(event) }
+          .to increment_yabeda_counter(Yabeda.kafka_consumer.process_message_errors)
+          .with_tags(tags)
+      end
+    end
+
+    context "when error type is consumer.inbox.consume_one" do
+      let(:inbox_tags) do
+        {
+          inbox_name: "inbox",
+          event_name: "event",
+          status: "status"
+        }
+      end
+      let(:event) { Karafka::Core::Monitoring::Event.new("error.occurred", caller: consumer, type: "consumer.inbox.consume_one", **inbox_tags) }
+
+      it "increments inbox consumer metric" do
+        expect { described_class.new.on_error_occurred(event) }
+          .to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+          .with_tags(inbox_tags)
+      end
     end
   end
 end

@@ -4,36 +4,155 @@ module Sbmt
   module KafkaConsumer
     module Instrumentation
       class YabedaMetricsListener < BaseListener
+        def on_statistics_emitted(event)
+          # https://github.com/confluentinc/librdkafka/blob/master/STATISTICS.md
+          stats = event.payload[:statistics]
+          consumer_group_id = event.payload[:consumer_group_id]
+          consumer_group_stats = stats["cgrp"]
+          broker_stats = stats["brokers"]
+          topic_stats = stats["topics"]
+
+          report_broker_stats(broker_stats)
+          report_consumer_group_stats(consumer_group_id, consumer_group_stats)
+          report_topic_stats(consumer_group_id, topic_stats)
+        end
+
+        def on_consumer_consumed(event)
+          # batch processed
+          consumer = event[:caller]
+          time_elapsed = event[:time]
+
+          Yabeda.kafka_consumer.batch_size
+            .measure(
+              consumer_base_tags(consumer),
+              consumer.messages.count
+            )
+
+          Yabeda.kafka_consumer.process_batch_latency
+            .measure(
+              consumer_base_tags(consumer),
+              time_elapsed
+            )
+
+          Yabeda.kafka_consumer.time_lag
+            .set(
+              consumer_base_tags(consumer),
+              consumer.messages.metadata.consumption_lag
+            )
+        end
+
         def on_consumer_consumed_one(event)
-          report_base_metrics(event)
+          # one message processed by any consumer
+
+          consumer = event[:caller]
+          time_elapsed = event[:time]
+          Yabeda.kafka_consumer.process_messages
+            .increment(consumer_base_tags(consumer))
+          Yabeda.kafka_consumer.process_message_latency
+            .measure(
+              consumer_base_tags(consumer),
+              time_elapsed
+            )
         end
 
         def on_consumer_inbox_consumed_one(event)
-          report_inbox_metrics(event)
-        end
-
-        def on_error_occurred(event)
-          type = event[:type]
-
-          # catch only consumer-specific errors
-          report_base_metrics(event) if type == "consumer.base.consume_one"
-          report_inbox_metrics(event) if type == "consumer.inbox.consume_one"
-        end
-
-        private
-
-        def report_base_metrics(event)
-          Yabeda
-            .kafka_consumer
-            .consumes
-            .increment(consumer_tags(event))
-        end
-
-        def report_inbox_metrics(event)
+          # one message processed by InboxConsumer
           Yabeda
             .kafka_consumer
             .inbox_consumes
             .increment(inbox_tags(event))
+        end
+
+        def on_error_occurred(event)
+          caller = event[:caller]
+
+          return unless caller.respond_to?(:messages)
+
+          # caller is a BaseConsumer subclass
+          case event[:type]
+          when "consumer.revoked.error"
+            Yabeda.kafka_consumer.leave_group_errors
+              .increment(consumer_base_tags(caller))
+          when "consumer.consume.error"
+            Yabeda.kafka_consumer.process_batch_errors
+              .increment(consumer_base_tags(caller))
+          when "consumer.base.consume_one"
+            Yabeda.kafka_consumer.process_message_errors
+              .increment(consumer_base_tags(caller))
+          when "consumer.inbox.consume_one"
+            Yabeda.kafka_consumer.inbox_consumes
+              .increment(inbox_tags(event))
+          end
+        end
+
+        private
+
+        def consumer_base_tags(consumer)
+          {
+            client: SbmtKarafka::App.config.client_id,
+            group_id: consumer.topic.consumer_group.id,
+            topic: consumer.messages.metadata.topic,
+            partition: consumer.messages.metadata.partition
+          }
+        end
+
+        def report_broker_stats(brokers)
+          brokers.each_value do |broker_statistics|
+            # Skip bootstrap nodes
+            next if broker_statistics["nodeid"] == -1
+
+            broker_tags = {
+              client: SbmtKarafka::App.config.client_id,
+              broker: broker_statistics["nodename"]
+            }
+
+            Yabeda.kafka_api.calls
+              .increment(broker_tags, by: broker_statistics["tx"])
+            Yabeda.kafka_api.latency
+              .measure(broker_tags, broker_statistics["rtt"]["avg"])
+            Yabeda.kafka_api.request_size
+              .measure(broker_tags, broker_statistics["txbytes"])
+            Yabeda.kafka_api.response_size
+              .measure(broker_tags, broker_statistics["rxbytes"])
+            Yabeda.kafka_api.errors
+              .increment(broker_tags, by: broker_statistics["txerrs"] + broker_statistics["rxerrs"])
+          end
+        end
+
+        def report_consumer_group_stats(group_id, group_stats)
+          return if group_stats.blank?
+
+          cg_tags = {
+            client: SbmtKarafka::App.config.client_id,
+            group_id: group_id,
+            state: group_stats["state"]
+          }
+
+          Yabeda.kafka_consumer.consumer_group_rebalances
+            .increment(cg_tags, by: group_stats["rebalance_cnt"])
+        end
+
+        def report_topic_stats(group_id, topic_stats)
+          return if topic_stats.blank?
+
+          topic_stats.each do |topic_name, topic_values|
+            topic_values["partitions"].each do |partition_name, partition_statistics|
+              next if partition_name == "-1"
+
+              # Skip until lag info is available
+              offset_lag = partition_statistics["consumer_lag"]
+              next if offset_lag == -1
+
+              Yabeda.kafka_consumer.offset_lag
+                .set({
+                  client: SbmtKarafka::App.config.client_id,
+                  group_id: group_id,
+                  topic: topic_name,
+                  partition: partition_name
+                },
+                  offset_lag)
+            end
+          end
         end
       end
     end

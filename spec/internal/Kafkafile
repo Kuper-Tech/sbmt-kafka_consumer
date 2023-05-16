@@ -5,6 +5,7 @@ ENV["RAILS_ENV"] = "test"
 ENGINE_ROOT = Pathname.new(File.expand_path("../..", __dir__))
 
 require "combustion"
+require "yabeda/prometheus/mmap"
 
 Dir.chdir(File.expand_path("../..", __dir__)) do
   Combustion.initialize! :active_record, database_reset: false, load_schema: false, database_migrate: false do
@@ -12,3 +13,14 @@ Dir.chdir(File.expand_path("../..", __dir__)) do
     config.log_level = :info
   end
 end
+
+Thread.new do
+  ::Rack::Handler::WEBrick.run(
+    ::Rack::Builder.new do
+      run ::Yabeda::Prometheus::Exporter
+    end,
+    Host: '0.0.0.0',
+    Port: ENV.fetch('PROMETHEUS_EXPORTER_PORT', '9394')
+  )
+end
+

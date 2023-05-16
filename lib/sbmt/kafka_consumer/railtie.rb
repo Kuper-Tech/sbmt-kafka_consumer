@@ -6,17 +6,7 @@ module Sbmt
   module KafkaConsumer
     class Railtie < Rails::Railtie
       initializer "sbmt_kafka_consumer_yabeda.configure_rails_initialization" do
-        Yabeda.configure do
-          group :kafka_consumer do
-            counter :consumes,
-              tags: %i[topic partition],
-              comment: "Base consumer consumes"
-
-            counter :inbox_consumes,
-              tags: %i[inbox_name event_name status],
-              comment: "Inbox item consumes"
-          end
-        end
+        YabedaConfigurer.configure
       end
 
       # it must be consistent with sbmt_karafka initializers' name
