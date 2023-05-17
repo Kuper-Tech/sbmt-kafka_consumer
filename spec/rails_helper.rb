@@ -12,6 +12,9 @@ require "sbmt/kafka_consumer/testing"
 # we must require it explicitly to force anyway autoload our configs
 require "anyway/rails" if defined?(Rails::Railtie)
 
+RSpec::Matchers.define_negated_matcher :not_increment_yabeda_counter, :increment_yabeda_counter
+RSpec::Matchers.define_negated_matcher :not_update_yabeda_gauge, :update_yabeda_gauge
+
 begin
   Combustion.initialize! :active_record do
     if ENV["LOG"].to_s.empty?

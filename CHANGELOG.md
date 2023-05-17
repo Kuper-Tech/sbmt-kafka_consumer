@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.2.0] - 2023-05-16
+
+### Added
+- implement consumer metrics
+
 ## [Unreleased] - 2023-05-03
 
 ### Added
