@@ -11,11 +11,12 @@ class Sbmt::KafkaConsumer::ClientConfigurer
       karafka_config.client_id = config.client_id
       karafka_config.kafka = config.to_kafka_options
 
-      karafka_config.pause_timeout = config.pause_timeout if config.pause_timeout.present?
-      karafka_config.pause_max_timeout = config.pause_max_timeout if config.pause_max_timeout.present?
+      karafka_config.pause_timeout = config.pause_timeout * 1_000 if config.pause_timeout.present?
+      karafka_config.pause_max_timeout = config.pause_max_timeout * 1_000 if config.pause_max_timeout.present?
+      karafka_config.max_wait_time = config.max_wait_time * 1_000 if config.max_wait_time.present?
+      karafka_config.shutdown_timeout = config.shutdown_timeout * 1_000 if config.shutdown_timeout.present?
+
       karafka_config.pause_with_exponential_backoff = config.pause_with_exponential_backoff if config.pause_with_exponential_backoff.present?
-      karafka_config.max_wait_time = config.max_wait_time if config.max_wait_time.present?
-      karafka_config.shutdown_timeout = config.shutdown_timeout if config.shutdown_timeout.present?
 
       concurrency = (opts[:concurrency]) || config.concurrency if config.concurrency.present?
       karafka_config.concurrency = concurrency if concurrency

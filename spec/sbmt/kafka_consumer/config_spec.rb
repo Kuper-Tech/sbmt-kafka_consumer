@@ -17,11 +17,20 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
       }
     }
     let(:config) { described_class.new }
+    let(:kafka_config_defaults) do
+      {
+        "heartbeat.interval.ms": 5000,
+        "reconnect.backoff.max.ms": 3000,
+        "session.timeout.ms": 30000,
+        "socket.connection.setup.timeout.ms": 5000,
+        "socket.timeout.ms": 30000
+      }
+    end
 
     it "properly merges kafka options" do
       with_env(default_env) do
         expect(config.to_kafka_options)
-          .to eq(
+          .to eq(kafka_config_defaults.merge(
             "bootstrap.servers": "server1:9092,server2:9092",
             "security.protocol": "sasl_plaintext",
             "sasl.mechanism": "PLAIN",
@@ -29,7 +38,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
             "sasl.username": "username",
             # loaded from kafka_consumer.yml
             "allow.auto.create.topics": true
-          )
+          ))
       end
     end
 
