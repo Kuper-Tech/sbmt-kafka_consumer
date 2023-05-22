@@ -3,6 +3,16 @@
 require "rails_helper"
 
 describe Sbmt::KafkaConsumer::Config::Kafka, type: :config do
+  let(:kafka_config_defaults) do
+    {
+      "heartbeat.interval.ms": 5000,
+      "reconnect.backoff.max.ms": 3000,
+      "session.timeout.ms": 30000,
+      "socket.connection.setup.timeout.ms": 5000,
+      "socket.timeout.ms": 30000
+    }
+  end
+
   context "with servers validation" do
     it "raises error if servers are not set" do
       expect { described_class.new }
@@ -22,7 +32,7 @@ describe Sbmt::KafkaConsumer::Config::Kafka, type: :config do
     it "successfully loads config and translates to kafka options" do
       expect(config.servers).to eq(servers)
       expect(config.to_kafka_options)
-        .to eq("bootstrap.servers": servers)
+        .to eq(kafka_config_defaults.merge("bootstrap.servers": servers))
     end
   end
 
@@ -34,7 +44,7 @@ describe Sbmt::KafkaConsumer::Config::Kafka, type: :config do
     it "root servers option takes precedence over kafka config" do
       expect(config.servers).to eq(root_servers)
       expect(config.to_kafka_options)
-        .to eq("bootstrap.servers": root_servers)
+        .to eq(kafka_config_defaults.merge("bootstrap.servers": root_servers))
     end
   end
 end

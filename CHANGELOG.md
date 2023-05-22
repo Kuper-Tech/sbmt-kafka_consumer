@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.3.0] - 2023-05-19
+
+### Added
+- add timeout aliases to kafka config
+- README actualization
+
 ## [0.2.0] - 2023-05-16
 
 ### Added
