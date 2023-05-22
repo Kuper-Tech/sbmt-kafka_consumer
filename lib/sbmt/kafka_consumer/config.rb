@@ -17,7 +17,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
         raw_attrs.keys.map do |obj_title|
           coerce_to(struct)
             .call(**raw_attrs.fetch(obj_title)
-                            .merge(name: obj_title))
+                            .merge(id: obj_title))
         end
       end
     end

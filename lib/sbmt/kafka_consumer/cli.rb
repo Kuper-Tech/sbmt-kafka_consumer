@@ -10,9 +10,10 @@ module Sbmt
       default_command :start
 
       desc "start", "Start kafka_consumer worker"
-      option :consumer_group,
+      option :consumer_group_id,
         aliases: "-g",
-        desc: "Consumer group to start"
+        desc: "Consumer group id to start",
+        repeatable: true
       option :concurrency,
         aliases: "-c",
         type: :numeric,
@@ -25,7 +26,7 @@ module Sbmt
         load_environment
 
         ClientConfigurer.configure!(
-          consumer_groups: options[:consumer_group],
+          consumer_groups: options[:consumer_group_id],
           concurrency: options[:concurrency]
         )
         Sbmt::KafkaConsumer::Server.run

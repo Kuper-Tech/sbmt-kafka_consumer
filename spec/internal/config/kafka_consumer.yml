@@ -7,7 +7,8 @@ default: &default
     kafka_options:
       allow.auto.create.topics: true
   consumer_groups:
-    cg_with_single_topic:
+    group_id_1:
+      name: cg_with_single_topic
       topics:
         - name: topic_with_inbox_items
           consumer:
@@ -17,7 +18,8 @@ default: &default
               inbox_item: "TestInboxItem"
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
-    cg_with_multiple_topics:
+    group_id_2:
+      name: cg_with_multiple_topics
       topics:
         - name: topic_with_json_data
           consumer:

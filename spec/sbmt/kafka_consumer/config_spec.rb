@@ -51,5 +51,60 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
         expect(config.metrics_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener")
       end
     end
+
+    it "properly loads/maps consumer groups to config klasses" do
+      with_env(default_env) do
+        expect(config.consumer_groups)
+          .to eq([
+            Sbmt::KafkaConsumer::Config::ConsumerGroup.new(
+              id: "group_id_1",
+              name: "cg_with_single_topic",
+              topics: [
+                Sbmt::KafkaConsumer::Config::Topic.new(
+                  name: "topic_with_inbox_items",
+                  consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
+                    klass: "Sbmt::KafkaConsumer::InboxConsumer",
+                    init_attrs: {
+                      name: "test_items",
+                      inbox_item: "TestInboxItem"
+                    }
+                  ),
+                  deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
+                    klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
+                  )
+                )
+              ]
+            ),
+            Sbmt::KafkaConsumer::Config::ConsumerGroup.new(
+              id: "group_id_2",
+              name: "cg_with_multiple_topics",
+              topics: [
+                Sbmt::KafkaConsumer::Config::Topic.new(
+                  name: "topic_with_json_data",
+                  consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
+                    klass: "SimpleLoggingConsumer"
+                  ),
+                  deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
+                    klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+                  )
+                ),
+                Sbmt::KafkaConsumer::Config::Topic.new(
+                  name: "topic_with_protobuf_data",
+                  consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
+                    klass: "SimpleLoggingConsumer"
+                  ),
+                  deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
+                    klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer",
+                    init_attrs: {
+                      message_decoder_klass: "Sso::UserRegistration",
+                      skip_decoding_error: true
+                    }
+                  )
+                )
+              ]
+            )
+          ])
+      end
+    end
   end
 end
