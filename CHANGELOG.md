@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.4.0] - 2023-05-19
+
+### Changed
+- refactor consumer groups config
+
 ## [0.3.0] - 2023-05-19
 
 ### Added

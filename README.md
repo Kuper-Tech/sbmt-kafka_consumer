@@ -39,7 +39,8 @@ default: &default
     kafka_options:
       allow.auto.create.topics: true
   consumer_groups:
-    cg_with_single_topic:
+    group_ref_id_1:
+      name: cg_with_single_topic
       topics:
         - name: topic_with_inbox_items
           consumer:
@@ -49,7 +50,8 @@ default: &default
               inbox_item: "TestInboxItem"
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
-    cg_with_multiple_topics:
+    group_ref_id_2:
+      name: cg_with_multiple_topics:
       topics:
         - name: topic_with_json_data
           consumer:
@@ -102,19 +104,21 @@ production:
 ```ruby
 ...
   consumer_groups:
-    имя_группы:
+    # id нужно использовать при запуске процесса консюмера (см. ниже раздел CLI)
+    id_группы:
+      name: имя_группы
       topics:
-        - name: имя_топика
-          consumer:
-            klass: [required] класс консюмера, отнаследованный от BaseConsumer
-            init_attrs:
-              # [optional] атрибуты которые будут переданы в конструктор при инициализации инстанса класса консюмера
-              key: value
-          deserializer:
-            klass: [optional] класс десериалайзера, отнаследованный от BaseDeserializer, по умолчанию используется NullDeserializer 
-            init_attrs:
-              # [optional] атрибуты которые будут переданы в конструктор при инициализации инстанса класса десериалайзера
-              key: value
+      - name: имя_топика
+        consumer:
+          klass: [required] класс консюмера, отнаследованный от BaseConsumer
+          init_attrs:
+            # [optional] атрибуты которые будут переданы в конструктор при инициализации инстанса класса консюмера
+            key: value
+        deserializer:
+          klass: [optional] класс десериалайзера, отнаследованный от BaseDeserializer, по умолчанию используется NullDeserializer 
+          init_attrs:
+            # [optional] атрибуты которые будут переданы в конструктор при инициализации инстанса класса десериалайзера
+            key: value
 ...
 ```
 
@@ -155,11 +159,11 @@ P.S. файл должен находиться в корне Rails-проект
 Запуск сервера
 
 ```shell
-$ bundle exec kafka_consumer -g консюмер_группа_1 -g консюмер_группа_2 -c 10
+$ bundle exec kafka_consumer -g id_группы_1 -g id_группы_2 -c 10
 ```
 
 Где:
-- `-g` - `group`, имя консюмер-группы, если не указывать - будут запущены все группы из конфига
+- `-g` - `group`, идентификатор консюмер-группы, если не указывать - будут запущены все группы из конфига
 - `-c` - `concurrency`, кол-во воркеров (на весь процесс), по умолчанию 5 (дефолт karafka)
 
 В `karafka v2` было проделано много работы в плане многопоточности (см. [Concurrency and Multithreading](https://karafka.io/docs/Concurrency-and-multithreading/))

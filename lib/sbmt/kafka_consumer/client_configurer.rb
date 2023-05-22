@@ -33,7 +33,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
       config.consumer_groups
     else
       config.consumer_groups.select do |group|
-        opts[:consumer_groups].include?(group.name)
+        opts[:consumer_groups].include?(group.id)
       end
     end
 
