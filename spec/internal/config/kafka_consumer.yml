@@ -16,8 +16,6 @@ default: &default
             init_attrs:
               name: "test_items"
               inbox_item: "TestInboxItem"
-          deserializer:
-            klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
     group_id_2:
       name: cg_with_multiple_topics
       topics:

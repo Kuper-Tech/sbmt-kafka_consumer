@@ -3,8 +3,10 @@
 class Sbmt::KafkaConsumer::Config::Deserializer < Dry::Struct
   transform_keys(&:to_sym)
 
-  attribute? :klass, Sbmt::KafkaConsumer::Types::Strict::String.optional
-  attribute? :init_attrs, Sbmt::KafkaConsumer::Types::ConfigAttrs.default({}.freeze)
+  attribute :klass, Sbmt::KafkaConsumer::Types::Strict::String
+    .optional
+    .default(Sbmt::KafkaConsumer::Serialization::NullDeserializer.to_s.freeze)
+  attribute :init_attrs, Sbmt::KafkaConsumer::Types::ConfigAttrs.optional.default({}.freeze)
 
   def instantiate
     return klass.constantize.new if init_attrs.blank?

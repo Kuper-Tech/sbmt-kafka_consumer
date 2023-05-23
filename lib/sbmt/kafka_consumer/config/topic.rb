@@ -5,6 +5,8 @@ class Sbmt::KafkaConsumer::Config::Topic < Dry::Struct
 
   attribute :name, Sbmt::KafkaConsumer::Types::Strict::String
   attribute :consumer, Sbmt::KafkaConsumer::Types::ConfigConsumer
-  attribute :deserializer, Sbmt::KafkaConsumer::Types::ConfigDeserializer.optional
-  attribute? :active, Sbmt::KafkaConsumer::Types::Bool.default(true)
+  attribute :deserializer, Sbmt::KafkaConsumer::Types::ConfigDeserializer
+    .optional
+    .default(Sbmt::KafkaConsumer::Config::Deserializer.new.freeze)
+  attribute :active, Sbmt::KafkaConsumer::Types::Bool.optional.default(true)
 end
