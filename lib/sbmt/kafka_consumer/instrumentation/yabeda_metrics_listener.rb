@@ -3,7 +3,9 @@
 module Sbmt
   module KafkaConsumer
     module Instrumentation
-      class YabedaMetricsListener < BaseListener
+      class YabedaMetricsListener
+        include ListenerHelper
+
         def on_statistics_emitted(event)
           # https://github.com/confluentinc/librdkafka/blob/master/STATISTICS.md
           stats = event.payload[:statistics]

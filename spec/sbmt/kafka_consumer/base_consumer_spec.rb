@@ -79,7 +79,7 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
 
       it "tracks error" do
         expect(::ActiveRecord::Base).to receive(:clear_active_connections!).exactly(4).times
-        expect(Rails.logger).to receive(:error).twice
+        allow(Rails.logger).to receive(:error)
 
         consume_with_sbmt_karafka
         expect(consumer).not_to be_consumed

@@ -70,7 +70,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
 
     it "let consumer crash without committing offsets" do
       expect(kafka_client).not_to receive(:mark_as_consumed!)
-      expect(Rails.logger).to receive(:error).exactly(4).times
+      allow(Rails.logger).to receive(:error)
       expect {
         consume_with_sbmt_karafka
       }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
@@ -90,7 +90,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
 
     it "let consumer crash without committing offsets" do
       expect(kafka_client).not_to receive(:mark_as_consumed!)
-      expect(Rails.logger).to receive(:error).exactly(4).times
+      allow(Rails.logger).to receive(:error)
       expect {
         consume_with_sbmt_karafka
       }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
@@ -109,7 +109,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
 
     it "let consumer crash without committing offsets" do
       expect(kafka_client).to receive(:mark_as_consumed!)
-      expect(Rails.logger).to receive(:info).with(/Successfully consumed/).twice
+      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
       expect { consume_with_sbmt_karafka }
         .to change(TestInboxItem, :count).by(1)
         .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
@@ -128,7 +128,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
 
     it "skips creating a new one" do
       expect(kafka_client).to receive(:mark_as_consumed!)
-      expect(Rails.logger).to receive(:error)
+      allow(Rails.logger).to receive(:error)
       expect { consume_with_sbmt_karafka }
         .to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
         .with_tags(

@@ -10,6 +10,7 @@ require "thor"
 require "dry/types"
 require "dry-struct"
 
+require "anyway/rails" if defined?(Rails)
 require_relative "kafka_consumer/railtie" if defined?(Rails::Railtie)
 
 module Sbmt
@@ -31,14 +32,16 @@ loader = Zeitwerk::Loader.new
 loader.push_dir(File.join(__dir__, ".."))
 loader.tag = "sbmt-kafka_consumer"
 
-# exclusions from eager loading process
-# optional to use, but still managed by zeitwerk
+# protobuf is an optional dependency
 loader.do_not_eager_load("#{__dir__}/kafka_consumer/serialization/protobuf_deserializer.rb")
-loader.do_not_eager_load("#{__dir__}/kafka_consumer/testing.rb")
-loader.do_not_eager_load("#{__dir__}/kafka_consumer/testing")
-loader.do_not_eager_load("#{__dir__}/kafka_consumer/version.rb")
+
+# completely ignore testing helpers
+# because testing.rb just requires some files and does not contain any constants (e.g. Testing) which Zeitwerk expects
+loader.ignore("#{__dir__}/kafka_consumer/testing.rb")
+loader.ignore("#{__dir__}/kafka_consumer/testing")
 
 loader.inflector.inflect("cli" => "CLI")
+loader.inflector.inflect("version" => "VERSION")
 
 loader.setup
 loader.eager_load

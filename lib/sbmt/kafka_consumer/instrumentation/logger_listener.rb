@@ -3,15 +3,17 @@
 module Sbmt
   module KafkaConsumer
     module Instrumentation
-      class LoggerListener < BaseListener
-        ALLOWED_ERROR_TYPES = %w[consumer.base.consume_one consumer.inbox.consume_one].freeze
+      class LoggerListener < SbmtKarafka::Instrumentation::LoggerListener
+        include ListenerHelper
+        CUSTOM_ERROR_TYPES = %w[consumer.base.consume_one consumer.inbox.consume_one].freeze
 
         def on_error_occurred(event)
           type = event[:type]
           error = event[:error]
 
-          # catch only consumer-specific errors
-          return unless ALLOWED_ERROR_TYPES.include?(type)
+          # catch here only consumer-specific errors
+          # and let default handler to process other
+          return super unless CUSTOM_ERROR_TYPES.include?(type)
 
           tags = {}
           tags.merge!(consumer_tags(event)) if type == "consumer.base.consume_one"
