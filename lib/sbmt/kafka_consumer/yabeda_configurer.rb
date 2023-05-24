@@ -14,17 +14,14 @@ module Sbmt
               comment: "API calls"
             histogram :latency,
               tags: %i[client broker],
-              unit: :seconds,
               buckets: LATENCY_BUCKETS,
               comment: "API latency"
             histogram :request_size,
               tags: %i[client broker],
-              unit: :bytes,
               buckets: SIZE_BUCKETS,
               comment: "API request size"
             histogram :response_size,
               tags: %i[client broker],
-              unit: :bytes,
               buckets: SIZE_BUCKETS,
               comment: "API response size"
             counter :errors,
@@ -47,7 +44,6 @@ module Sbmt
 
             histogram :process_message_latency,
               tags: %i[client group_id topic partition],
-              unit: :seconds,
               buckets: LATENCY_BUCKETS,
               comment: "Consumer latency"
 
@@ -65,13 +61,11 @@ module Sbmt
 
             histogram :process_batch_latency,
               tags: %i[client group_id topic partition],
-              unit: :seconds,
               buckets: LATENCY_BUCKETS,
               comment: "Consumer batch latency"
 
             histogram :batch_size,
               tags: %i[client group_id topic partition],
-              unit: :bytes,
               buckets: SIZE_BUCKETS,
               comment: "Consumer batch size"
 
