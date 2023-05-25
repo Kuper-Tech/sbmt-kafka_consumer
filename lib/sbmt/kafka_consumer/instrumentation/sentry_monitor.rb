@@ -40,7 +40,7 @@ module Sbmt
         end
 
         def handle_error(payload)
-          Sentry.capture_exception(payload[:error])
+          Sentry.capture_exception(payload[:error]) if payload[:error].respond_to?(:message)
           yield
         end
 
