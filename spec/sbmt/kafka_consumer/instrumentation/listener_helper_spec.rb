@@ -2,7 +2,8 @@
 
 require "rails_helper"
 
-describe Sbmt::KafkaConsumer::Instrumentation::BaseListener do
+describe Sbmt::KafkaConsumer::Instrumentation::ListenerHelper do
+  let(:subject_klass) { Class.new { include Sbmt::KafkaConsumer::Instrumentation::ListenerHelper } }
   let(:event) { double("event") }
   let(:payload) { double("payload") }
 
@@ -14,7 +15,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::BaseListener do
       expect(event).to receive(:[]).with(:message).and_return(message)
       expect(message).to receive(:metadata).and_return(metadata).twice
 
-      expect(described_class.new.send(:consumer_tags, event)).to eq({topic: "topic", partition: 0})
+      expect(subject_klass.new.send(:consumer_tags, event)).to eq({topic: "topic", partition: 0})
     end
   end
 
@@ -28,7 +29,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::BaseListener do
       expect(event).to receive(:[]).with(:event_name).and_return(event_name)
       expect(event).to receive(:[]).with(:status).and_return(status)
 
-      expect(described_class.new.send(:inbox_tags, event))
+      expect(subject_klass.new.send(:inbox_tags, event))
         .to eq(
           {
             inbox_name: inbox_name,
@@ -41,17 +42,17 @@ describe Sbmt::KafkaConsumer::Instrumentation::BaseListener do
 
   describe ".error_message" do
     it "builds correct message when exception provided" do
-      expect(described_class.new.send(:error_message, StandardError.new("test")))
+      expect(subject_klass.new.send(:error_message, StandardError.new("test")))
         .to eq("test")
     end
 
     it "builds correct message when dry-result provided" do
-      expect(described_class.new.send(:error_message, Dry::Monads::Result::Failure.new("test")))
+      expect(subject_klass.new.send(:error_message, Dry::Monads::Result::Failure.new("test")))
         .to eq("test")
     end
 
     it "builds correct message when regular string provided" do
-      expect(described_class.new.send(:error_message, "test"))
+      expect(subject_klass.new.send(:error_message, "test"))
         .to eq("test")
     end
   end
@@ -63,14 +64,14 @@ describe Sbmt::KafkaConsumer::Instrumentation::BaseListener do
       expect(error).to receive(:backtrace).and_return(["backtrace1", "backtrace2"])
       expect(Rails.logger).to receive(:error).with("backtrace1\nbacktrace2")
 
-      described_class.new.send(:log_backtrace, error)
+      subject_klass.new.send(:log_backtrace, error)
     end
 
     it "logs backtrace when dry-result provided" do
       expect(error).to receive(:trace).and_return("trace")
       expect(Rails.logger).to receive(:error).with("trace")
 
-      described_class.new.send(:log_backtrace, error)
+      subject_klass.new.send(:log_backtrace, error)
     end
   end
 end

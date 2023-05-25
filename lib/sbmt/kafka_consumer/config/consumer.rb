@@ -4,7 +4,7 @@ class Sbmt::KafkaConsumer::Config::Consumer < Dry::Struct
   transform_keys(&:to_sym)
 
   attribute :klass, Sbmt::KafkaConsumer::Types::Strict::String
-  attribute? :init_attrs, Sbmt::KafkaConsumer::Types::ConfigAttrs.default({}.freeze)
+  attribute :init_attrs, Sbmt::KafkaConsumer::Types::ConfigAttrs.optional.default({}.freeze)
 
   def instantiate
     target_klass = klass.constantize

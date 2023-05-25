@@ -32,7 +32,8 @@ RSpec.shared_context "with sbmt karafka consumer" do
       SbmtKarafka::Messages::BatchMetadata.new(
         topic: test_topic.name,
         partition: 0,
-        processed_at: Time.zone.now
+        processed_at: Time.zone.now,
+        created_at: Time.zone.now
       )
     )
   end

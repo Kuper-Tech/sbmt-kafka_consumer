@@ -3,7 +3,7 @@
 module Sbmt
   module KafkaConsumer
     module Instrumentation
-      class BaseListener
+      module ListenerHelper
         delegate :logger, to: ::Sbmt::KafkaConsumer
 
         private

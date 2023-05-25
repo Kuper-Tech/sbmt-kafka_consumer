@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.5.0] - 2023-05-23
+
+### Changed
+- add default deserializer (NullDeserializer) to config
+- refactor logging
+
 ## [0.4.0] - 2023-05-19
 
 ### Changed
