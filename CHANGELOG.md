@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.5.1] - 2023-05-25
+
+### Fixed
+- sentry tracing when instrumentation event is not an exception
+- payload deserialization if skip_decoding_error is enabled
+
 ## [0.5.0] - 2023-05-23
 
 ### Changed

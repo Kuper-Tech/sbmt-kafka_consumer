@@ -44,10 +44,20 @@ describe Sbmt::KafkaConsumer::Instrumentation::SentryMonitor do
       end.to raise_error("error")
     end
 
-    it "traces error.occurred event" do
+    it "traces error.occurred event if error is an exception" do
+      ex = StandardError.new("error")
+
       expect(Sentry).to receive(:initialized?).and_return(true)
-      expect(Sentry).to receive(:capture_exception).with("error")
-      expect(payload).to receive(:[]).with(:error).and_return("error")
+      expect(Sentry).to receive(:capture_exception).with(ex)
+      allow(payload).to receive(:[]).with(:error).and_return(ex)
+
+      described_class.new.send(:trace, "error.occurred", payload) {}
+    end
+
+    it "does not trace error.occurred event if event is not an exception" do
+      expect(Sentry).to receive(:initialized?).and_return(true)
+      expect(Sentry).not_to receive(:capture_exception)
+      allow(payload).to receive(:[]).with(:error).and_return("error")
 
       described_class.new.send(:trace, "error.occurred", payload) {}
     end
