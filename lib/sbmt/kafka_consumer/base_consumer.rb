@@ -23,9 +23,12 @@ module Sbmt
             logger.tagged(trace_id: trace_id) do
               log_message(message) if log_payload?
 
+              message.payload
               with_db_retry { process_message(message) }
 
               mark_as_consumed!(message)
+            rescue SkipUndeserializableMessage => ex
+              instrument_error(ex, message)
             rescue => ex
               instrument_error(ex, message)
               raise ex

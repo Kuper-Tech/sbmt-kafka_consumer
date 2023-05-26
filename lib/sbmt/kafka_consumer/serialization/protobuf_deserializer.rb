@@ -11,14 +11,13 @@ module Sbmt
         def initialize(message_decoder_klass:, skip_decoding_error: false)
           super(skip_decoding_error: skip_decoding_error)
 
-          @message_decoder = message_decoder_klass.constantize.new
+          @message_decoder = message_decoder_klass.constantize
         end
 
         def call(message)
           message_decoder.decode(message.raw_payload)
         rescue Google::Protobuf::ParseError, ArgumentError => e
-          ::Sbmt::KafkaConsumer.logger.error("decoding error: #{e.message}")
-          return if skip_decoding_error
+          raise Sbmt::KafkaConsumer::SkipUndeserializableMessage, "cannot decode message: #{e.message}, payload: #{message.raw_payload}" if skip_decoding_error
 
           raise
         end

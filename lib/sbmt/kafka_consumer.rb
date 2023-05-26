@@ -23,6 +23,8 @@ module Sbmt
       end
     end
     class Error < StandardError; end
+
+    class SkipUndeserializableMessage < Error; end
   end
 end
 
