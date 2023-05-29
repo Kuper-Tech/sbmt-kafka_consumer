@@ -109,6 +109,8 @@ production:
       name: имя_группы
       topics:
       - name: имя_топика
+        active: true
+        manual_offset_management: true
         consumer:
           klass: [required] класс консюмера, отнаследованный от BaseConsumer
           init_attrs:
@@ -121,6 +123,8 @@ production:
             key: value
 ...
 ```
+
+P.S. опции `active` (активен ли топик) и `manual_offset_management` (отключить автокоммит оффсетов по завершении обработки батча) включены по умолчанию
 
 #### Конфигурация: env-файл `Kafkafile`
 

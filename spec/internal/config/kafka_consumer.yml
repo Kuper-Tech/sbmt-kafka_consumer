@@ -24,6 +24,11 @@ default: &default
             klass: "SimpleLoggingConsumer"
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+        - name: inactive_topic_with_autocommit
+          active: false
+          manual_offset_management: false
+          consumer:
+            klass: "SimpleLoggingConsumer"
         - name: topic_with_protobuf_data
           consumer:
             klass: "SimpleLoggingConsumer"
