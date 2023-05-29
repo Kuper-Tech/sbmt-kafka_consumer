@@ -51,6 +51,7 @@ module Sbmt
           proto_payload: message.raw_payload,
           options: {
             headers: message.metadata.headers,
+            group_id: topic.consumer_group.id,
             topic: message.metadata.topic,
             partition: message.metadata.partition
           }
