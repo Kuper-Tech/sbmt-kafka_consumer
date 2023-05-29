@@ -49,6 +49,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
           cg.topics.each do |t|
             topic t.name do
               active t.active
+              manual_offset_management t.manual_offset_management
               consumer t.consumer.instantiate
               deserializer t.deserializer.instantiate if t.deserializer.klass.present?
             end

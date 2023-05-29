@@ -62,6 +62,8 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
               topics: [
                 Sbmt::KafkaConsumer::Config::Topic.new(
                   name: "topic_with_inbox_items",
+                  active: true,
+                  manual_offset_management: true,
                   consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
                     klass: "Sbmt::KafkaConsumer::InboxConsumer",
                     init_attrs: {
@@ -81,6 +83,8 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
               topics: [
                 Sbmt::KafkaConsumer::Config::Topic.new(
                   name: "topic_with_json_data",
+                  active: true,
+                  manual_offset_management: true,
                   consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
                     klass: "SimpleLoggingConsumer"
                   ),
@@ -89,7 +93,17 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                   )
                 ),
                 Sbmt::KafkaConsumer::Config::Topic.new(
+                  name: "inactive_topic_with_autocommit",
+                  active: false,
+                  manual_offset_management: false,
+                  consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
+                    klass: "SimpleLoggingConsumer"
+                  )
+                ),
+                Sbmt::KafkaConsumer::Config::Topic.new(
                   name: "topic_with_protobuf_data",
+                  active: true,
+                  manual_offset_management: true,
                   consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
                     klass: "SimpleLoggingConsumer"
                   ),

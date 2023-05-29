@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.6.0] - 2023-05-29
+
+### Added
+- add `manual_offset_management` topic's option (defaults to true)
+
 ## [0.5.1] - 2023-05-25
 
 ### Fixed
