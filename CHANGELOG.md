@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.6.1] - 2023-05-30
+
+### Added
+- set default `source: "KAFKA"` option when creating `inbox_item` in `InboxConsumer`
+
 ## [0.6.0] - 2023-05-29
 
 ### Added
