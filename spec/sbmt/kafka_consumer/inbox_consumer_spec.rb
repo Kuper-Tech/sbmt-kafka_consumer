@@ -16,17 +16,20 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   let(:create_item_result) { Dry::Monads::Result::Success }
   let(:logger) { double(ActiveSupport::TaggedLogging) }
   let(:uuid) { "test-uuid-1" }
+  let(:headers) do
+    {
+      "Idempotency-Key" => uuid,
+      "Dispatched-At" => 5.seconds.ago,
+      "Sequence-ID" => 3
+    }
+  end
 
   before do
     publish_to_sbmt_karafka(
       '{"test":"message"}',
       key: "test-key",
       partition: 10,
-      headers: {
-        "Idempotency-Key" => uuid,
-        "Dispatched-At" => 5.seconds.ago,
-        "Sequence-ID" => 3
-      }
+      headers: headers
     )
   end
 
@@ -45,6 +48,15 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
           inbox_name: "test_inbox_item",
           event_name: nil,
           status: "success"
+        )
+      expect(TestInboxItem.last.options)
+        .to include(
+          {
+            group_id: "some-name_test_group",
+            partition: 10,
+            source: "KAFKA",
+            topic: "test_topic"
+          }
         )
     end
 

@@ -4,6 +4,7 @@ module Sbmt
   module KafkaConsumer
     class InboxConsumer < BaseConsumer
       IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
+      DEFAULT_SOURCE = "KAFKA"
 
       def self.consumer_klass(name:, inbox_item:, event_name: nil)
         klass = Class.new(self)
@@ -53,7 +54,8 @@ module Sbmt
             headers: message.metadata.headers,
             group_id: topic.consumer_group.id,
             topic: message.metadata.topic,
-            partition: message.metadata.partition
+            partition: message.metadata.partition,
+            source: DEFAULT_SOURCE
           }
         }
 
