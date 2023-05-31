@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.7.1] - 2023-05-31
+
+### Fixed
+- db error logging in base consumer
+
 ## [0.7.0] - 2023-05-30
 
 ### Added

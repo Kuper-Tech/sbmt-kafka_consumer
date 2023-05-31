@@ -67,7 +67,7 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
 
     it "retries consuming" do
       expect(::ActiveRecord::Base).to receive(:clear_active_connections!)
-      expect(Rails.logger).not_to receive(:error)
+      allow(Rails.logger).to receive(:error)
 
       consume_with_sbmt_karafka
       expect(consumer).to be_consumed

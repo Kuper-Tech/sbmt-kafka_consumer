@@ -50,9 +50,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "pg"
   spec.add_development_dependency "google-protobuf"
 
-  # let metrics work in dev-mode with combustion
+  # let metrics and probes work in dev-mode with combustion
   # e.g. RAILS_ENV=development bundle exec kafka_consumer
   spec.add_development_dependency "yabeda-prometheus-mmap"
   spec.add_development_dependency "webrick"
   spec.add_development_dependency "rack"
+  spec.add_development_dependency "http_health_check"
 end
