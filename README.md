@@ -9,7 +9,7 @@
 
 Добавить в Gemfile
 ```ruby
-gem "sbmt-kafka_consumer", "~> 0.1.0"
+gem "sbmt-kafka_consumer", "~> 0.7.0"
 ```
 
 Выполнить
@@ -18,7 +18,7 @@ bundle install
 ```
 
 Создать и настроить конфигурационный файл config/kafka_consumer.yml, пример (см. описание параметров ниже):
-```ruby
+```yaml
 default: &default
   client_id: 'some-name'
   max_wait_time: 1
@@ -51,7 +51,7 @@ default: &default
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
     group_ref_id_2:
-      name: cg_with_multiple_topics:
+      name: cg_with_multiple_topics
       topics:
         - name: topic_with_json_data
           consumer:
@@ -66,6 +66,15 @@ default: &default
             init_attrs:
               message_decoder_klass: "Sso::UserRegistration"
               skip_decoding_error: true
+  probes:
+    port: 9394
+    endpoints:
+      liveness:
+        enabled: true
+        timeout: 15
+      readiness:
+        enabled: true
+        path: "/readiness/kafka_consumer"
 
 development:
   <<: *default
@@ -84,7 +93,7 @@ production:
 Поддерживаются две версии: plaintext (дефолт, если не указывать) и SASL-plaintext
 
 Вариант конфигурации SASL-plaintext:
-```ruby
+```yaml
 ...
   auth:
     kind: sasl_plaintext
@@ -101,7 +110,7 @@ production:
 
 #### Конфигурация: блок `consumer_groups`
 
-```ruby
+```yaml
 ...
   consumer_groups:
     # id нужно использовать при запуске процесса консюмера (см. ниже раздел CLI)
@@ -126,28 +135,32 @@ production:
 
 P.S. опции `active` (активен ли топик) и `manual_offset_management` (отключить автокоммит оффсетов по завершении обработки батча) включены по умолчанию
 
+#### Конфигурация: блок `probes`
+
+```yaml
+...
+  probes:
+    port: порт для старта http_health_check-сервера, по умолчанию 9394
+    endpoints:
+      liveness:
+        enabled: включение/выключение пробы (true/false), по умолчанию true
+        path: путь на сервере, по умолчанию "/liveness"
+        timeout: таймаут (в секундах), при превышении которого считать группу "мёртвой", по умолчанию 10
+      readiness:
+        enabled: включение/выключение пробы (true/false), по умолчанию true
+        path: путь на сервере, по умолчанию "/readiness/kafka_consumer"
+...
+```
+
 #### Конфигурация: env-файл `Kafkafile`
 
-Также существует возможность дополнительной конфигурации окружения с помощью `Kafkafile`, может быть удобно для
-- конфигурации readiness/liveness проб
-- конфигурации экспортера метрик
+Также существует возможность дополнительной конфигурации окружения с помощью `Kafkafile`.
 
 Пример `Kafkafile`:
 ```ruby
 # frozen_string_literal: true
 
 require_relative "config/environment"
-
-Thread.new do
-  ::Rack::Handler::WEBrick.run(
-    ::Rack::Builder.new do
-      use ::Yabeda::Prometheus::Exporter if defined?(Yabeda)
-      run health_check_app
-    end,
-    Host: '0.0.0.0',
-    Port: ENV.fetch('PROMETHEUS_EXPORTER_PORT', '9394')
-  )
-end
 
 ```
 
