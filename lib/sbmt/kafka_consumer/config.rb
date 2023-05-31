@@ -26,7 +26,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
   attr_config :client_id,
     :pause_timeout, :pause_max_timeout, :pause_with_exponential_backoff,
     :max_wait_time, :shutdown_timeout, :concurrency,
-    auth: {}, kafka: {}, consumer_groups: {},
+    auth: {}, kafka: {}, consumer_groups: {}, probes: {},
     deserializer_class: "::Sbmt::KafkaConsumer::Serialization::NullDeserializer",
     monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::SentryMonitor",
     logger_class: "::Sbmt::KafkaConsumer::Logger",
@@ -47,6 +47,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
 
   coerce_types kafka: coerce_to(Kafka)
   coerce_types auth: coerce_to(Auth)
+  coerce_types probes: coerce_to(Probes)
   coerce_types consumer_groups: coerce_to_array_of(ConsumerGroup)
 
   def to_kafka_options

@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.7.0] - 2023-05-30
+
+### Added
+- add `Sbmt::KafkaConsumer::Instrumentation::LivenessListener` and `Sbmt::KafkaConsumer::Instrumentation::ReadinessListener` listeners
+- add `probes` option
+- add `HttpHealthCheck` server with probes' endpoints
+
 ## [0.6.1] - 2023-05-30
 
 ### Added

@@ -29,6 +29,9 @@ module Sbmt
           consumer_groups: options[:consumer_group_id],
           concurrency: options[:concurrency]
         )
+
+        Sbmt::KafkaConsumer::Probes::Host.run_async
+
         Sbmt::KafkaConsumer::Server.run
       end
 
