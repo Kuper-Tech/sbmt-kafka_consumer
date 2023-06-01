@@ -13,9 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-## [0.7.2] - 2023-06-01
+## [0.8.0] - 2023-06-01
 
-### Fixed
+### Changed
+- update sbmt-karafka to 2.1.3
 - remove db retries logic as `ActiveRecord::Base::clear_active_connections!` is already handled by karafka v2 after processing a batch
 - async metrics reporting for `statistics.emitted` event to prevent rdkafka's main thread hanging, see https://github.com/karafka/karafka/pull/1420/files
 
