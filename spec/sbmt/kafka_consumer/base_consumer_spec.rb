@@ -66,7 +66,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
     let(:consumer) { build_consumer(consumer_class.new(error: error, reset_error: reset_error)) }
 
     it "retries consuming" do
-      expect(::ActiveRecord::Base).to receive(:clear_active_connections!)
       allow(Rails.logger).to receive(:error)
 
       consume_with_sbmt_karafka
@@ -78,7 +77,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       let(:reset_error) { false }
 
       it "tracks error" do
-        expect(::ActiveRecord::Base).to receive(:clear_active_connections!).exactly(4).times
         allow(Rails.logger).to receive(:error)
 
         consume_with_sbmt_karafka

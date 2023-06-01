@@ -61,11 +61,8 @@ module Sbmt
 
         raise e if attempt > max_db_retries
 
-        logger.error("with_db_retry: #{e.message}, retrying (#{attempt})")
-        ::ActiveRecord::Base.clear_active_connections!
-
         retry_delay = attempt * DEFAULT_RETRY_DELAY_MULTIPLIER
-        logger.info("with_db_retry: sleeping for #{retry_delay}s")
+        logger.info("with_db_retry: attempt #{attempt}, sleeping for #{retry_delay}s")
         sleep(retry_delay)
         retry
       end
