@@ -40,7 +40,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
       it "reports only broker metrics" do
         tags = {client: "some-name", broker: "kafka:9092"}
         expect {
-          described_class.new.on_statistics_emitted(event)
+          described_class.new.send(:report_rdkafka_stats, event, async: false)
         }.to measure_yabeda_histogram(Yabeda.kafka_api.latency).with_tags(tags)
           .and measure_yabeda_histogram(Yabeda.kafka_api.request_size).with_tags(tags)
           .and measure_yabeda_histogram(Yabeda.kafka_api.response_size).with_tags(tags)
@@ -68,7 +68,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
 
       it "reports consumer group metrics" do
         expect {
-          described_class.new.on_statistics_emitted(event)
+          described_class.new.send(:report_rdkafka_stats, event, async: false)
         }.to increment_yabeda_counter(Yabeda.kafka_consumer.consumer_group_rebalances)
           .with_tags(client: "some-name", group_id: "consumer-group-id", state: "up")
       end
@@ -102,7 +102,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
 
       it "reports topic metrics" do
         expect {
-          described_class.new.on_statistics_emitted(event)
+          described_class.new.send(:report_rdkafka_stats, event, async: false)
         }.to update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag)
           .with_tags(client: "some-name", group_id: "consumer-group-id",
             partition: "0", topic: "topic_with_json_data")

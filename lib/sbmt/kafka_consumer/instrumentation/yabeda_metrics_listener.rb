@@ -6,17 +6,12 @@ module Sbmt
       class YabedaMetricsListener
         include ListenerHelper
 
-        def on_statistics_emitted(event)
-          # https://github.com/confluentinc/librdkafka/blob/master/STATISTICS.md
-          stats = event.payload[:statistics]
-          consumer_group_id = event.payload[:consumer_group_id]
-          consumer_group_stats = stats["cgrp"]
-          broker_stats = stats["brokers"]
-          topic_stats = stats["topics"]
+        delegate :logger, to: ::Sbmt::KafkaConsumer
 
-          report_broker_stats(broker_stats)
-          report_consumer_group_stats(consumer_group_id, consumer_group_stats)
-          report_topic_stats(consumer_group_id, topic_stats)
+        def on_statistics_emitted(event)
+          # statistics.emitted is being executed in the main rdkafka thread
+          # so we have to do it in async way to prevent thread's hang issues
+          report_rdkafka_stats(event)
         end
 
         def on_consumer_consumed(event)
@@ -96,6 +91,26 @@ module Sbmt
             topic: consumer.messages.metadata.topic,
             partition: consumer.messages.metadata.partition
           }
+        end
+
+        def report_rdkafka_stats(event, async: true)
+          thread = Thread.new do
+            # https://github.com/confluentinc/librdkafka/blob/master/STATISTICS.md
+            stats = event.payload[:statistics]
+            consumer_group_id = event.payload[:consumer_group_id]
+            consumer_group_stats = stats["cgrp"]
+            broker_stats = stats["brokers"]
+            topic_stats = stats["topics"]
+
+            report_broker_stats(broker_stats)
+            report_consumer_group_stats(consumer_group_id, consumer_group_stats)
+            report_topic_stats(consumer_group_id, topic_stats)
+          rescue => e
+            logger.error("exception happened while reporting rdkafka metrics: #{e.message}")
+            logger.error(e.backtrace&.join("\n"))
+          end
+
+          thread.join unless async
         end
 
         def report_broker_stats(brokers)
