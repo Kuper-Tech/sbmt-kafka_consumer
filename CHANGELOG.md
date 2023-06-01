@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## [0.7.2] - 2023-06-01
 
 ### Fixed
-- remove `ActiveRecord::Base::clear_active_connections!` after consumer db issues as it's already handled by karafka v2
+- remove db retries logic as `ActiveRecord::Base::clear_active_connections!` is already handled by karafka v2 after processing a batch
 - async metrics reporting for `statistics.emitted` event to prevent rdkafka's main thread hanging, see https://github.com/karafka/karafka/pull/1420/files
 
 ## [0.7.1] - 2023-05-31
