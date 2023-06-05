@@ -5,7 +5,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
     config = Sbmt::KafkaConsumer::Config.new
     SbmtKarafka::App.setup do |karafka_config|
       karafka_config.monitor = config.monitor_class.classify.constantize.new
-      karafka_config.logger = config.logger_class.classify.constantize.new
+      karafka_config.logger = Sbmt::KafkaConsumer.logger
       karafka_config.deserializer = config.deserializer_class.classify.constantize.new
 
       karafka_config.client_id = config.client_id

@@ -25,11 +25,15 @@ module Sbmt
 
         load_environment
 
+        $stdout.sync = true
+
+        $stdout.puts "Configuring client..."
         ClientConfigurer.configure!(
           consumer_groups: options[:consumer_group_id],
           concurrency: options[:concurrency]
         )
 
+        $stdout.puts "Starting probes/metrics http-server..."
         Sbmt::KafkaConsumer::Probes::Host.run_async
 
         Sbmt::KafkaConsumer::Server.run

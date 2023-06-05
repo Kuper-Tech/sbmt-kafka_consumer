@@ -19,9 +19,10 @@ module Sbmt
       delegate :monitor, to: SbmtKarafka
 
       def logger
-        @logger ||= Logger.new
+        @logger ||= Rails.logger
       end
     end
+
     class Error < StandardError; end
 
     class SkipUndeserializableMessage < Error; end

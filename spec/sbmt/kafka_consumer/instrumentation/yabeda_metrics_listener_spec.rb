@@ -6,6 +6,10 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
   let(:message) { build(:messages_message) }
   let(:messages) { OpenStruct.new(metadata: build(:messages_batch_metadata), count: 1) }
 
+  before do
+    Sbmt::KafkaConsumer::ClientConfigurer.configure!
+  end
+
   describe ".on_statistics_emitted" do
     let(:base_rdkafka_stats) {
       {
