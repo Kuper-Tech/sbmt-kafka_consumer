@@ -16,11 +16,14 @@ module Sbmt
           process.on_sigtstp { SbmtKarafka::Server.quiet }
           process.supervise
 
+          $stdout.puts "Starting server..."
           SbmtKarafka::Server.start
 
           sleep(0.1) until SbmtKarafka::App.terminated?
           # rubocop:disable Lint/RescueException
         rescue Exception => e
+          $stdout.puts "Cannot start server: #{e.message}"
+
           # rubocop:enable Lint/RescueException
           SbmtKarafka::Server.stop
 

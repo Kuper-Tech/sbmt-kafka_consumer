@@ -3,12 +3,6 @@
 module Sbmt
   module KafkaConsumer
     class BaseConsumer < SbmtKarafka::BaseConsumer
-      DEFAULT_RETRY_DELAY_MULTIPLIER = 10
-      DEFAULT_MAX_DB_RETRIES = 5
-      DEFAULT_DB_ERRORS_TO_HANDLE = [
-        ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished
-      ].freeze
-
       attr_reader :trace_id
 
       def self.consumer_klass(**attrs)
@@ -23,8 +17,11 @@ module Sbmt
             logger.tagged(trace_id: trace_id) do
               log_message(message) if log_payload?
 
+              # deserialization process is lazy (and cached)
+              # so we trigger it explicitly to catch undeserializable message early
               message.payload
-              with_db_retry { process_message(message) }
+
+              process_message(message)
 
               mark_as_consumed!(message)
             rescue SkipUndeserializableMessage => ex
@@ -53,33 +50,8 @@ module Sbmt
         raise NotImplementedError, "Implement this in a subclass"
       end
 
-      def with_db_retry
-        attempt ||= 1
-        yield
-      rescue *db_errors_to_handle => e
-        attempt += 1
-
-        raise e if attempt > max_db_retries
-
-        logger.error("with_db_retry: #{e.message}, retrying (#{attempt})")
-        ::ActiveRecord::Base.clear_active_connections!
-
-        retry_delay = attempt * DEFAULT_RETRY_DELAY_MULTIPLIER
-        logger.info("with_db_retry: sleeping for #{retry_delay}s")
-        sleep(retry_delay)
-        retry
-      end
-
       def log_message(message)
         logger.info("#{message.raw_payload}, message_key: #{message.metadata.key}, message_headers: #{message.metadata.headers}")
-      end
-
-      def db_errors_to_handle
-        @db_errors_to_handle ||= DEFAULT_DB_ERRORS_TO_HANDLE
-      end
-
-      def max_db_retries
-        @max_db_retries ||= DEFAULT_MAX_DB_RETRIES
       end
 
       def instrument_error(error, message)

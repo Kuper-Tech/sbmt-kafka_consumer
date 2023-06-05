@@ -17,25 +17,6 @@ module Sbmt
           def boot_file; false; end
         end
       end
-
-      # it must be consistent with sbmt_karafka initializers' name
-      initializer "sbmt_kafka_consumer_instrumentation.configure_rails_initialization",
-        after: "sbmt_karafka.require_karafka_boot_file" do |app|
-        # for custom rails' versions loading hacks see sbmt_karafka/railtie
-        rails6plus = Rails.gem_version >= Gem::Version.new("6.0.0")
-
-        if rails6plus
-          app.reloader.to_prepare do
-            # Load SbmtKarafka boot file, so it can be used in Rails server context
-            AppInitializer.initialize!
-          end
-        else
-          # Load SbmtKarafka main setup for older Rails versions
-          app.config.after_initialize do
-            AppInitializer.initialize!
-          end
-        end
-      end
     end
   end
 end
