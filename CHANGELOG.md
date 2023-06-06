@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.9.0] - 2023-06-06
+
+### Changed
+- add custom `ConsumerMapper` to be consistent with KarafkaV1 consumer-group naming conventions (e.g. karafka v1 uses underscored client-id in consumer group name)
+
 ## [0.8.0] - 2023-06-01
 
 ### Changed
