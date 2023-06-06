@@ -19,8 +19,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
 
       karafka_config.pause_with_exponential_backoff = config.pause_with_exponential_backoff if config.pause_with_exponential_backoff.present?
 
-      concurrency = (opts[:concurrency]) || config.concurrency if config.concurrency.present?
-      karafka_config.concurrency = concurrency if concurrency
+      karafka_config.concurrency = (opts[:concurrency]) || config.concurrency
 
       # Recreate consumers with each batch. This will allow Rails code reload to work in the
       # development mode. Otherwise SbmtKarafka process would not be aware of code changes

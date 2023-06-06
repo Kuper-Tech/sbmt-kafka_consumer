@@ -5,6 +5,12 @@ module Sbmt
     class BaseConsumer < SbmtKarafka::BaseConsumer
       attr_reader :trace_id
 
+      DEFAULT_RETRY_DELAY_MULTIPLIER = 10
+      DEFAULT_MAX_DB_RETRIES = 5
+      DEFAULT_DB_ERRORS_TO_HANDLE = [
+        ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished
+      ].freeze
+
       def self.consumer_klass(**attrs)
         self
       end
@@ -21,7 +27,7 @@ module Sbmt
               # so we trigger it explicitly to catch undeserializable message early
               message.payload
 
-              process_message(message)
+              with_db_retry { process_message(message) }
 
               mark_as_consumed!(message)
             rescue SkipUndeserializableMessage => ex
@@ -36,6 +42,30 @@ module Sbmt
       end
 
       private
+
+      def with_db_retry
+        attempt ||= 1
+        yield
+      rescue *db_errors_to_handle => e
+        attempt += 1
+
+        raise e if attempt > max_db_retries
+
+        ::ActiveRecord::Base.clear_active_connections!
+
+        retry_delay = attempt * DEFAULT_RETRY_DELAY_MULTIPLIER
+        logger.info("with_db_retry: attempt #{attempt}, sleeping for #{retry_delay}s")
+        sleep(retry_delay)
+        retry
+      end
+
+      def db_errors_to_handle
+        @db_errors_to_handle ||= DEFAULT_DB_ERRORS_TO_HANDLE
+      end
+
+      def max_db_retries
+        @max_db_retries ||= DEFAULT_MAX_DB_RETRIES
+      end
 
       # can be overridden in consumer to enable message logging
       def log_payload?

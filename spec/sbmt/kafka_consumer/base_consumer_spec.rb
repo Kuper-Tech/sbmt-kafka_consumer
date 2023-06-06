@@ -60,16 +60,29 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
     expect(consumer).to be_consumed
   end
 
-  context "when gets exception" do
+  context "when get active record error" do
     let(:error) { ActiveRecord::StatementInvalid }
-    let(:consumer) { build_consumer(consumer_class.new(error: error, reset_error: false)) }
+    let(:reset_error) { true }
+    let(:consumer) { build_consumer(consumer_class.new(error: error, reset_error: reset_error)) }
 
-    it "crashes" do
+    it "retries consuming" do
       allow(Rails.logger).to receive(:error)
 
       consume_with_sbmt_karafka
-      expect(consumer).not_to be_consumed
-      expect(consumer.consume_count).to eq 1
+      expect(consumer).to be_consumed
+      expect(consumer.consume_count).to eq 2
+    end
+
+    context "when error is not recoverable" do
+      let(:reset_error) { false }
+
+      it "tracks error" do
+        allow(Rails.logger).to receive(:error)
+
+        consume_with_sbmt_karafka
+        expect(consumer).not_to be_consumed
+        expect(consumer.consume_count).to eq 5
+      end
     end
   end
 end
