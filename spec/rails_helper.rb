@@ -38,6 +38,8 @@ RSpec.configure do |config|
   config.include FactoryBot::Syntax::Methods
 end
 
+Sbmt::KafkaConsumer::ClientConfigurer.configure!
+
 Dir["#{__dir__}/support/**/*.rb"].sort.each { |f| require f }
 Dir["#{__dir__}/factories/**/*.rb"].sort.each { |f| require f }
 

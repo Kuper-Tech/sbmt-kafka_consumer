@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.9.0] - 2023-06-06
+
+### Changed
+- add custom `ConsumerMapper` to be consistent with KarafkaV1 consumer-group naming conventions (e.g. karafka v1 uses underscored client-id in consumer group name)
+- reuse with_db_retry: release ActiveRecord conn everytime after message processing, in case there's a connection-pool degradation
+
 ## [0.8.0] - 2023-06-01
 
 ### Changed

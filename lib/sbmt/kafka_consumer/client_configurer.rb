@@ -9,6 +9,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
       karafka_config.deserializer = config.deserializer_class.classify.constantize.new
 
       karafka_config.client_id = config.client_id
+      karafka_config.consumer_mapper = Sbmt::KafkaConsumer::Routing::KarafkaV1ConsumerMapper.new
       karafka_config.kafka = config.to_kafka_options
 
       karafka_config.pause_timeout = config.pause_timeout * 1_000 if config.pause_timeout.present?
@@ -18,8 +19,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
 
       karafka_config.pause_with_exponential_backoff = config.pause_with_exponential_backoff if config.pause_with_exponential_backoff.present?
 
-      concurrency = (opts[:concurrency]) || config.concurrency if config.concurrency.present?
-      karafka_config.concurrency = concurrency if concurrency
+      karafka_config.concurrency = (opts[:concurrency]) || config.concurrency
 
       # Recreate consumers with each batch. This will allow Rails code reload to work in the
       # development mode. Otherwise SbmtKarafka process would not be aware of code changes

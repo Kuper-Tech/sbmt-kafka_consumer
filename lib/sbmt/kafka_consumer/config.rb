@@ -25,8 +25,8 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
 
   attr_config :client_id,
     :pause_timeout, :pause_max_timeout, :pause_with_exponential_backoff,
-    :max_wait_time, :shutdown_timeout, :concurrency,
-    auth: {}, kafka: {}, consumer_groups: {}, probes: {},
+    :max_wait_time, :shutdown_timeout,
+    concurrency: 4, auth: {}, kafka: {}, consumer_groups: {}, probes: {},
     deserializer_class: "::Sbmt::KafkaConsumer::Serialization::NullDeserializer",
     monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::SentryMonitor",
     logger_class: "::Sbmt::KafkaConsumer::Logger",
