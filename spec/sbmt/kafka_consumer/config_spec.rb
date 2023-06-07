@@ -86,7 +86,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                   active: true,
                   manual_offset_management: true,
                   consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
-                    klass: "SimpleLoggingConsumer"
+                    klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
                   ),
                   deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
                     klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
@@ -97,7 +97,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                   active: false,
                   manual_offset_management: false,
                   consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
-                    klass: "SimpleLoggingConsumer"
+                    klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
                   )
                 ),
                 Sbmt::KafkaConsumer::Config::Topic.new(
@@ -105,7 +105,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                   active: true,
                   manual_offset_management: true,
                   consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
-                    klass: "SimpleLoggingConsumer"
+                    klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
                   ),
                   deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
                     klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer",

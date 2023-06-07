@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class SimpleLoggingConsumer < Sbmt::KafkaConsumer::BaseConsumer
+class Sbmt::KafkaConsumer::SimpleLoggingConsumer < Sbmt::KafkaConsumer::BaseConsumer
   private
 
   def log_payload?
