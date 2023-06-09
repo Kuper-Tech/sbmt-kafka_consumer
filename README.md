@@ -55,12 +55,12 @@ default: &default
       topics:
         - name: topic_with_json_data
           consumer:
-            klass: "SimpleLoggingConsumer"
+            klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
         - name: topic_with_protobuf_data
           consumer:
-            klass: "SimpleLoggingConsumer"
+            klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer"
             init_attrs:

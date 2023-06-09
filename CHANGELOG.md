@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.10.0] - 2023-06-07
+
+### Added
+- `SimpleLoggingConsumer`, which just consumes/logs messages, can be used for debug purposes
+
 ## [0.9.0] - 2023-06-06
 
 ### Changed
