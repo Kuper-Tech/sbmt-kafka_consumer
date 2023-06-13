@@ -22,6 +22,8 @@ default: &default
         - name: topic_with_json_data
           consumer:
             klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
+            init_attrs:
+              skip_on_error: true
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
         - name: inactive_topic_with_autocommit

@@ -11,8 +11,10 @@ module Sbmt
         ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished
       ].freeze
 
-      def self.consumer_klass(**attrs)
-        self
+      def self.consumer_klass(skip_on_error: false)
+        klass = Class.new(self)
+        klass.const_set(:SKIP_ON_ERROR, skip_on_error)
+        klass
       end
 
       def consume
@@ -35,13 +37,17 @@ module Sbmt
               instrument_error(ex, message)
             rescue => ex
               instrument_error(ex, message)
-              raise ex
+              raise ex unless skip_on_error
             end
           end
         end
       end
 
       private
+
+      def skip_on_error
+        self.class::SKIP_ON_ERROR
+      end
 
       def with_db_retry
         attempt ||= 1

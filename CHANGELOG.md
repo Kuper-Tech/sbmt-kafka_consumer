@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.11.0] - 2023-06-13
+
+### Added
+- `skip_on_error` consumer option to skip message processing (and commit offsets) if exception was raised
+
 ## [0.10.0] - 2023-06-07
 
 ### Added

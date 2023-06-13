@@ -50,7 +50,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
             topic t.name do
               active t.active
               manual_offset_management t.manual_offset_management
-              consumer t.consumer.instantiate
+              consumer t.consumer.consumer_klass
               deserializer t.deserializer.instantiate if t.deserializer.klass.present?
             end
           end

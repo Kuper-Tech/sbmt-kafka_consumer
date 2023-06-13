@@ -6,7 +6,7 @@ class Sbmt::KafkaConsumer::Config::Consumer < Dry::Struct
   attribute :klass, Sbmt::KafkaConsumer::Types::Strict::String
   attribute :init_attrs, Sbmt::KafkaConsumer::Types::ConfigAttrs.optional.default({}.freeze)
 
-  def instantiate
+  def consumer_klass
     target_klass = klass.constantize
 
     return target_klass.consumer_klass if init_attrs.blank?
