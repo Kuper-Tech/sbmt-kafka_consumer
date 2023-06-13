@@ -85,4 +85,22 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       end
     end
   end
+
+  context "when consumer raises exception" do
+    let(:consumer_class) do
+      base_klass = described_class.consumer_klass(skip_on_error: true)
+      Class.new(base_klass) do
+        def process_message(_message)
+          raise "always throws an exception"
+        end
+      end
+    end
+    let(:consumer) { build_consumer(consumer_class.new) }
+
+    it "skips message if skip_on_error is set" do
+      expect(Rails.logger).to receive(:error).twice
+
+      consume_with_sbmt_karafka
+    end
+  end
 end
