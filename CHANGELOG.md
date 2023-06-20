@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.12.0] - 2023-06-20
+
+### Changed
+- README improvements
+- update sbmt-waterdrop (via sbmt-karafka) to fix karafka-rdkafka 0.13 compatibility issue
+
 ## [0.11.0] - 2023-06-13
 
 ### Added
