@@ -18,15 +18,17 @@ module Sbmt
       private
 
       def process_message(message)
-        ::Sbmt::KafkaConsumer.monitor.instrument(
-          "consumer.inbox.consumed_one", caller: self,
-          message: message,
-          message_uuid: message_uuid(message),
-          inbox_name: inbox_name,
-          event_name: event_name,
-          status: "success"
-        ) do
-          process_inbox_item(message)
+        logger.tagged(inbox_name: inbox_name, event_name: event_name) do
+          ::Sbmt::KafkaConsumer.monitor.instrument(
+            "consumer.inbox.consumed_one", caller: self,
+            message: message,
+            message_uuid: message_uuid(message),
+            inbox_name: inbox_name,
+            event_name: event_name,
+            status: "success"
+          ) do
+            process_inbox_item(message)
+          end
         end
       end
 

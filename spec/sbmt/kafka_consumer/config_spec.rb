@@ -92,7 +92,10 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                     }
                   ),
                   deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
-                    klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+                    klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer",
+                    init_attrs: {
+                      skip_decoding_error: true
+                    }
                   )
                 ),
                 Sbmt::KafkaConsumer::Config::Topic.new(

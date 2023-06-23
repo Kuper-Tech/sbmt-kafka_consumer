@@ -34,9 +34,7 @@ module Sbmt
           message = payload[:message]
           trace_id = payload[:trace_id]
 
-          with_time_logging do
-            with_sentry_transaction(trace_id, message, &block)
-          end
+          with_sentry_transaction(trace_id, message, &block)
         end
 
         def handle_error(payload)
@@ -75,16 +73,6 @@ module Sbmt
 
           transaction.set_http_status(status)
           transaction.finish
-        end
-
-        def with_time_logging
-          start = Time.current
-          logger.info("PROCESS MESSAGE: START")
-
-          yield
-
-          finish = Time.current
-          logger.info("PROCESS MESSAGE: FINISH, time: #{finish - start}")
         end
       end
     end
