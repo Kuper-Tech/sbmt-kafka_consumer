@@ -58,4 +58,11 @@ class Sbmt::KafkaConsumer::ClientConfigurer
       end
     end
   end
+
+  def self.routes
+    SbmtKarafka::App.routes.map do |cg|
+      topics = cg.topics.map { |t| {name: t.name, deserializer: t.deserializer} }
+      {group: cg.id, topics: topics}
+    end
+  end
 end

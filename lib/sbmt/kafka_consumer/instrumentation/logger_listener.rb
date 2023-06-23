@@ -16,8 +16,7 @@ module Sbmt
           return super unless CUSTOM_ERROR_TYPES.include?(type)
 
           tags = {}
-          tags.merge!(consumer_tags(event)) if type == "consumer.base.consume_one"
-          tags.merge!(inbox_tags(event)) if type == "consumer.inbox.consume_one"
+          tags[:status] = event[:status] if type == "consumer.inbox.consume_one"
 
           logger.tagged(
             type: type,
@@ -30,19 +29,13 @@ module Sbmt
 
         # BaseConsumer events
         def on_consumer_consumed_one(event)
-          logger.tagged(
-            **consumer_tags(event)
-          ) do
-            logger.info("Successfully consumed message")
-          end
+          logger.info("Successfully consumed message in #{event.payload[:time]} ms")
         end
 
         # InboxConsumer events
         def on_consumer_inbox_consumed_one(event)
-          logger.tagged(
-            **inbox_tags(event)
-          ) do
-            logger.info("Successfully consumed message with uuid: #{event[:message_uuid]}")
+          logger.tagged(status: event[:status]) do
+            logger.info("Successfully consumed message with uuid: #{event[:message_uuid]} in #{event.payload[:time]} ms")
           end
         end
       end

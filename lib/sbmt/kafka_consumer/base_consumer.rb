@@ -19,31 +19,51 @@ module Sbmt
 
       def consume
         messages.each do |message|
-          @trace_id = SecureRandom.base58
+          with_instrumentation(message) { do_consume(message) }
+        end
+      end
 
-          ::Sbmt::KafkaConsumer.monitor.instrument("consumer.consumed_one", caller: self, message: message, trace_id: trace_id) do
-            logger.tagged(trace_id: trace_id) do
-              log_message(message) if log_payload?
+      private
 
-              # deserialization process is lazy (and cached)
-              # so we trigger it explicitly to catch undeserializable message early
-              message.payload
+      def with_instrumentation(message)
+        @trace_id = SecureRandom.base58
 
-              with_db_retry { process_message(message) }
+        logger.tagged(
+          trace_id: trace_id,
+          topic: message.metadata.topic, partition: message.metadata.partition,
+          key: message.metadata.key, offset: message.metadata.offset
+        ) do
+          ::Sbmt::KafkaConsumer.monitor.instrument(
+            "consumer.consumed_one",
+            caller: self, message: message, trace_id: trace_id
+          ) do
+            do_consume(message)
+          rescue SkipUndeserializableMessage => ex
+            instrument_error(ex, message)
+            logger.warn("skipping undeserializable message: #{ex.message}")
+          rescue => ex
+            instrument_error(ex, message)
 
-              mark_as_consumed!(message)
-            rescue SkipUndeserializableMessage => ex
-              logger.warn("skipping undeserializable message: #{ex.message}")
-              instrument_error(ex, message)
-            rescue => ex
-              instrument_error(ex, message)
-              raise ex unless skip_on_error
+            if skip_on_error
+              logger.warn("skipping unprocessable message: #{ex.message}, message: #{message_payload(message).inspect}")
+            else
+              raise ex
             end
           end
         end
       end
 
-      private
+      def do_consume(message)
+        log_message(message) if log_payload?
+
+        # deserialization process is lazy (and cached)
+        # so we trigger it explicitly to catch undeserializable message early
+        message.payload
+
+        with_db_retry { process_message(message) }
+
+        mark_as_consumed!(message)
+      end
 
       def skip_on_error
         self.class::SKIP_ON_ERROR
@@ -87,8 +107,7 @@ module Sbmt
       end
 
       def log_message(message)
-        payload = message.payload || message.raw_payload
-        logger.info("#{payload}, message_key: #{message.metadata.key}, message_headers: #{message.metadata.headers}")
+        logger.info("#{message_payload(message).inspect}, message_key: #{message.metadata.key}, message_headers: #{message.metadata.headers}")
       end
 
       def instrument_error(error, message)
@@ -99,6 +118,10 @@ module Sbmt
           message: message,
           type: "consumer.base.consume_one"
         )
+      end
+
+      def message_payload(message)
+        message.payload || message.raw_payload
       end
     end
   end

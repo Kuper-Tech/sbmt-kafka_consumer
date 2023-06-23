@@ -16,7 +16,7 @@ module Sbmt
           process.on_sigtstp { SbmtKarafka::Server.quiet }
           process.supervise
 
-          $stdout.puts "Starting server..."
+          $stdout.puts "Starting server"
           SbmtKarafka::Server.start
 
           sleep(0.1) until SbmtKarafka::App.terminated?

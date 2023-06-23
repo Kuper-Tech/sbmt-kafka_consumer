@@ -26,6 +26,8 @@ default: &default
               skip_on_error: true
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+            init_attrs:
+              skip_decoding_error: true
         - name: inactive_topic_with_autocommit
           active: false
           manual_offset_management: false
