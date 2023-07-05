@@ -73,6 +73,8 @@ module Sbmt
 
         if message.metadata.key
           attrs[:event_key] = message.metadata.key
+        elsif inbox_item_class.respond_to?(:event_key)
+          attrs[:event_key] = inbox_item_class.event_key(message)
         else
           # if message has no partitioning key (poisoned?),
           # set it to something random like offset and log it

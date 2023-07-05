@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.13.1] - 2023-06-20
+
+### Added
+- `event_key` callback added to `Sbmt::KafkaConsumer::InboxConsumer`
+
 ## [0.13.0] - 2023-06-20
 
 ### Changed
