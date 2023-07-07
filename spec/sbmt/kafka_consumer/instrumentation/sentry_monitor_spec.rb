@@ -4,7 +4,7 @@ require "rails_helper"
 
 describe Sbmt::KafkaConsumer::Instrumentation::SentryMonitor do
   let(:payload) { double("payload") }
-  let(:message) { OpenStruct.new(topic: "topic", offset: 0) }
+  let(:message) { OpenStruct.new(topic: "topic", offset: 0, metadata: {topic: "topic"}, payload: "message payload") }
   let(:sentry_transaction) { instance_double(Sentry::Transaction) }
 
   describe ".trace" do
@@ -44,22 +44,61 @@ describe Sbmt::KafkaConsumer::Instrumentation::SentryMonitor do
       end.to raise_error("error")
     end
 
-    it "traces error.occurred event if error is an exception" do
-      ex = StandardError.new("error")
+    context "when event is error.occurred" do
+      let(:caller) { double("consumer instance") }
+      let(:sentry_scope) { double("sentry scope") }
 
-      expect(Sentry).to receive(:initialized?).and_return(true)
-      expect(Sentry).to receive(:capture_exception).with(ex)
-      allow(payload).to receive(:[]).with(:error).and_return(ex)
+      before do
+        allow(caller).to receive(:messages).and_return([message])
+        allow(Sentry).to receive(:initialized?).and_return(true)
+        allow(Sentry).to receive(:with_scope).and_yield(sentry_scope)
+        allow(payload).to receive(:[]).with(:message).and_return(message)
+        allow(payload).to receive(:[]).with(:type).and_return("consumer.base.consume_one")
+      end
 
-      described_class.new.send(:trace, "error.occurred", payload) {}
-    end
+      it "traces event without log_payload? enabled" do
+        ex = StandardError.new("error")
 
-    it "does not trace error.occurred event if event is not an exception" do
-      expect(Sentry).to receive(:initialized?).and_return(true)
-      expect(Sentry).not_to receive(:capture_exception)
-      allow(payload).to receive(:[]).with(:error).and_return("error")
+        expect(Sentry).to receive(:capture_exception).with(ex)
+        allow(payload).to receive(:[]).with(:error).and_return(ex)
+        allow(payload).to receive(:[]).with(:caller).and_return(caller)
+        allow(caller).to receive(:log_payload?).and_return(false)
 
-      described_class.new.send(:trace, "error.occurred", payload) {}
+        described_class.new.send(:trace, "error.occurred", payload) {}
+      end
+
+      it "traces event if caller is nil" do
+        ex = StandardError.new("error")
+
+        expect(Sentry).to receive(:capture_exception).with(ex)
+        expect(payload).to receive(:[]).with(:caller).and_return(nil)
+        expect(payload).to receive(:[]).with(:type).and_return(nil)
+        allow(payload).to receive(:[]).with(:error).and_return(ex)
+
+        described_class.new.send(:trace, "error.occurred", payload) {}
+      end
+
+      it "traces event with log_payload? enabled" do
+        ex = StandardError.new("error")
+
+        expect(Sentry).to receive(:capture_exception).with(ex)
+        expect(sentry_scope).to receive(:set_contexts).with(contexts: {
+          payload: message.payload,
+          metadata: message.metadata
+        })
+        allow(payload).to receive(:[]).with(:error).and_return(ex)
+        allow(payload).to receive(:[]).with(:caller).and_return(caller)
+        allow(caller).to receive(:log_payload?).and_return(true)
+
+        described_class.new.send(:trace, "error.occurred", payload) {}
+      end
+
+      it "does not trace error.occurred event if event is not an exception" do
+        expect(Sentry).not_to receive(:capture_exception)
+        allow(payload).to receive(:[]).with(:error).and_return("error")
+
+        described_class.new.send(:trace, "error.occurred", payload) {}
+      end
     end
   end
 end
