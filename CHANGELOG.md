@@ -13,7 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-## [0.13.1] - 2023-06-20
+## [0.14.0] - 2023-07-06
+
+### Added
+- report message payload and headers to Sentry if consumer detailed logging is enabled
+
+## [0.13.1] - 2023-07-05
 
 ### Added
 - `event_key` callback added to `Sbmt::KafkaConsumer::InboxConsumer`

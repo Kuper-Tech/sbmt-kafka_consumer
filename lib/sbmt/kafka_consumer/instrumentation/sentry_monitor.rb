@@ -6,6 +6,11 @@ module Sbmt
       class SentryMonitor < BaseMonitor
         delegate :logger, to: ::Sbmt::KafkaConsumer
 
+        CONSUMER_ERROR_TYPES = %w[
+          consumer.base.consume_one
+          consumer.inbox.consume_one
+        ].freeze
+
         TRACEABLE_EVENTS = %w[
           consumer.consumed_one
           error.occurred
@@ -38,7 +43,24 @@ module Sbmt
         end
 
         def handle_error(payload)
-          Sentry.capture_exception(payload[:error]) if payload[:error].respond_to?(:message)
+          return yield unless payload[:error].respond_to?(:message)
+
+          consumer = payload[:caller]
+          event_type = payload[:type]
+
+          Sentry.with_scope do |scope|
+            message = payload[:message]
+            # if detailed logging is enabled
+            # send payload to Sentry
+            if consumer_event_type?(event_type) && detailed_logging_enabled?(consumer)
+              scope.set_contexts(contexts: {
+                payload: message_payload(message),
+                metadata: message.metadata
+              })
+            end
+            Sentry.capture_exception(payload[:error])
+          end
+
           yield
         end
 
@@ -73,6 +95,22 @@ module Sbmt
 
           transaction.set_http_status(status)
           transaction.finish
+        end
+
+        def message_payload(message)
+          message.payload
+        rescue => _ex
+          # payload triggers deserializations error
+          # so in that case we return raw_payload
+          message.raw_payload
+        end
+
+        def consumer_event_type?(event_type)
+          CONSUMER_ERROR_TYPES.include?(event_type)
+        end
+
+        def detailed_logging_enabled?(consumer)
+          consumer.send(:log_payload?)
         end
       end
     end
