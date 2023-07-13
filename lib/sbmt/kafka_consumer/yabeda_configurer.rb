@@ -10,22 +10,22 @@ module Sbmt
         Yabeda.configure do
           group :kafka_api do
             counter :calls,
-              tags: %i[client broker],
+              tags: %i[client broker api],
               comment: "API calls"
             histogram :latency,
-              tags: %i[client broker],
+              tags: %i[client broker api],
               buckets: LATENCY_BUCKETS,
               comment: "API latency"
             histogram :request_size,
-              tags: %i[client broker],
+              tags: %i[client broker api],
               buckets: SIZE_BUCKETS,
               comment: "API request size"
             histogram :response_size,
-              tags: %i[client broker],
+              tags: %i[client broker api],
               buckets: SIZE_BUCKETS,
               comment: "API response size"
             counter :errors,
-              tags: %i[client broker],
+              tags: %i[client broker api],
               comment: "API errors"
           end
 
