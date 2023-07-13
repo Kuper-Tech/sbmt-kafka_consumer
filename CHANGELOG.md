@@ -13,10 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-## [0.15.0] - yyyy-mm-dd
+## [0.14.1] - yyyy-mm-dd
 
 ### Added
 - add label `api` for group `kafka_api`
+
+### Changed
+- README improvements
 
 ## [0.14.0] - 2023-07-06
 

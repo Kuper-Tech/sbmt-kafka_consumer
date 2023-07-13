@@ -9,7 +9,7 @@
 
 Добавить в Gemfile
 ```ruby
-gem "sbmt-kafka_consumer", "~> 0.7.0"
+gem "sbmt-kafka_consumer", "~> 0.14.0"
 ```
 
 Выполнить
