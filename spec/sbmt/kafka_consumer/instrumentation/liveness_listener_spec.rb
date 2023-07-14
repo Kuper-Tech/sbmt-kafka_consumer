@@ -11,7 +11,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
   before do
     allow(SbmtKarafka::App).to receive(:routes).and_return([consumer_group])
 
-    travel_to Time.now.utc
+    travel_to Time.now.utc # rubocop:disable Rails/TravelToWithoutBlock
   end
 
   after do
