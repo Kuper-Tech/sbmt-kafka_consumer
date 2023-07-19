@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.14.2] - 2023-07-19
+
+### Changed
+- `.clear_all_connections!` is now called for all DB roles
+
 ## [0.14.1] - yyyy-mm-dd
 
 ### Added
