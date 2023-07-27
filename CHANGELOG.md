@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.16.0] - 2023-07-27
+
+### Added
+
+- additional tags (client, group_id, partition, topic) for metric `kafka_consumer_inbox_consumes`
+
 ## [0.15.0] - 2023-07-21
 
 ### Added
