@@ -1,0 +1,22 @@
+    '<%= file_name %>':
+      name: <%%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_NAME'){ '<%= group_name %>' } %><%%= ENV.fetch('CONSUMER_GROUP_SUFFIX'){ '' } %>
+<%- if @items.empty? -%>
+      topics: []
+<%- else -%>
+      topics:
+      <%- @items.each do |topic, item_name| -%>
+        <%- next if topic.blank? -%>
+        <%- inbox_item = item_name.presence || "YourModelName::InboxItem" -%>
+        <%- consumer_name = inbox_item.split('::').first.presence || "#{topic}_item" -%>
+        - name: "<%= topic %>"
+          consumer:
+            # Change the line below to the desired consumer
+            # if InboxConsumer doesn't suit your needs
+            klass: "Sbmt::KafkaConsumer::InboxConsumer"
+            init_attrs:
+              name: "<%= consumer_name.underscore.pluralize %>"
+              inbox_item: "<%= inbox_item %>"
+#          deserializer: # This deserializer is used by default
+#            klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
+      <%- end -%>
+<%- end -%>

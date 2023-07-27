@@ -1,0 +1,22 @@
+Description:
+    Inserts a consumer group's default configuration.
+    It accepts a group key, a group name and an optional array of topics as arguments.
+
+
+Example:
+    bin/rails generate kafka_consumer:inbox_consumer group_key group.name topic.name
+
+    This will insert:
+        'group_key':
+          name: <%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_NAME'){ 'group.name' } %><%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_SUFFIX'){ '' } %>
+          topics:
+            - name: 'topic.name'
+              consumer:
+                # Change the line below to the desired consumer
+                # if InboxConsumer doesn't suit your needs
+                klass: "Sbmt::KafkaConsumer::InboxConsumer"
+                init_attrs:
+                  name: "test_items"
+                  inbox_item: "SomeModelInboxItem" # Change this to your item class name
+    #          deserializer: # This deserializer is used by default
+    #            klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"

@@ -1,0 +1,24 @@
+Description:
+    Stubs out a new non-inbox consumer. Pass the consumer name, either
+     CamelCased or under_scored.
+
+Example:
+    bin/rails generate kafka_consumer:consumer Test
+
+    This will create:
+        app/consumers/test_consumer.rb
+
+    This will optionally insert:
+        'group_key':
+          name: <%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_NAME'){ 'group.name' } %><%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_SUFFIX'){ '' } %>
+          topics:
+            - name: 'topic.name'
+              consumer:
+                klass: "TestConsumer"
+#                init_attrs:
+#                  skip_on_error: false # This is the default value
+              deserializer:
+                klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer"
+                init_attrs:
+                  message_decoder_klass: "YourMessageDecoderClassName"
+#                  skip_decoding_error: false # This is the default value

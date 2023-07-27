@@ -1,0 +1,59 @@
+default: &default
+  client_id: 'some-name'
+  max_wait_time: 1
+  shutdown_timeout: 60
+  concurrency: 4
+  pause_timeout: 1
+  pause_max_timeout: 30
+  pause_with_exponential_backoff: true
+  auth:
+    kind: plaintext
+  kafka:
+    servers: "kafka:9092"
+    heartbeat_timeout: 5
+    session_timeout: 30
+    reconnect_timeout: 3
+    connect_timeout: 5
+    socket_timeout: 30
+    kafka_options:
+      allow.auto.create.topics: true
+  consumer_groups:
+#    group_ref_id_1:
+#      name: cg_with_single_topic
+#      topics:
+#        - name: topic_with_inbox_items
+#          consumer:
+#            klass: "Sbmt::KafkaConsumer::InboxConsumer"
+#            init_attrs:
+#              name: "test_items"
+#              inbox_item: "TestInboxItem"
+#          deserializer:
+#            klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
+#    group_ref_id_2:
+#      name: cg_with_multiple_topics
+#      topics:
+#        - name: topic_with_json_data
+#          consumer:
+#            klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
+#          deserializer:
+#            klass: "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+#        - name: topic_with_protobuf_data
+#          consumer:
+#            klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
+#          deserializer:
+#            klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer"
+#            init_attrs:
+#              message_decoder_klass: "Sso::UserRegistration"
+#              skip_decoding_error: true
+  probes:
+    port: 9394
+
+development:
+  <<: *default
+test:
+  <<: *default
+  deliver: false
+staging: &staging
+  <<: *default
+production:
+  <<: *staging

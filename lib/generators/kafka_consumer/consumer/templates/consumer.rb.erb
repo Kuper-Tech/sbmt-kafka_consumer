@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+<%- module_namespacing do -%>
+class <%= @consumer_name %> < Sbmt::KafkaConsumer::BaseConsumer
+  def process_message(_message)
+    # Add message processing here
+  end
+end
+<%- end -%>

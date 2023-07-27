@@ -1,0 +1,13 @@
+    '<%= @group_key %>':
+      name: <%%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_NAME'){ "<%= @group_name %>" } %><%%= ENV.fetch('ENV_VARIABLE_WITH_GROUP_SUFFIX'){ "" } %>
+      topics:
+        - name: "<%= @topic.presence || "insert-your-topic-name-here" %>"
+          consumer:
+            klass: "<%= @consumer_name %>"
+#            init_attrs:
+#              skip_on_error: false # This is the default value
+          deserializer:
+            klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer"
+            init_attrs:
+              message_decoder_klass: "YourMessageDecoderClassName"
+#              skip_decoding_error: false # This is the default value
