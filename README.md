@@ -17,7 +17,8 @@ gem "sbmt-kafka_consumer", "~> 0.14.0"
 bundle install
 ```
 
-Создать и настроить конфигурационный файл config/kafka_consumer.yml, пример (см. описание в разделах ниже):
+Создать и настроить конфигурационный файл config/kafka_consumer.yml.
+Для быстрой настройки см. раздел [Генераторы](#генераторы). Пример (см. описание в разделах ниже):
 ```yaml
 default: &default
   client_id: 'some-name' # значение параметра крайне важно при миграции на существующую консюмер-группу, см. раздел ниже
@@ -87,6 +88,32 @@ production:
   <<: *staging
 
 ```
+
+## Генераторы
+
+Для упрощения первоначальной настройки и создания consumer реализованы rails-генераторы
+
+### Настройка первоначальной конфигурации гема
+
+Базовая конфигурация:
+
+```shell
+bundle exec rails g kafka_consumer:install
+```
+
+### Создание не-инбокс консюмера
+
+```shell
+bundle exec rails g kafka_consumer:consumer MaybeNamespaced::Name
+```
+
+### Создание консюмер группы
+
+```shell
+bundle exec rails g kafka_consumer:consumer_group group_key group_name [topic topic...]
+```
+
+В `config/kafka_consumer.yml` будет настроена группа и консюмер (InboxConsumer по умолчанию).
 
 #### Конфигурация: `client_id`
 

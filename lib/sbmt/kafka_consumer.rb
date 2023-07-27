@@ -42,6 +42,7 @@ loader.do_not_eager_load("#{__dir__}/kafka_consumer/serialization/protobuf_deser
 # because testing.rb just requires some files and does not contain any constants (e.g. Testing) which Zeitwerk expects
 loader.ignore("#{__dir__}/kafka_consumer/testing.rb")
 loader.ignore("#{__dir__}/kafka_consumer/testing")
+loader.ignore("#{File.expand_path("../", __dir__)}/generators")
 
 loader.inflector.inflect("cli" => "CLI")
 loader.inflector.inflect("version" => "VERSION")

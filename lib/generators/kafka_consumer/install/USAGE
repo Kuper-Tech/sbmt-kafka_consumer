@@ -1,0 +1,9 @@
+Description:
+    Generates the Kafka consumer's initial setup
+
+Example:
+    bin/rails generate kafka_consumer:install
+
+    This will create:
+        Kafkafile
+        config/kafka_consumer.yml
