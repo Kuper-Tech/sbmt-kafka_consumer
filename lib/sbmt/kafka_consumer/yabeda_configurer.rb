@@ -78,7 +78,10 @@ module Sbmt
               comment: "Consumer pause duration"
 
             counter :inbox_consumes,
-              tags: %i[inbox_name event_name status],
+              tags: %i[
+                client group_id topic partition
+                inbox_name event_name status
+              ],
               comment: "Inbox item consumes"
           end
         end

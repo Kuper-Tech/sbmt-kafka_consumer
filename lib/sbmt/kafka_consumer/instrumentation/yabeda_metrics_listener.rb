@@ -57,7 +57,7 @@ module Sbmt
           Yabeda
             .kafka_consumer
             .inbox_consumes
-            .increment(inbox_tags(event))
+            .increment(consumer_inbox_tags(event))
         end
 
         def on_error_occurred(event)
@@ -78,7 +78,7 @@ module Sbmt
               .increment(consumer_base_tags(caller))
           when "consumer.inbox.consume_one"
             Yabeda.kafka_consumer.inbox_consumes
-              .increment(inbox_tags(event))
+              .increment(consumer_inbox_tags(event))
           end
         end
 
@@ -91,6 +91,13 @@ module Sbmt
             topic: consumer.messages.metadata.topic,
             partition: consumer.messages.metadata.partition
           }
+        end
+
+        def consumer_inbox_tags(event)
+          caller = event[:caller]
+
+          consumer_base_tags(caller)
+            .merge(inbox_tags(event))
         end
 
         def report_rdkafka_stats(event, async: true)

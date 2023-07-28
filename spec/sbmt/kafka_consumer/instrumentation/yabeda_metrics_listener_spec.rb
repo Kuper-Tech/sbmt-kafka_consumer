@@ -148,16 +148,18 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
   describe ".on_consumer_inbox_consumed_one" do
     let(:inbox_tags) do
       {
-        inbox_name: "inbox",
-        event_name: "event",
-        status: "status"
+        client: "some-name", group_id: "group_id", partition: 0, topic: "topic",
+        inbox_name: "inbox", event_name: "event", status: "status"
       }
     end
+
+    let(:topic) { OpenStruct.new(consumer_group: OpenStruct.new(id: "group_id")) }
+    let(:consumer) { OpenStruct.new(topic: topic, messages: messages) }
 
     let(:event) do
       Karafka::Core::Monitoring::Event.new(
         "consumer.consumed",
-        inbox_tags
+        inbox_tags.merge(caller: consumer)
       )
     end
 
@@ -211,9 +213,8 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
     context "when error type is consumer.inbox.consume_one" do
       let(:inbox_tags) do
         {
-          inbox_name: "inbox",
-          event_name: "event",
-          status: "status"
+          client: "some-name", group_id: "group_id", partition: 0, topic: "topic",
+          inbox_name: "inbox", event_name: "event", status: "status"
         }
       end
       let(:event) { Karafka::Core::Monitoring::Event.new("error.occurred", caller: consumer, type: "consumer.inbox.consume_one", **inbox_tags) }
