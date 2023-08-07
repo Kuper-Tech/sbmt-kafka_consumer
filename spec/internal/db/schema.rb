@@ -3,6 +3,7 @@
 ActiveRecord::Schema.define do
   create_table :test_inbox_items do |t|
     t.string :uuid, null: false
+    t.string :event_name, null: false
     t.bigint :event_key, null: false
     t.bigint :bucket, null: false
     t.json :options
@@ -16,6 +17,6 @@ ActiveRecord::Schema.define do
 
   add_index :test_inbox_items, :uuid, unique: true
   add_index :test_inbox_items, [:status, :bucket]
-  add_index :test_inbox_items, :event_key
+  add_index :test_inbox_items, [:event_name, :event_key]
   add_index :test_inbox_items, :created_at
 end

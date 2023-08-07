@@ -15,6 +15,10 @@ module Sbmt
         klass
       end
 
+      def extra_message_attrs(_message)
+        {}
+      end
+
       private
 
       def process_message(message)
@@ -47,8 +51,13 @@ module Sbmt
       rescue ActiveRecord::RecordNotUnique
         instrument_error("Skipped duplicate message for #{inbox_name}, message_uuid: #{message_uuid(message)}", message, "duplicate")
       rescue => ex
-        instrument_error(ex, message)
-        raise ex
+        if skip_on_error
+          logger.warn("skipping unprocessable message for #{inbox_name}, message_uuid: #{message_uuid(message)}")
+          instrument_error(ex, message, "skipped")
+        else
+          instrument_error(ex, message)
+          raise ex
+        end
       end
 
       def message_attrs(message)
@@ -84,7 +93,7 @@ module Sbmt
 
         attrs[:event_name] = event_name if inbox_item_class.has_attribute?(:event_name)
 
-        attrs
+        attrs.merge(extra_message_attrs(message))
       end
 
       def message_uuid(message)

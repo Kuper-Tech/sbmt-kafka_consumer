@@ -9,7 +9,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
       karafka_config.deserializer = config.deserializer_class.classify.constantize.new
 
       karafka_config.client_id = config.client_id
-      karafka_config.consumer_mapper = Sbmt::KafkaConsumer::Routing::KarafkaV1ConsumerMapper.new
+      karafka_config.consumer_mapper = config.consumer_mapper_class.classify.constantize.new
       karafka_config.kafka = config.to_kafka_options
 
       karafka_config.pause_timeout = config.pause_timeout * 1_000 if config.pause_timeout.present?

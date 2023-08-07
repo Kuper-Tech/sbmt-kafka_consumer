@@ -5,5 +5,6 @@ FactoryBot.define do
     proto_payload { "test" }
     sequence :event_key
     bucket { 0 }
+    event_name { "event-name" }
   end
 end
