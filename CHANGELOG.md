@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.17.0] - 2023-08-07
+
+### Added
+
+- ability to configure consumer group mapper in `kafka_consumer.yml` (needed for proper migration from existing karafka v2 based consumers)
+- ability to define/override inbox-item attributes in InboxConsumer
+
+### Fixed
+- report `kafka_consumer_inbox_consumes` metric with tag `status = skipped` (instead `failure`) if skip_on_error is enabled on InboxConsumer 
+
 ## [0.16.0] - 2023-07-27
 
 ### Added

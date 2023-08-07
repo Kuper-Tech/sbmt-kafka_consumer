@@ -119,6 +119,8 @@ bundle exec rails g kafka_consumer:consumer_group group_key group_name [topic to
 
 **ВАЖНО: при миграции на существующую консюмер-группу необходимо, чтобы ее название не изменилось**
 
+##### При миграции с karafka v1
+
 `Karafka v1` собирает имя консюмер-группы как:
 
 ```ruby
@@ -154,12 +156,28 @@ class KarafkaApp < Karafka::App
 end
 ```
 
+##### При миграции с karafka v2
+
+В этом случае нужно использовать оригинальный client_id, который был указан в karafka.rb (нельзя заменять дефисы на подчеркивания как в примерах выше)
+Так сделано потому, что `Karafka v2` собирает имя консюмер-группы как:
+
+```ruby
+"#{client_id}_#{consumer_group_name}"
+```
+
+т.е. не делает client_id.underscore
+
+Пример:
+
 ```yaml
 # kafka_consumer.yml
 
 default: &default
-  client_id: shp-app # вариант 1 (исходное название)
-  client_id: shp_app # вариант 2 (underscored)
+  # исходное название из karafka.rb
+  client_id: shp-app
+  
+  # mapper нужно указывать V2 (по умолчанию V1, т.е. предполагается что переходим с karafka v1)
+  consumer_mapper_class: "::Sbmt::KafkaConsumer::Routing::KarafkaV2ConsumerMapper"
   ...
   consumer_groups:
     stf_orders:

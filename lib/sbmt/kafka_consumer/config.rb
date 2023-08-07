@@ -31,7 +31,8 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
     monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::SentryMonitor",
     logger_class: "::Sbmt::KafkaConsumer::Logger",
     logger_listener_class: "::Sbmt::KafkaConsumer::Instrumentation::LoggerListener",
-    metrics_listener_class: "::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener"
+    metrics_listener_class: "::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener",
+    consumer_mapper_class: "::Sbmt::KafkaConsumer::Routing::KarafkaV1ConsumerMapper"
 
   required :client_id
 

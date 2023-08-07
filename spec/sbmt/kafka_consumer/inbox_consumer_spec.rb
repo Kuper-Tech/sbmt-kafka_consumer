@@ -8,10 +8,13 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   let(:klass) do
     described_class.consumer_klass(
       name: "test_items",
-      inbox_item: "TestInboxItem"
+      event_name: "test-event-name",
+      inbox_item: "TestInboxItem",
+      skip_on_error: skip_on_error
     )
   end
 
+  let(:skip_on_error) { false }
   let(:consumer) { build_consumer(klass.new) }
   let(:create_item_result) { Dry::Monads::Result::Success }
   let(:logger) { double(ActiveSupport::TaggedLogging) }
@@ -46,7 +49,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
         .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
         .with_tags(
           inbox_name: "test_inbox_item",
-          event_name: nil,
+          event_name: "test-event-name",
           status: "success"
         )
       expect(TestInboxItem.last.options)
@@ -80,17 +83,38 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
         .and_return(Dry::Monads::Result::Failure.new("test failure"))
     end
 
-    it "let consumer crash without committing offsets" do
-      expect(kafka_client).not_to receive(:mark_as_consumed!)
-      allow(Rails.logger).to receive(:error)
-      expect {
-        consume_with_sbmt_karafka
-      }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
-        .with_tags(
-          inbox_name: "test_inbox_item",
-          event_name: nil,
-          status: "failure"
-        )
+    context "when skip_on_error is enabled" do
+      let(:skip_on_error) { true }
+
+      it "consumer crashes without committing offsets" do
+        expect(kafka_client).to receive(:mark_as_consumed!)
+        allow(Rails.logger).to receive(:warn)
+        expect {
+          consume_with_sbmt_karafka
+        }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+          .with_tags(
+            inbox_name: "test_inbox_item",
+            event_name: "test-event-name",
+            status: "skipped"
+          )
+      end
+    end
+
+    context "when skip_on_error is disabled" do
+      let(:skip_on_error) { false }
+
+      it "consumer crashes without committing offsets" do
+        expect(kafka_client).not_to receive(:mark_as_consumed!)
+        allow(Rails.logger).to receive(:error)
+        expect {
+          consume_with_sbmt_karafka
+        }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+          .with_tags(
+            inbox_name: "test_inbox_item",
+            event_name: "test-event-name",
+            status: "failure"
+          )
+      end
     end
   end
 
@@ -108,7 +132,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
         .with_tags(
           inbox_name: "test_inbox_item",
-          event_name: nil,
+          event_name: "test-event-name",
           status: "failure"
         )
     end
@@ -119,7 +143,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       stub_const("Sbmt::KafkaConsumer::InboxConsumer::IDEMPOTENCY_HEADER_NAME", "non-existent-header")
     end
 
-    it "let consumer crash without committing offsets" do
+    it "successfully uses generated value" do
       expect(kafka_client).to receive(:mark_as_consumed!)
       allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
       expect { consume_with_sbmt_karafka }
@@ -127,7 +151,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
         .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
         .with_tags(
           inbox_name: "test_inbox_item",
-          event_name: nil,
+          event_name: "test-event-name",
           status: "success"
         )
     end
@@ -145,10 +169,29 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
         .to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
         .with_tags(
           inbox_name: "test_inbox_item",
-          event_name: nil,
+          event_name: "test-event-name",
           status: "duplicate"
         )
         .and not_change(TestInboxItem, :count)
+    end
+  end
+
+  context "when extra_message_attrs is used" do
+    let(:consumer) do
+      consumer_class = Class.new(klass) do
+        def extra_message_attrs(_message)
+          {event_name: "custom-value"}
+        end
+      end
+
+      build_consumer(consumer_class.new)
+    end
+
+    it "merges with default inbox-item attributes" do
+      expect(kafka_client).to receive(:mark_as_consumed!)
+      expect(Rails.logger).to receive(:info).with(/Successfully consumed/).twice
+      expect { consume_with_sbmt_karafka }.to change(TestInboxItem, :count).by(1)
+      expect(TestInboxItem.last.event_name).to eq("custom-value")
     end
   end
 end
