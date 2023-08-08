@@ -97,7 +97,7 @@ module Sbmt
       end
 
       def message_uuid(message)
-        message.metadata.headers.fetch(IDEMPOTENCY_HEADER_NAME, nil)
+        message.metadata.headers.fetch(IDEMPOTENCY_HEADER_NAME, nil).presence
       end
 
       def inbox_item_class
