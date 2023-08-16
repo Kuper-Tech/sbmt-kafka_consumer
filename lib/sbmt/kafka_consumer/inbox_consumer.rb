@@ -80,7 +80,7 @@ module Sbmt
           logger.error("message has no uuid, headers: #{message.metadata.headers}")
         end
 
-        if message.metadata.key
+        if message.metadata.key.present?
           attrs[:event_key] = message.metadata.key
         elsif inbox_item_class.respond_to?(:event_key)
           attrs[:event_key] = inbox_item_class.event_key(message)
