@@ -19,6 +19,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   let(:create_item_result) { Dry::Monads::Result::Success }
   let(:logger) { double(ActiveSupport::TaggedLogging) }
   let(:uuid) { "test-uuid-1" }
+  let(:message_key) { "test-key" }
+  let(:message_offset) { 0 }
   let(:headers) do
     {
       "Idempotency-Key" => uuid,
@@ -30,7 +32,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   before do
     publish_to_sbmt_karafka(
       '{"test":"message"}',
-      key: "test-key",
+      offset: message_offset,
+      key: message_key,
       partition: 10,
       headers: headers
     )
@@ -154,6 +157,43 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
           event_name: "test-event-name",
           status: "success"
         )
+      expect(UUID.validate(TestInboxItem.last.uuid)).to be(true)
+    end
+  end
+
+  context "when message key header is empty" do
+    let(:message_key) { "" }
+
+    it "uses message offset value" do
+      expect(kafka_client).to receive(:mark_as_consumed!)
+      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
+      expect { consume_with_sbmt_karafka }
+        .to change(TestInboxItem, :count).by(1)
+        .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+        .with_tags(
+          inbox_name: "test_inbox_item",
+          event_name: "test-event-name",
+          status: "success"
+        )
+      expect(TestInboxItem.last.event_key).to eq(message_offset)
+    end
+  end
+
+  context "when message key header is nil" do
+    let(:message_key) { nil }
+
+    it "uses message offset value" do
+      expect(kafka_client).to receive(:mark_as_consumed!)
+      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
+      expect { consume_with_sbmt_karafka }
+        .to change(TestInboxItem, :count).by(1)
+        .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+        .with_tags(
+          inbox_name: "test_inbox_item",
+          event_name: "test-event-name",
+          status: "success"
+        )
+      expect(TestInboxItem.last.event_key).to eq(message_offset)
     end
   end
 

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.17.2] - 2023-08-16
+
+### Fixed
+
+- Fix `message.metadata.key` validation if key is an empty string
+
 ## [0.17.1] - 2023-08-08
 
 ### Fixed
