@@ -5,7 +5,7 @@ module Sbmt
     class BaseConsumer < SbmtKarafka::BaseConsumer
       attr_reader :trace_id
 
-      DEFAULT_RETRY_DELAY_MULTIPLIER = 10
+      DEFAULT_RETRY_BACKOFF = ->(attempt) { 4**Math.log(attempt) }
       DEFAULT_MAX_DB_RETRIES = 5
       DEFAULT_DB_ERRORS_TO_HANDLE = [
         ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished
@@ -70,16 +70,16 @@ module Sbmt
       end
 
       def with_db_retry
-        attempt ||= 1
+        attempt ||= 0
         yield
       rescue *db_errors_to_handle => e
         attempt += 1
 
-        raise e if attempt > max_db_retries
+        raise e if attempt >= max_db_retries
 
         clear_connections!
 
-        retry_delay = attempt * DEFAULT_RETRY_DELAY_MULTIPLIER
+        retry_delay = retry_backoff.call(attempt)
         logger.info("with_db_retry: #{e.message}, attempt #{attempt}, sleeping for #{retry_delay}s")
         sleep(retry_delay)
         retry
@@ -109,6 +109,10 @@ module Sbmt
 
       def max_db_retries
         @max_db_retries ||= DEFAULT_MAX_DB_RETRIES
+      end
+
+      def retry_backoff
+        @retry_backoff ||= DEFAULT_RETRY_BACKOFF
       end
 
       # can be overridden in consumer to enable message logging

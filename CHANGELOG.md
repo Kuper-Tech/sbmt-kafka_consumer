@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.17.3] - 2023-08-31
+
+### Fixed
+
+- Decreased sleep time on db error in a consumer
+
 ## [0.17.2] - 2023-08-16
 
 ### Fixed
