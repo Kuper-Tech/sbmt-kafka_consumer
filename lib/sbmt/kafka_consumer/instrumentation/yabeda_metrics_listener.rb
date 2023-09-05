@@ -17,7 +17,6 @@ module Sbmt
         def on_consumer_consumed(event)
           # batch processed
           consumer = event[:caller]
-          time_elapsed = event[:time]
 
           Yabeda.kafka_consumer.batch_size
             .measure(
@@ -28,7 +27,7 @@ module Sbmt
           Yabeda.kafka_consumer.process_batch_latency
             .measure(
               consumer_base_tags(consumer),
-              time_elapsed
+              time_elapsed_sec(event)
             )
 
           Yabeda.kafka_consumer.time_lag
@@ -42,13 +41,12 @@ module Sbmt
           # one message processed by any consumer
 
           consumer = event[:caller]
-          time_elapsed = event[:time]
           Yabeda.kafka_consumer.process_messages
             .increment(consumer_base_tags(consumer))
           Yabeda.kafka_consumer.process_message_latency
             .measure(
               consumer_base_tags(consumer),
-              time_elapsed
+              time_elapsed_sec(event)
             )
         end
 
@@ -177,6 +175,10 @@ module Sbmt
                   offset_lag)
             end
           end
+        end
+
+        def time_elapsed_sec(event)
+          (event.payload[:time] || 0) / 1000.0
         end
       end
     end

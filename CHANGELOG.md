@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.17.4] - 2023-09-05
+
+### Fixed
+
+- Latency metrics in seconds instead ms
+
 ## [0.17.3] - 2023-08-31
 
 ### Fixed

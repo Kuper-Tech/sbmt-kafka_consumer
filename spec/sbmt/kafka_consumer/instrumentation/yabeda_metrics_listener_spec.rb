@@ -123,7 +123,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
     it "reports batch consuming metrics" do
       expect { described_class.new.on_consumer_consumed(event) }
         .to measure_yabeda_histogram(Yabeda.kafka_consumer.batch_size).with_tags(tags)
-        .and measure_yabeda_histogram(Yabeda.kafka_consumer.process_batch_latency).with_tags(tags)
+        .and measure_yabeda_histogram(Yabeda.kafka_consumer.process_batch_latency).with_tags(tags).with(0.01)
         .and update_yabeda_gauge(Yabeda.kafka_consumer.time_lag).with_tags(tags)
     end
   end
@@ -141,7 +141,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
     it "reports consumed message metrics" do
       expect { described_class.new.on_consumer_consumed_one(event) }
         .to increment_yabeda_counter(Yabeda.kafka_consumer.process_messages).with_tags(tags)
-        .and measure_yabeda_histogram(Yabeda.kafka_consumer.process_message_latency).with_tags(tags)
+        .and measure_yabeda_histogram(Yabeda.kafka_consumer.process_message_latency).with_tags(tags).with(0.01)
     end
   end
 
