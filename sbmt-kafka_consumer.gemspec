@@ -33,7 +33,6 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", ">= 5.1"
   spec.add_dependency "zeitwerk", "~> 2.3"
   spec.add_dependency "sbmt_karafka", "~> 2.1", ">= 2.1.3.2"
-  spec.add_dependency "sentry-rails", "> 5.2.0"
   spec.add_dependency "sbmt-outbox", ">= 4.1.0"
   spec.add_dependency "yabeda", ">= 0.11"
   spec.add_dependency "anyway_config", ">= 2.4.0"
@@ -49,6 +48,11 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "factory_bot_rails"
   spec.add_development_dependency "pg"
   spec.add_development_dependency "google-protobuf"
+  spec.add_development_dependency "sentry-rails", "> 5.2.0"
+  spec.add_development_dependency "opentelemetry-sdk"
+  spec.add_development_dependency "opentelemetry-api", ">= 0.17.0"
+  spec.add_development_dependency "opentelemetry-common", ">= 0.17.0"
+  spec.add_development_dependency "opentelemetry-instrumentation-base", ">= 0.17.0"
 
   # let metrics and probes work in dev-mode with combustion
   # e.g. RAILS_ENV=development bundle exec kafka_consumer

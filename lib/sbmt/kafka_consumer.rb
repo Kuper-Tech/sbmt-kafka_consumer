@@ -4,7 +4,6 @@ require "zeitwerk"
 require "sbmt_karafka"
 require "active_record"
 require "yabeda"
-require "sentry-ruby"
 require "anyway_config"
 require "thor"
 require "dry/types"
@@ -37,6 +36,9 @@ loader.tag = "sbmt-kafka_consumer"
 
 # protobuf is an optional dependency
 loader.do_not_eager_load("#{__dir__}/kafka_consumer/serialization/protobuf_deserializer.rb")
+loader.do_not_eager_load("#{__dir__}/kafka_consumer/instrumentation/open_telemetry_loader.rb")
+loader.do_not_eager_load("#{__dir__}/kafka_consumer/instrumentation/open_telemetry_tracer.rb")
+loader.do_not_eager_load("#{__dir__}/kafka_consumer/instrumentation/sentry_tracer.rb")
 
 # completely ignore testing helpers
 # because testing.rb just requires some files and does not contain any constants (e.g. Testing) which Zeitwerk expects

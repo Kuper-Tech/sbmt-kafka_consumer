@@ -45,7 +45,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
     it "has correct defaults" do
       with_env(default_env) do
         expect(config.deserializer_class).to eq("::Sbmt::KafkaConsumer::Serialization::NullDeserializer")
-        expect(config.monitor_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::SentryMonitor")
+        expect(config.monitor_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::TracingMonitor")
         expect(config.logger_class).to eq("::Sbmt::KafkaConsumer::Logger")
         expect(config.logger_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::LoggerListener")
         expect(config.metrics_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener")

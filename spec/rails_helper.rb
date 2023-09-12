@@ -6,6 +6,8 @@ require "factory_bot_rails"
 require "dry-monads"
 require "dry/monads/result"
 require "sbmt/kafka_consumer/testing"
+require "sbmt/kafka_consumer/instrumentation/sentry_tracer"
+require "sbmt/kafka_consumer/instrumentation/open_telemetry_loader"
 
 # when using with combustion, anyway is required earlier than rails
 # so it's railtie does nothing, but that require is cached
