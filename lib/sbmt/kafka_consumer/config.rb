@@ -28,7 +28,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
     :max_wait_time, :shutdown_timeout,
     concurrency: 4, auth: {}, kafka: {}, consumer_groups: {}, probes: {},
     deserializer_class: "::Sbmt::KafkaConsumer::Serialization::NullDeserializer",
-    monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::SentryMonitor",
+    monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::TracingMonitor",
     logger_class: "::Sbmt::KafkaConsumer::Logger",
     logger_listener_class: "::Sbmt::KafkaConsumer::Instrumentation::LoggerListener",
     metrics_listener_class: "::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener",

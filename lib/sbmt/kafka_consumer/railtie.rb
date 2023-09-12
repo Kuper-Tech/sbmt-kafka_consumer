@@ -17,6 +17,15 @@ module Sbmt
           def boot_file; false; end
         end
       end
+
+      initializer "sbmt_kafka_consumer_opentelemetry_init.configure_rails_initialization",
+        after: "opentelemetry.configure" do
+        require "sbmt/kafka_consumer/instrumentation/open_telemetry_loader" if defined?(::OpenTelemetry)
+      end
+
+      config.after_initialize do
+        require "sbmt/kafka_consumer/instrumentation/sentry_tracer" if defined?(::Sentry)
+      end
     end
   end
 end
