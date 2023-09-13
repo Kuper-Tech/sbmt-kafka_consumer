@@ -56,8 +56,8 @@ module Sbmt
           instrument_error(ex, message, "skipped")
         else
           instrument_error(ex, message)
-          raise ex
         end
+        raise ex
       end
 
       def message_attrs(message)

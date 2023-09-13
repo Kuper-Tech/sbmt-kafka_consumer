@@ -77,30 +77,12 @@ module Sbmt
 
         raise e if attempt >= max_db_retries
 
-        clear_connections!
+        ActiveRecordHelper.clear_active_connections!
 
         retry_delay = retry_backoff.call(attempt)
         logger.info("with_db_retry: #{e.message}, attempt #{attempt}, sleeping for #{retry_delay}s")
         sleep(retry_delay)
         retry
-      end
-
-      def clear_connections!
-        if multiple_db_handlers?
-          ActiveRecord::Base.connection_handlers.each do |role, handler|
-            logger.info("Clearing/closing all connections for #{role} role...")
-            handler.clear_all_connections!
-          end
-        else
-          logger.info("Clearing/closing all connections...")
-          ::ActiveRecord::Base.clear_all_connections!
-        end
-      end
-
-      def multiple_db_handlers?
-        ActiveRecord::Base.respond_to?(:connection_handlers) &&
-          # Fix https://jira.sbmt.io/browse/DEX-1280 before removing the upper version bound
-          Gem::Version.new(Rails.version) <= Gem::Version.new("7.0.0")
       end
 
       def db_errors_to_handle

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.17.5] - 2023-09-13
+
+### Fixed
+
+- Properly clear `ActiveRecord` connections in case `skip_on_error` option is used
+
 ## [0.17.4] - 2023-09-05
 
 ### Fixed

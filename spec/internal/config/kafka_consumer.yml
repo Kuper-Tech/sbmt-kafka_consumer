@@ -42,6 +42,9 @@ default: &default
               message_decoder_klass: "Sso::UserRegistration"
               skip_decoding_error: true
 
+probes:
+  port: <%= ENV.fetch('PROMETHEUS_EXPORTER_PORT') { '9394' } %>
+
 development:
   <<: *default
 test:
