@@ -13,11 +13,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.18.1] - 2023-09-13
+
+### Fixed
+
+- Port `v0.17.5` (properly clear `ActiveRecord` connections in case `skip_on_error` option is used) to master (v0.18)
+
 ## [0.18.0] - 2023-09-11
 
 ### Added
 
 - OpenTelemetry tracing
+
+## [0.17.5] - 2023-09-13
+
+### Fixed
+
+- Properly clear `ActiveRecord` connections in case `skip_on_error` option is used
 
 ## [0.17.4] - 2023-09-05
 
