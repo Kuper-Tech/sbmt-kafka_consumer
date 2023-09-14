@@ -110,7 +110,7 @@ bundle exec rails g kafka_consumer:consumer MaybeNamespaced::Name
 ### Создание консюмер группы
 
 ```shell
-bundle exec rails g kafka_consumer:consumer_group group_key group_name [topic topic...]
+bundle exec rails g kafka_consumer:inbox_consumer group_key group_name [topic topic...]
 ```
 
 В `config/kafka_consumer.yml` будет настроена группа и консюмер (InboxConsumer по умолчанию).
