@@ -32,7 +32,7 @@ module Sbmt
           consumer = @payload[:caller]
           message = @payload[:message]
 
-          parent_context = ::OpenTelemetry.propagation.extract(message.headers, getter: ::OpenTelemetry::Common::Propagation.symbol_key_getter)
+          parent_context = ::OpenTelemetry.propagation.extract(message.headers, getter: ::OpenTelemetry::Context::Propagation.text_map_getter)
           span_context = ::OpenTelemetry::Trace.current_span(parent_context).context
           links = [::OpenTelemetry::Trace::Link.new(span_context)] if span_context.valid?
 
