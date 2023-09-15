@@ -15,6 +15,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Fix broken outbox item generator call in the `kafka_consumer:inbox_consumer` generator
 
+## [0.18.2] - 2023-09-14
+
+### Fixed
+
+- Properly extract opentelemetry context from kafka message headers
+
 ## [0.18.1] - 2023-09-13
 
 ### Fixed
