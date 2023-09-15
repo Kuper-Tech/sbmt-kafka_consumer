@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.18.3] - 2023-09-15
+
+### Fixed
+
 - Fix broken outbox item generator call in the `kafka_consumer:inbox_consumer` generator
 
 ## [0.18.2] - 2023-09-14
