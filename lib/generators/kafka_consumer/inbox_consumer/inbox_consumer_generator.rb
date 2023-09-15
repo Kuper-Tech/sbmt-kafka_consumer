@@ -24,7 +24,7 @@ module KafkaConsumer
           @items[topic] = if inbox_item.blank?
             nil
           else
-            generate "outbox:inbox_item", inbox_item
+            generate "outbox:item", inbox_item, "--kind inbox"
             inbox_item.classify
           end
         end
