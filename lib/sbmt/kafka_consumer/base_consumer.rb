@@ -5,12 +5,6 @@ module Sbmt
     class BaseConsumer < SbmtKarafka::BaseConsumer
       attr_reader :trace_id
 
-      DEFAULT_RETRY_BACKOFF = ->(attempt) { 4**Math.log(attempt) }
-      DEFAULT_MAX_DB_RETRIES = 5
-      DEFAULT_DB_ERRORS_TO_HANDLE = [
-        ActiveRecord::StatementInvalid, ActiveRecord::ConnectionNotEstablished
-      ].freeze
-
       def self.consumer_klass(skip_on_error: false)
         klass = Class.new(self)
         klass.const_set(:SKIP_ON_ERROR, skip_on_error)
@@ -18,8 +12,10 @@ module Sbmt
       end
 
       def consume
-        messages.each do |message|
-          with_instrumentation(message) { do_consume(message) }
+        ::Rails.application.executor.wrap do
+          messages.each do |message|
+            with_instrumentation(message) { do_consume(message) }
+          end
         end
       end
 
@@ -60,41 +56,13 @@ module Sbmt
         # so we trigger it explicitly to catch undeserializable message early
         message.payload
 
-        with_db_retry { process_message(message) }
+        process_message(message)
 
         mark_as_consumed!(message)
       end
 
       def skip_on_error
         self.class::SKIP_ON_ERROR
-      end
-
-      def with_db_retry
-        attempt ||= 0
-        yield
-      rescue *db_errors_to_handle => e
-        attempt += 1
-
-        raise e if attempt >= max_db_retries
-
-        ActiveRecordHelper.clear_active_connections!
-
-        retry_delay = retry_backoff.call(attempt)
-        logger.info("with_db_retry: #{e.message}, attempt #{attempt}, sleeping for #{retry_delay}s")
-        sleep(retry_delay)
-        retry
-      end
-
-      def db_errors_to_handle
-        @db_errors_to_handle ||= DEFAULT_DB_ERRORS_TO_HANDLE
-      end
-
-      def max_db_retries
-        @max_db_retries ||= DEFAULT_MAX_DB_RETRIES
-      end
-
-      def retry_backoff
-        @retry_backoff ||= DEFAULT_RETRY_BACKOFF
       end
 
       # can be overridden in consumer to enable message logging
