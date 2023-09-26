@@ -89,7 +89,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
     context "when skip_on_error is enabled" do
       let(:skip_on_error) { true }
 
-      it "consumer skips failed message and continues processing" do
+      it "skips failed message and continues processing" do
         expect(kafka_client).not_to receive(:mark_as_consumed!)
         allow(Rails.logger).to receive(:warn)
         expect {
@@ -103,38 +103,22 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       end
 
       context "when got active record error" do
-        let(:observable_inbox_consumer) do
-          Class.new(klass) do
-            attr_reader :attempts
-
-            private
-
-            def retry_backoff
-              @attempts ||= 1
-
-              proc do
-                @attempts += 1
-                0
-              end
-            end
-          end
-        end
-        let(:consumer) { build_consumer(observable_inbox_consumer.new) }
-
         before do
           allow(Sbmt::Outbox::CreateInboxItem)
             .to receive(:call).and_raise(ActiveRecord::StatementInvalid)
         end
 
-        it "retries consuming process" do
-          allow(Rails.logger).to receive(:error)
-
-          expect(Sbmt::KafkaConsumer::ActiveRecordHelper).to receive(:clear_active_connections!).exactly(4)
-
-          expect { consume_with_sbmt_karafka }
-            .not_to raise_error
-
-          expect(consumer.attempts).to eq(5)
+        it "skips failed message and continues processing" do
+          expect(kafka_client).not_to receive(:mark_as_consumed!)
+          allow(Rails.logger).to receive(:warn)
+          expect {
+            consume_with_sbmt_karafka
+          }.to increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+            .with_tags(
+              inbox_name: "test_inbox_item",
+              event_name: "test-event-name",
+              status: "skipped"
+            )
         end
       end
     end

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.18.4] - 2023-09-26
+
+### Fixed
+
+- Use `Rails.application.executor.wrap` instead manual AR connection clearing
+
 ## [0.18.3] - 2023-09-15
 
 ### Fixed
