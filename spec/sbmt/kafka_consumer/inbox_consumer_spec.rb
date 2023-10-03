@@ -10,11 +10,13 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       name: "test_items",
       event_name: "test-event-name",
       inbox_item: "TestInboxItem",
-      skip_on_error: skip_on_error
+      skip_on_error: skip_on_error,
+      outbox_producer: outbox_producer
     )
   end
 
   let(:skip_on_error) { false }
+  let(:outbox_producer) { true }
   let(:consumer) { build_consumer(klass.new) }
   let(:create_item_result) { Dry::Monads::Result::Success }
   let(:logger) { double(ActiveSupport::TaggedLogging) }
@@ -161,59 +163,75 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
     end
   end
 
-  context "when message idempotency header does not exist" do
+  context "with poisoned message" do
     before do
-      stub_const("Sbmt::KafkaConsumer::InboxConsumer::IDEMPOTENCY_HEADER_NAME", "non-existent-header")
+      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
+      allow(Rails.logger).to receive(:error)
     end
 
-    it "successfully uses generated value" do
-      expect(kafka_client).to receive(:mark_as_consumed!)
-      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
-      expect { consume_with_sbmt_karafka }
-        .to change(TestInboxItem, :count).by(1)
-        .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
-        .with_tags(
-          inbox_name: "test_inbox_item",
-          event_name: "test-event-name",
-          status: "success"
-        )
-      expect(UUID.validate(TestInboxItem.last.uuid)).to be(true)
+    shared_examples "successful consumer" do
+      it "successfully consumes" do
+        expect(kafka_client).to receive(:mark_as_consumed!)
+        expect { consume_with_sbmt_karafka }
+          .to change(TestInboxItem, :count).by(1)
+          .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
+          .with_tags(
+            inbox_name: "test_inbox_item",
+            event_name: "test-event-name",
+            status: "success"
+          )
+      end
     end
-  end
 
-  context "when message key header is empty" do
-    let(:message_key) { "" }
-
-    it "uses message offset value" do
-      expect(kafka_client).to receive(:mark_as_consumed!)
-      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
-      expect { consume_with_sbmt_karafka }
-        .to change(TestInboxItem, :count).by(1)
-        .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
-        .with_tags(
-          inbox_name: "test_inbox_item",
-          event_name: "test-event-name",
-          status: "success"
+    shared_examples "empty key consumer" do
+      it_behaves_like "successful consumer"
+      it "uses a message offset value and logs error" do
+        consume_with_sbmt_karafka
+        expect(TestInboxItem.last.event_key).to eq(message_offset)
+        expect(Rails.logger).to have_received(:error).with(
+          "message has no partitioning key, headers: #{headers}"
         )
-      expect(TestInboxItem.last.event_key).to eq(message_offset)
+      end
     end
-  end
 
-  context "when message key header is nil" do
-    let(:message_key) { nil }
-
-    it "uses message offset value" do
-      expect(kafka_client).to receive(:mark_as_consumed!)
-      allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
-      expect { consume_with_sbmt_karafka }
-        .to change(TestInboxItem, :count).by(1)
-        .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
-        .with_tags(
-          inbox_name: "test_inbox_item",
-          event_name: "test-event-name",
-          status: "success"
+    context "when message idempotency header does not exist" do
+      before do
+        stub_const(
+          "Sbmt::KafkaConsumer::InboxConsumer::IDEMPOTENCY_HEADER_NAME",
+          "non-existent-header"
         )
-      expect(TestInboxItem.last.event_key).to eq(message_offset)
+      end
+
+      it_behaves_like "successful consumer"
+
+      it "successfully uses generated value" do
+        consume_with_sbmt_karafka
+        expect(UUID.validate(TestInboxItem.last.uuid)).to be(true)
+        expect(Rails.logger).to have_received(:error).with(
+          "message has no uuid, headers: #{headers}"
+        )
+      end
+
+      context "when outbox_producer is false" do
+        let(:outbox_producer) { false }
+
+        it "uses message offset value" do
+          consume_with_sbmt_karafka
+          expect(Rails.logger).not_to have_received(:error)
+        end
+      end
+    end
+
+    context "when message key header is empty" do
+      let(:message_key) { "" }
+
+      it_behaves_like "empty key consumer"
+    end
+
+    context "when message key header is nil" do
+      let(:message_key) { nil }
+
+      it_behaves_like "empty key consumer"
     end
   end
 
