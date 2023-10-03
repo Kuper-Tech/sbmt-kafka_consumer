@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.19.0] - 2023-09-29
+
+### Added
+
+- `outbox_producer` configuration flag
+
 ## [0.18.4] - 2023-09-26
 
 ### Fixed

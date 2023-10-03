@@ -254,6 +254,27 @@ default: &default
   ...
 ```
 
+##### Пример конфигурации inbox-консюмера для не-outbox продюсера:
+Бывают переходные кейсы, когда, например, легаси-продюсер реализован без outbox, а консюмер с outbox.
+Консюмер продолжит работать, но в логи будут постоянно сыпаться ошибки из-за отсутствия необходимых кафка-хедеров (`Idempotency-Key`, etc).
+Чтобы исключить ненужные логи, нужно указать опцию `outbox_producer: false` как в примере ниже:
+```yaml
+  ...
+  consumer_groups:
+    stf_orders:
+      name: <%= ENV.fetch('SHP__KAFKA__ORDERS_CONSUMER_GROUP_NAME'){ 'outbox-orders' } %><%= ENV.fetch('SHP__KAFKA__CONSUMER_GROUP_SUFFIX'){ '' } %>
+      topics:
+      - name: <%= ENV.fetch('SHP__KAFKA__TOPICS__STF_ORDERS'){ 'yc.customer.fct.orders.0' } %>
+        consumer:
+          klass: "Sbmt::KafkaConsumer::InboxConsumer"
+          init_attrs:
+            name: 'orders'
+            inbox_item: 'Order::InboxItem'
+            outbox_producer: false
+        # deserializer не задан, т.к. по умолчанию используется NullDeserializer, а для inbox именно это и нужно
+  ...
+```
+
 ##### Пример конфигурации protobuf-консюмера:
 ```yaml
   ...

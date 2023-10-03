@@ -6,11 +6,12 @@ module Sbmt
       IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
       DEFAULT_SOURCE = "KAFKA"
 
-      def self.consumer_klass(name:, inbox_item:, event_name: nil, skip_on_error: false)
+      def self.consumer_klass(name:, inbox_item:, event_name: nil, skip_on_error: false, outbox_producer: true)
         klass = Class.new(self)
         klass.const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
         klass.const_set(:EVENT_NAME, event_name)
         klass.const_set(:SKIP_ON_ERROR, skip_on_error)
+        klass.const_set(:OUTBOX_PRODUCER, outbox_producer)
         const_set("#{name.classify}Consumer", klass)
         klass
       end
@@ -74,9 +75,9 @@ module Sbmt
 
         if message_uuid(message)
           attrs[:uuid] = message_uuid(message)
-        else
-          # if message has no uuid (poisoned?), it will be generated later in Sbmt::Outbox::CreateInboxItem
-          # so we just log it
+        elsif outbox_producer?
+          # if message has no uuid, it will be generated later in Sbmt::Outbox::CreateInboxItem
+          # so we just log it if message was produced by outbox producer
           logger.error("message has no uuid, headers: #{message.metadata.headers}")
         end
 
@@ -88,7 +89,7 @@ module Sbmt
           # if message has no partitioning key (poisoned?),
           # set it to something random like offset and log it
           attrs[:event_key] = message.offset
-          logger.error("message has no partitioning key #{IDEMPOTENCY_HEADER_NAME}, headers: #{message.metadata.headers}")
+          logger.error("message has no partitioning key, headers: #{message.metadata.headers}") if outbox_producer?
         end
 
         attrs[:event_name] = event_name if inbox_item_class.has_attribute?(:event_name)
