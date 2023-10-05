@@ -122,6 +122,18 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                       skip_decoding_error: true
                     }
                   )
+                ),
+                Sbmt::KafkaConsumer::Config::Topic.new(
+                  name: "topic-name-with.dots-dashes_and_underscores",
+                  active: true,
+                  manual_offset_management: true,
+                  consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
+                    klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
+                  ),
+                  deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
+                    klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer",
+                    init_attrs: {}
+                  )
                 )
               ]
             )
