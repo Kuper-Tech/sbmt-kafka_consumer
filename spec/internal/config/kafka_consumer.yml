@@ -42,6 +42,9 @@ default: &default
             init_attrs:
               message_decoder_klass: "Sso::UserRegistration"
               skip_decoding_error: true
+        - name: topic-name-with.dots-dashes_and_underscores
+          consumer:
+            klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
 
 probes:
   port: <%= ENV.fetch('PROMETHEUS_EXPORTER_PORT') { '9394' } %>

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.19.1] - 2023-10-05
+
+### Fixed
+
+- disable karafka's `config.strict_topics_namespacing`
+
 ## [0.19.0] - 2023-09-29
 
 ### Added

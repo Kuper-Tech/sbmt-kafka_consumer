@@ -21,6 +21,10 @@ class Sbmt::KafkaConsumer::ClientConfigurer
 
       karafka_config.concurrency = (opts[:concurrency]) || config.concurrency
 
+      # Do not validate topics naming consistency
+      # see https://github.com/karafka/karafka/wiki/FAQ#why-am-i-seeing-a-needs-to-be-consistent-namespacing-style-error
+      karafka_config.strict_topics_namespacing = false
+
       # Recreate consumers with each batch. This will allow Rails code reload to work in the
       # development mode. Otherwise SbmtKarafka process would not be aware of code changes
       karafka_config.consumer_persistence = !Rails.env.development?
