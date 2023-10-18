@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.19.2] - 2023-10-18
+
+### Fixed
+
+- Stub kafka_client to prevent calls to librdkafka: fixes SEGFAULT in parallel tests
+
 ## [0.19.1] - 2023-10-05
 
 ### Fixed
