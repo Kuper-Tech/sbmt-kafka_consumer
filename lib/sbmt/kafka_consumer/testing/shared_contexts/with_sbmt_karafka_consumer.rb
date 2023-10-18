@@ -13,8 +13,7 @@ RSpec.shared_context "with sbmt karafka consumer" do
   }
   let(:test_consumer_group) { SbmtKarafka::Routing::ConsumerGroup.new(:test_group) }
   let(:test_topic) { SbmtKarafka::Routing::Topic.new(:test_topic, test_consumer_group) }
-  let(:test_subscription_group) { SbmtKarafka::Routing::SubscriptionGroup.new(0, [test_topic]) }
-  let(:kafka_client) { SbmtKarafka::Connection::Client.new(test_subscription_group) }
+  let(:kafka_client) { instance_double(SbmtKarafka::Connection::Client) }
   let(:null_deserializer) { Sbmt::KafkaConsumer::Serialization::NullDeserializer.new }
 
   let(:consumer) {
