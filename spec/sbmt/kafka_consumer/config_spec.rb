@@ -140,5 +140,36 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
           ])
       end
     end
+
+    context "without metrics port" do
+      let(:env) {
+        default_env.merge(
+          "KAFKA_CONSUMER_PROBES__PORT" => "8080"
+        )
+      }
+
+      it "sets metrics port equal to probes port" do
+        with_env(env) do
+          expect(config.probes.port).to eq 8080
+          expect(config.metrics.port).to eq config.probes.port
+        end
+      end
+    end
+
+    context "with metrics port" do
+      let(:env) {
+        default_env.merge(
+          "KAFKA_CONSUMER_PROBES__PORT" => "8080",
+          "KAFKA_CONSUMER_METRICS__PORT" => "9090"
+        )
+      }
+
+      it "sets different ports for probes and metrics" do
+        with_env(env) do
+          expect(config.probes.port).to eq 8080
+          expect(config.metrics.port).to eq 9090
+        end
+      end
+    end
   end
 end

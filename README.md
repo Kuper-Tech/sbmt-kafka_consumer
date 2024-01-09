@@ -328,6 +328,10 @@ default: &default
       readiness:
         enabled: включение/выключение пробы (true/false), по умолчанию true
         path: путь на сервере, по умолчанию "/readiness/kafka_consumer"
+        
+  metrics:
+    port: порт для старта yabeda-сервера, по умолчанию равен `probes.port`
+    path: путь на сервере, по умолчанию "/metrics"
 ...
 ```
 
