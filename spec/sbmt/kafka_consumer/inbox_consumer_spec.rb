@@ -42,7 +42,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   end
 
   after do
-    described_class.send :remove_const, "TestItemConsumer"
+    # clearing of constants set in the`Sbmt::KafkaConsumer::InboxConsumer.consumer_klass` method
+    described_class.send :remove_const, "TestItemConsumer" # rubocop:disable RSpec/RemoveConst
   end
 
   context "when message valid" do

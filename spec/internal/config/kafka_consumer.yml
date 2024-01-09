@@ -46,8 +46,12 @@ default: &default
           consumer:
             klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
 
-probes:
-  port: <%= ENV.fetch('PROMETHEUS_EXPORTER_PORT') { '9394' } %>
+  probes:
+    port: <%= ENV.fetch('PROMETHEUS_EXPORTER_PORT') { '9394' } %>
+
+  metrics:
+#    port: 9394
+    path: "/metrics"
 
 development:
   <<: *default

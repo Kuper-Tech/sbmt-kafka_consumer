@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+
+## [0.20.0] - 2024-01-09
+
+### Added
+- New config options `metrics`
+  - `metrics.port` for a metrics port that is different from the probes port
+  - `metrics.path` for a metrics path
+
+### Changed
+
+### Fixed
+
 ## [0.19.2] - 2023-10-18
 
 ### Fixed

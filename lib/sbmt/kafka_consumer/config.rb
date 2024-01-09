@@ -26,7 +26,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
   attr_config :client_id,
     :pause_timeout, :pause_max_timeout, :pause_with_exponential_backoff,
     :max_wait_time, :shutdown_timeout,
-    concurrency: 4, auth: {}, kafka: {}, consumer_groups: {}, probes: {},
+    concurrency: 4, auth: {}, kafka: {}, consumer_groups: {}, probes: {}, metrics: {},
     deserializer_class: "::Sbmt::KafkaConsumer::Serialization::NullDeserializer",
     monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::TracingMonitor",
     logger_class: "::Sbmt::KafkaConsumer::Logger",
@@ -37,6 +37,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
   required :client_id
 
   on_load :validate_consumer_groups
+  on_load :set_default_metrics_port
 
   coerce_types client_id: :string,
     pause_timeout: :integer,
@@ -49,6 +50,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
   coerce_types kafka: coerce_to(Kafka)
   coerce_types auth: coerce_to(Auth)
   coerce_types probes: coerce_to(Probes)
+  coerce_types metrics: coerce_to(Metrics)
   coerce_types consumer_groups: coerce_to_array_of(ConsumerGroup)
 
   def to_kafka_options
@@ -66,5 +68,9 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
         raise_validation_error "topic #{cg.id}.topics.name[#{t.name}] contains invalid deserializer class: no const #{t.deserializer.klass} defined" unless t.deserializer&.klass&.safe_constantize
       end
     end
+  end
+
+  def set_default_metrics_port
+    self.metrics = metrics.new(port: probes.port) unless metrics.port
   end
 end

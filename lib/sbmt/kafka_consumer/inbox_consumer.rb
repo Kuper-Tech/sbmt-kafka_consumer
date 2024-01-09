@@ -12,7 +12,7 @@ module Sbmt
         klass.const_set(:EVENT_NAME, event_name)
         klass.const_set(:SKIP_ON_ERROR, skip_on_error)
         klass.const_set(:OUTBOX_PRODUCER, outbox_producer)
-        const_set("#{name.classify}Consumer", klass)
+        const_set(:"#{name.classify}Consumer", klass)
         klass
       end
 
