@@ -69,8 +69,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                     klass: "Sbmt::KafkaConsumer::InboxConsumer",
                     init_attrs: {
                       name: "test_items",
-                      inbox_item: "TestInboxItem",
-                      outbox_producer: false
+                      inbox_item: "TestInboxItem"
                     }
                   ),
                   deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(

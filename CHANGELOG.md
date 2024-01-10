@@ -14,16 +14,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 
+## [0.22.0] - 2024-01-09
+
+### Added
+
+- removed useless `outbox_producer` param for `InboxConsumer` class
+- removed useless log messages from `InboxConsumer` class
+
+## [0.21.0] - 2024-01-09
+
+### Fixed
+
+- initialization of proxy consumer classes
+- consumer class name in sentry's transaction name
+
 ## [0.20.0] - 2024-01-09
 
 ### Added
+
 - New config options `metrics`
-  - `metrics.port` for a metrics port that is different from the probes port
-  - `metrics.path` for a metrics path
-
-### Changed
-
-### Fixed
+- `metrics.port` for a metrics port that is different from the probes port
+- `metrics.path` for a metrics path
 
 ## [0.19.2] - 2023-10-18
 

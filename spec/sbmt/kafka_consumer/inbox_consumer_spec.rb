@@ -10,13 +10,11 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       name: "test_items",
       event_name: "test-event-name",
       inbox_item: "TestInboxItem",
-      skip_on_error: skip_on_error,
-      outbox_producer: outbox_producer
+      skip_on_error: skip_on_error
     )
   end
 
   let(:skip_on_error) { false }
-  let(:outbox_producer) { true }
   let(:consumer) { build_consumer(klass.new) }
   let(:create_item_result) { Dry::Monads::Result::Success }
   let(:logger) { double(ActiveSupport::TaggedLogging) }
@@ -39,11 +37,6 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       partition: 10,
       headers: headers
     )
-  end
-
-  after do
-    # clearing of constants set in the`Sbmt::KafkaConsumer::InboxConsumer.consumer_klass` method
-    described_class.send :remove_const, "TestItemConsumer" # rubocop:disable RSpec/RemoveConst
   end
 
   context "when message valid" do
@@ -189,9 +182,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       it "uses a message offset value and logs error" do
         consume_with_sbmt_karafka
         expect(TestInboxItem.last.event_key).to eq(message_offset)
-        expect(Rails.logger).to have_received(:error).with(
-          "message has no partitioning key, headers: #{headers}"
-        )
+        expect(Rails.logger).not_to have_received(:error)
       end
     end
 
@@ -208,18 +199,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       it "successfully uses generated value" do
         consume_with_sbmt_karafka
         expect(UUID.validate(TestInboxItem.last.uuid)).to be(true)
-        expect(Rails.logger).to have_received(:error).with(
-          "message has no uuid, headers: #{headers}"
-        )
-      end
-
-      context "when outbox_producer is false" do
-        let(:outbox_producer) { false }
-
-        it "uses message offset value" do
-          consume_with_sbmt_karafka
-          expect(Rails.logger).not_to have_received(:error)
-        end
+        expect(Rails.logger).not_to have_received(:error)
       end
     end
 

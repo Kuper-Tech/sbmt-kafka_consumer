@@ -6,7 +6,7 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
   include_context "with sbmt karafka consumer"
 
   let(:consumer_class) do
-    Class.new(described_class) do
+    Class.new(described_class.consumer_klass) do
       attr_reader :consumed, :consume_count
 
       def initialize(error: nil, reset_error: true)

@@ -37,6 +37,47 @@ describe Sbmt::KafkaConsumer::Instrumentation::SentryTracer do
         described_class.new("consumer.consumed_one", event_payload).trace {}
       end
 
+      context "with scope" do
+        let(:sentry_scope) { instance_double(Sentry::Scope) }
+
+        before do
+          allow(sentry_scope).to receive(:transaction_name)
+          allow(sentry_scope).to receive(:set_span)
+          allow(sentry_scope).to receive(:clear)
+          allow(sentry_transaction).to receive(:set_http_status)
+          allow(sentry_transaction).to receive(:finish)
+        end
+
+        context "when custom consumer class is used" do
+          let(:custom_class) { stub_const("SomeModule::CustomConsumerClass", Class.new(Sbmt::KafkaConsumer::BaseConsumer)) }
+          let(:caller) { custom_class.consumer_klass.new }
+
+          it "sets proper params" do
+            expect(Sentry).to receive(:get_current_scope).and_return(sentry_scope)
+            expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
+
+            expect(sentry_scope).to receive(:set_transaction_name).with("Sbmt/KafkaConsumer/SomeModule::CustomConsumerClass")
+            expect(sentry_scope).to receive(:set_tags).with(hash_including(offset: 0, topic: "topic", trace_id: "trace-id"))
+
+            described_class.new("consumer.consumed_one", event_payload).trace {}
+          end
+        end
+
+        context "when base consumer class is used" do
+          let(:caller) { Sbmt::KafkaConsumer::BaseConsumer.consumer_klass.new }
+
+          it "sets proper params" do
+            expect(Sentry).to receive(:get_current_scope).and_return(sentry_scope)
+            expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
+
+            expect(sentry_scope).to receive(:set_transaction_name).with("Sbmt/KafkaConsumer/Sbmt::KafkaConsumer::BaseConsumer")
+            expect(sentry_scope).to receive(:set_tags).with(hash_including(offset: 0, topic: "topic", trace_id: "trace-id"))
+
+            described_class.new("consumer.consumed_one", event_payload).trace {}
+          end
+        end
+      end
+
       it "traces message when error is raised" do
         expect(Sentry).to receive(:get_current_scope).and_return(Sentry::Scope.new)
         expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
