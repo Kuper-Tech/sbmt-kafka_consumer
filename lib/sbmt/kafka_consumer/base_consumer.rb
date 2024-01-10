@@ -5,11 +5,14 @@ module Sbmt
     class BaseConsumer < SbmtKarafka::BaseConsumer
       attr_reader :trace_id
 
-      def self.consumer_klass(skip_on_error: false, outbox_producer: true)
-        klass = Class.new(self)
-        klass.const_set(:SKIP_ON_ERROR, skip_on_error)
-        klass.const_set(:OUTBOX_PRODUCER, outbox_producer)
-        klass
+      def self.consumer_klass(skip_on_error: false)
+        Class.new(self) do
+          const_set(:SKIP_ON_ERROR, skip_on_error)
+
+          def self.name
+            superclass.name
+          end
+        end
       end
 
       def consume
@@ -64,10 +67,6 @@ module Sbmt
 
       def skip_on_error
         self.class::SKIP_ON_ERROR
-      end
-
-      def outbox_producer?
-        self.class::OUTBOX_PRODUCER
       end
 
       # can be overridden in consumer to enable message logging

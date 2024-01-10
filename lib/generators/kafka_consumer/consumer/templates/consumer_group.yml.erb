@@ -6,7 +6,6 @@
             klass: "<%= @consumer_name %>"
 #            init_attrs:
 #              skip_on_error: false # This is the default value
-#              outbox_producer: true # This is the default value
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::ProtobufDeserializer"
             init_attrs:

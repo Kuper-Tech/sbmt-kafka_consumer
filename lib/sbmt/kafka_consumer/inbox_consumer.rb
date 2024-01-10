@@ -6,14 +6,16 @@ module Sbmt
       IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
       DEFAULT_SOURCE = "KAFKA"
 
-      def self.consumer_klass(name:, inbox_item:, event_name: nil, skip_on_error: false, outbox_producer: true)
-        klass = Class.new(self)
-        klass.const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
-        klass.const_set(:EVENT_NAME, event_name)
-        klass.const_set(:SKIP_ON_ERROR, skip_on_error)
-        klass.const_set(:OUTBOX_PRODUCER, outbox_producer)
-        const_set(:"#{name.classify}Consumer", klass)
-        klass
+      def self.consumer_klass(name:, inbox_item:, event_name: nil, skip_on_error: false)
+        Class.new(self) do
+          const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
+          const_set(:EVENT_NAME, event_name)
+          const_set(:SKIP_ON_ERROR, skip_on_error)
+
+          def self.name
+            superclass.name
+          end
+        end
       end
 
       def extra_message_attrs(_message)
@@ -75,21 +77,18 @@ module Sbmt
 
         if message_uuid(message)
           attrs[:uuid] = message_uuid(message)
-        elsif outbox_producer?
-          # if message has no uuid, it will be generated later in Sbmt::Outbox::CreateInboxItem
-          # so we just log it if message was produced by outbox producer
-          logger.error("message has no uuid, headers: #{message.metadata.headers}")
         end
 
-        if message.metadata.key.present?
-          attrs[:event_key] = message.metadata.key
+        # if message has no uuid, it will be generated later in Sbmt::Outbox::CreateInboxItem
+
+        attrs[:event_key] = if message.metadata.key.present?
+          message.metadata.key
         elsif inbox_item_class.respond_to?(:event_key)
-          attrs[:event_key] = inbox_item_class.event_key(message)
+          inbox_item_class.event_key(message)
         else
-          # if message has no partitioning key (poisoned?),
-          # set it to something random like offset and log it
-          attrs[:event_key] = message.offset
-          logger.error("message has no partitioning key, headers: #{message.metadata.headers}") if outbox_producer?
+          # if message has no partitioning key
+          # set it to something random and monotonically increasing like offset
+          message.offset
         end
 
         attrs[:event_name] = event_name if inbox_item_class.has_attribute?(:event_name)
