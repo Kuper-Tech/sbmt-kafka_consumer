@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 
+## [0.23.0] - 2024-01-12
+
+### Added
+
+- ability to override `kafka_options` for topic
+
 ## [0.22.0] - 2024-01-09
 
 ### Added

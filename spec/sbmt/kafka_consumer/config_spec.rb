@@ -74,7 +74,10 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                   ),
                   deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
                     klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
-                  )
+                  ),
+                  kafka_options: {
+                    "auto.offset.reset": "latest"
+                  }
                 )
               ]
             ),

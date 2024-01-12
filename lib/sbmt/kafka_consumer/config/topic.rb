@@ -10,4 +10,5 @@ class Sbmt::KafkaConsumer::Config::Topic < Dry::Struct
     .default(Sbmt::KafkaConsumer::Config::Deserializer.new.freeze)
   attribute :active, Sbmt::KafkaConsumer::Types::Bool.optional.default(true)
   attribute :manual_offset_management, Sbmt::KafkaConsumer::Types::Bool.optional.default(true)
+  attribute? :kafka_options, Sbmt::KafkaConsumer::Types::ConfigAttrs.optional.default({}.freeze)
 end

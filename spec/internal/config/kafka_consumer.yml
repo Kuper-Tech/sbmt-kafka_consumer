@@ -16,6 +16,8 @@ default: &default
             init_attrs:
               name: "test_items"
               inbox_item: "TestInboxItem"
+          kafka_options:
+            auto.offset.reset: latest
     group_id_2:
       name: cg_with_multiple_topics
       topics:

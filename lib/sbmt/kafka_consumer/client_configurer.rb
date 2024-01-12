@@ -56,6 +56,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
               manual_offset_management t.manual_offset_management
               consumer t.consumer.consumer_klass
               deserializer t.deserializer.instantiate if t.deserializer.klass.present?
+              kafka t.kafka_options if t.kafka_options.present?
             end
           end
         end

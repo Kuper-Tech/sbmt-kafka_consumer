@@ -51,6 +51,8 @@ default: &default
               inbox_item: "TestInboxItem"
           deserializer:
             klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer"
+          kafka_options:
+            auto.offset.reset: latest
     group_ref_id_2:
       name: cg_with_multiple_topics
       topics:
@@ -204,6 +206,7 @@ default: &default
 
 Обязательной опцией является `servers` в формате rdkafka (**без префикса схемы** `kafka://`): `srv1:port1,srv2:port2,...`
 В разделе `kafka_options` можно указать (любые опции rdkafka)[https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md]
+P.S. также блок `kafka_options` можно переопределить для каждого топика (см. пример ниже)
 
 #### Конфигурация: блок `consumer_groups`
 
@@ -224,6 +227,9 @@ default: &default
           klass: [optional] класс десериалайзера, отнаследованный от BaseDeserializer, по умолчанию используется NullDeserializer 
           init_attrs: # [optional] параметры десериалайзера, см. ниже
             key: value
+        kafka_options:
+          # данный блок опционален и позволяет переопределять настройки rdkafka (kafka/kafka_options в корне конфига) для каждого топика
+          auto.offset.reset: latest
 ...
 ```
 
