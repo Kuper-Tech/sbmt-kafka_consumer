@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :messages_message, class: "SbmtKarafka::Messages::Message" do
+  factory :messages_message, class: "Karafka::Messages::Message" do
     skip_create
 
     transient do

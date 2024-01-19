@@ -30,7 +30,7 @@ module Sbmt
         end
 
         def setup_subscription
-          SbmtKarafka::App.monitor.subscribe(self)
+          Karafka::App.monitor.subscribe(self)
         end
       end
     end

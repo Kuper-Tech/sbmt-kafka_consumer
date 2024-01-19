@@ -6,9 +6,9 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
   it "properly configures karafka routes" do
     described_class.configure!
 
-    expect(SbmtKarafka::App.routes.count).to be(2)
+    expect(Karafka::App.routes.count).to be(2)
 
-    expect(SbmtKarafka::App.routes.first.to_h).to include(
+    expect(Karafka::App.routes.first.to_h).to include(
       id: "some_name_cg_with_single_topic",
       topics: contain_exactly(
         hash_including(
@@ -26,7 +26,7 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
       )
     )
 
-    expect(SbmtKarafka::App.routes.last.to_h).to include(
+    expect(Karafka::App.routes.last.to_h).to include(
       id: "some_name_cg_with_multiple_topics",
       topics: contain_exactly(hash_including(
         active: true,
