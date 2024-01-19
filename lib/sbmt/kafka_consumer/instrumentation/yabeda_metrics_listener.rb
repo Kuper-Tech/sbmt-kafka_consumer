@@ -84,7 +84,7 @@ module Sbmt
 
         def consumer_base_tags(consumer)
           {
-            client: SbmtKarafka::App.config.client_id,
+            client: Karafka::App.config.client_id,
             group_id: consumer.topic.consumer_group.id,
             topic: consumer.messages.metadata.topic,
             partition: consumer.messages.metadata.partition
@@ -124,7 +124,7 @@ module Sbmt
             next if broker_statistics["nodeid"] == -1
 
             broker_tags = {
-              client: SbmtKarafka::App.config.client_id,
+              client: Karafka::App.config.client_id,
               broker: broker_statistics["nodename"]
             }
 
@@ -145,7 +145,7 @@ module Sbmt
           return if group_stats.blank?
 
           cg_tags = {
-            client: SbmtKarafka::App.config.client_id,
+            client: Karafka::App.config.client_id,
             group_id: group_id,
             state: group_stats["state"]
           }
@@ -167,7 +167,7 @@ module Sbmt
 
               Yabeda.kafka_consumer.offset_lag
                 .set({
-                  client: SbmtKarafka::App.config.client_id,
+                  client: Karafka::App.config.client_id,
                   group_id: group_id,
                   topic: topic_name,
                   partition: partition_name

@@ -3,7 +3,7 @@
 class Sbmt::KafkaConsumer::ClientConfigurer
   def self.configure!(**opts)
     config = Sbmt::KafkaConsumer::Config.new
-    SbmtKarafka::App.setup do |karafka_config|
+    Karafka::App.setup do |karafka_config|
       karafka_config.monitor = config.monitor_class.classify.constantize.new
       karafka_config.logger = Sbmt::KafkaConsumer.logger
       karafka_config.deserializer = config.deserializer_class.classify.constantize.new
@@ -26,12 +26,12 @@ class Sbmt::KafkaConsumer::ClientConfigurer
       karafka_config.strict_topics_namespacing = false
 
       # Recreate consumers with each batch. This will allow Rails code reload to work in the
-      # development mode. Otherwise SbmtKarafka process would not be aware of code changes
+      # development mode. Otherwise Karafka process would not be aware of code changes
       karafka_config.consumer_persistence = !Rails.env.development?
     end
 
-    SbmtKarafka.monitor.subscribe(config.logger_listener_class.classify.constantize.new)
-    SbmtKarafka.monitor.subscribe(config.metrics_listener_class.classify.constantize.new)
+    Karafka.monitor.subscribe(config.logger_listener_class.classify.constantize.new)
+    Karafka.monitor.subscribe(config.metrics_listener_class.classify.constantize.new)
 
     target_consumer_groups = if opts[:consumer_groups].blank?
       config.consumer_groups
@@ -46,8 +46,8 @@ class Sbmt::KafkaConsumer::ClientConfigurer
     # clear routes in case CLI runner tries to reconfigure them
     # but railtie initializer had already executed and did the same
     # otherwise we'll get duplicate routes error from sbmt-karafka internal config validation process
-    SbmtKarafka::App.routes.clear
-    SbmtKarafka::App.routes.draw do
+    Karafka::App.routes.clear
+    Karafka::App.routes.draw do
       target_consumer_groups.each do |cg|
         consumer_group cg.name do
           cg.topics.each do |t|
@@ -65,7 +65,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
   end
 
   def self.routes
-    SbmtKarafka::App.routes.map do |cg|
+    Karafka::App.routes.map do |cg|
       topics = cg.topics.map { |t| {name: t.name, deserializer: t.deserializer} }
       {group: cg.id, topics: topics}
     end

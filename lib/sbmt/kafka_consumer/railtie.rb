@@ -11,9 +11,9 @@ module Sbmt
 
       # it must be consistent with sbmt_karafka initializers' name
       initializer "sbmt_kafka_consumer_karafka_init.configure_rails_initialization",
-        before: "sbmt_karafka.require_karafka_boot_file" do
+        before: "karafka.require_karafka_boot_file" do
         # skip loading native karafka.rb, because we want custom init process
-        SbmtKarafka.instance_eval do
+        Karafka.instance_eval do
           def boot_file; false; end
         end
       end

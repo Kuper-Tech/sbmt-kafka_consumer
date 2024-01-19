@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require "zeitwerk"
-require "sbmt_karafka"
+require "karafka"
 require "active_record"
 require "yabeda"
 require "anyway_config"
@@ -15,7 +15,7 @@ require_relative "kafka_consumer/railtie" if defined?(Rails::Railtie)
 module Sbmt
   module KafkaConsumer
     class << self
-      delegate :monitor, to: SbmtKarafka
+      delegate :monitor, to: Karafka
 
       def logger
         @logger ||= Rails.logger

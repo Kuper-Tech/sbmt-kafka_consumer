@@ -2,7 +2,7 @@
 
 module Sbmt
   module KafkaConsumer
-    class BaseConsumer < SbmtKarafka::BaseConsumer
+    class BaseConsumer < Karafka::BaseConsumer
       attr_reader :trace_id
 
       def self.consumer_klass(skip_on_error: false)

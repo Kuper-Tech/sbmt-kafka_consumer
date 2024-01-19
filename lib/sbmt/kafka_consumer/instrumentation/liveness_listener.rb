@@ -8,7 +8,7 @@ module Sbmt
         include KafkaConsumer::Probes::Probe
 
         def initialize(timeout_sec: 10)
-          @consumer_groups = SbmtKarafka::App.routes.map(&:name)
+          @consumer_groups = Karafka::App.routes.map(&:name)
           @timeout_sec = timeout_sec
           @polls = {}
 
@@ -63,7 +63,7 @@ module Sbmt
         end
 
         def setup_subscription
-          SbmtKarafka::App.monitor.subscribe(self)
+          Karafka::App.monitor.subscribe(self)
         end
       end
     end

@@ -3,7 +3,7 @@
 module Sbmt
   module KafkaConsumer
     module Instrumentation
-      class LoggerListener < SbmtKarafka::Instrumentation::LoggerListener
+      class LoggerListener < Karafka::Instrumentation::LoggerListener
         include ListenerHelper
         CUSTOM_ERROR_TYPES = %w[consumer.base.consume_one consumer.inbox.consume_one].freeze
 

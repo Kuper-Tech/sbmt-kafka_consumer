@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :messages_batch_metadata, class: "SbmtKarafka::Messages::BatchMetadata" do
+  factory :messages_batch_metadata, class: "Karafka::Messages::BatchMetadata" do
     skip_create
 
     size { 0 }

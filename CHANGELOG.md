@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [1.0.0] - 2024-01-12
+
+### Added
+
+- Use mainstream karafka instead of custom fork
 
 ## [0.23.0] - 2024-01-12
 

@@ -9,7 +9,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
   let(:consumer_group) { spy(:consumer_group, name: "CONSUMER_GROUP") }
 
   before do
-    allow(SbmtKarafka::App).to receive(:routes).and_return([consumer_group])
+    allow(Karafka::App).to receive(:routes).and_return([consumer_group])
 
     travel_to Time.now.utc # rubocop:disable Rails/TravelToWithoutBlock
   end

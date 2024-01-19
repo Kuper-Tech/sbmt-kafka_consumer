@@ -3,7 +3,7 @@
 module Sbmt
   module KafkaConsumer
     module Instrumentation
-      class BaseMonitor < SbmtKarafka::Instrumentation::Monitor
+      class BaseMonitor < Karafka::Instrumentation::Monitor
         # karafka consuming is based around batch-processing
         # so we need these per-message custom events
         SBMT_KAFKA_CONSUMER_EVENTS = %w[
