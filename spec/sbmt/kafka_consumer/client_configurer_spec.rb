@@ -13,9 +13,6 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
       topics: contain_exactly(
         hash_including(
           active: true,
-          active_job: {active: false},
-          dead_letter_queue: {active: false, max_retries: 3, topic: nil},
-          declaratives: {active: true, details: {}, partitions: 1, replication_factor: 1},
           initial_offset: "earliest",
           kafka: {"auto.offset.reset": "latest"},
           manual_offset_management: {active: true},
@@ -30,9 +27,6 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
       id: "some_name_cg_with_multiple_topics",
       topics: contain_exactly(hash_including(
         active: true,
-        active_job: {active: false},
-        dead_letter_queue: {active: false, max_retries: 3, topic: nil},
-        declaratives: {active: true, details: {}, partitions: 1, replication_factor: 1},
         initial_offset: "earliest",
         kafka: hash_including(
           "allow.auto.create.topics": true,
@@ -54,9 +48,6 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
         name: "topic_with_json_data"
       ), hash_including(
         active: false,
-        active_job: {active: false},
-        dead_letter_queue: {active: false, max_retries: 3, topic: nil},
-        declaratives: {active: true, details: {}, partitions: 1, replication_factor: 1},
         initial_offset: "earliest",
         kafka: hash_including(
           "allow.auto.create.topics": true,
@@ -78,9 +69,6 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
         name: "inactive_topic_with_autocommit"
       ), hash_including(
         active: true,
-        active_job: {active: false},
-        dead_letter_queue: {active: false, max_retries: 3, topic: nil},
-        declaratives: {active: true, details: {}, partitions: 1, replication_factor: 1},
         initial_offset: "earliest",
         kafka: hash_including(
           "allow.auto.create.topics": true,
@@ -102,9 +90,6 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
         name: "topic_with_protobuf_data"
       ), hash_including(
         active: true,
-        active_job: {active: false},
-        dead_letter_queue: {active: false, max_retries: 3, topic: nil},
-        declaratives: {active: true, details: {}, partitions: 1, replication_factor: 1},
         initial_offset: "earliest",
         kafka: hash_including(
           "allow.auto.create.topics": true,
