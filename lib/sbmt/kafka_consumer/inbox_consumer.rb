@@ -6,7 +6,7 @@ module Sbmt
       IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
       DEFAULT_SOURCE = "KAFKA"
 
-      def self.consumer_klass(name:, inbox_item:, event_name: nil, skip_on_error: false)
+      def self.consumer_klass(inbox_item:, event_name: nil, skip_on_error: false, name: nil)
         Class.new(self) do
           const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
           const_set(:EVENT_NAME, event_name)
