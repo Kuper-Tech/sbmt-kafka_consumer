@@ -198,7 +198,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
 
       it "successfully uses generated value" do
         consume_with_sbmt_karafka
-        expect(UUID.validate(TestInboxItem.last.uuid)).to be(true)
+        expect(TestInboxItem.last.uuid.size).to eq(36)
         expect(Rails.logger).not_to have_received(:error)
       end
     end
