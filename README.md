@@ -1,6 +1,6 @@
 # Sbmt::KafkaConsumer
 
-This gem is used for consuming Kafka messages. It represents a wrapper over [Karafka](https://github.com/karafka/karafka) gem and is recommended for using as a transport with [sbmt-outbox][https://github.com/sberMarket-Tech/sbmt-outbox] gem.
+This gem is used for consuming Kafka messages. It represents a wrapper over [Karafka](https://github.com/karafka/karafka) gem and is recommended for using as a transport with [sbmt-outbox][https://github.com/SberMarket-Tech/sbmt-outbox] gem.
 
 ## Installation
 
@@ -42,7 +42,7 @@ rails g kafka_consumer:consumer MaybeNamespaced::Name
 
 ### Inbox consumer
 
-To generate an inbox consumer for using with gem [sbmt-outbox](https://github.com/sberMarket-Tech/sbmt-outbox) run the following command:
+To generate an inbox consumer for using with gem [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox) run the following command:
 
 ```shell
 rails g kafka_consumer:inbox_consumer MaybeNamespaced::Name some-consumer-group some-topic

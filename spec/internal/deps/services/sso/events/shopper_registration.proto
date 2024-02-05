@@ -4,7 +4,7 @@ import "google/protobuf/timestamp.proto";
 
 package sso;
 
-option go_package="gitlab.sbmt.io/paas/content/auth/auth-back/pkg/server/grpc/user_registrations";
+option go_package="grpc/user_registrations";
 
 message UserRegistration {
   string user_uuid = 1;

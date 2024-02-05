@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
 
   spec.summary = "Kafka consumer abstraction with ability to use inbox-pattern"
   spec.description = spec.summary
-  spec.homepage = "https://github.com/sberMarket-Tech/sbmt-kafka_consumer"
+  spec.homepage = "https://github.com/SberMarket-Tech/sbmt-kafka_consumer"
   spec.required_ruby_version = ">= 2.7.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
@@ -30,7 +30,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rails", ">= 5.1"
+  spec.add_dependency "rails", ">= 5.2"
   spec.add_dependency "zeitwerk", "~> 2.3"
   spec.add_dependency "karafka", "~> 2.2"
   spec.add_dependency "sbmt-outbox", ">= 4.1.0"
