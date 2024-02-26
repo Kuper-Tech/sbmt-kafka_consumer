@@ -1,5 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/sbmt-kafka_consumer.svg)](https://badge.fury.io/rb/sbmt-kafka_consumer)
-[![Build Status](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/workflows/Ruby/badge.svg?branch=master)](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/actions?query=branch%3Amaster)
+[![Build Status](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/SberMarket-Tech/sbmt-outbox/actions?query=branch%3Amaster)
 
 # Sbmt-KafkaConsumer
 
