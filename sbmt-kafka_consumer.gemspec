@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version = Sbmt::KafkaConsumer::VERSION
   spec.authors = ["Sbermarket Ruby-Platform Team"]
 
-  spec.summary = "Kafka consumer abstraction with ability to use inbox-pattern"
-  spec.description = spec.summary
+  spec.summary = "Ruby gem for consuming Kafka messages"
+  spec.description = "This gem is used for consuming Kafka messages. It represents a wrapper over Karafka gem and is recommended for using as a transport with sbmt-outbox"
   spec.homepage = "https://github.com/SberMarket-Tech/sbmt-kafka_consumer"
   spec.required_ruby_version = ">= 2.7.0"
 
@@ -34,31 +34,31 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", ">= 5.2"
   spec.add_dependency "zeitwerk", "~> 2.3"
   spec.add_dependency "karafka", "~> 2.2"
-  spec.add_dependency "sbmt-outbox", ">= 4.1.0"
   spec.add_dependency "yabeda", ">= 0.11"
   spec.add_dependency "anyway_config", ">= 2.4.0"
   spec.add_dependency "thor"
   spec.add_dependency "dry-struct"
 
   spec.add_development_dependency "appraisal", ">= 2.4"
-  spec.add_development_dependency "bundler", ">= 2.3"
+  spec.add_development_dependency "bundler", ">= 2.1"
   spec.add_development_dependency "combustion", ">= 1.3"
   spec.add_development_dependency "rake", ">= 13.0"
-  spec.add_development_dependency "dry-monads", "~> 1.3"
+  spec.add_development_dependency "dry-monads", ">= 1.3"
   spec.add_development_dependency "factory_bot_rails"
   spec.add_development_dependency "pg"
   spec.add_development_dependency "google-protobuf"
-  spec.add_development_dependency "sentry-rails", "> 5.2.0"
+  spec.add_development_dependency "sentry-rails", ">= 5.2"
   spec.add_development_dependency "opentelemetry-sdk"
-  spec.add_development_dependency "opentelemetry-api", ">= 0.17.0"
-  spec.add_development_dependency "opentelemetry-common", ">= 0.17.0"
-  spec.add_development_dependency "opentelemetry-instrumentation-base", ">= 0.17.0"
+  spec.add_development_dependency "opentelemetry-api", ">= 0.17"
+  spec.add_development_dependency "opentelemetry-common", ">= 0.17"
+  spec.add_development_dependency "opentelemetry-instrumentation-base", ">= 0.17"
   spec.add_development_dependency "rspec", ">= 3.0"
   spec.add_development_dependency "rspec_junit_formatter", ">= 0.6"
   spec.add_development_dependency "rspec-rails", ">= 4.0"
   spec.add_development_dependency "rubocop-rails", ">= 2.5"
   spec.add_development_dependency "rubocop-rspec", ">= 2.11"
-  spec.add_development_dependency "simplecov", "~> 0.16"
+  spec.add_development_dependency "sbmt-outbox", ">= 5.0"
+  spec.add_development_dependency "simplecov", ">= 0.16"
   spec.add_development_dependency "standard", ">= 1.12"
 
   # let metrics and probes work in dev-mode with combustion
