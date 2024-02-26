@@ -1,6 +1,9 @@
-# Sbmt::KafkaConsumer
+[![Gem Version](https://badge.fury.io/rb/sbmt-kafka_consumer.svg)](https://badge.fury.io/rb/sbmt-kafka_consumer)
+[![Build Status](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/workflows/Ruby/badge.svg?branch=master)](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/actions?query=branch%3Amaster)
 
-This gem is used for consuming Kafka messages. It represents a wrapper over [Karafka](https://github.com/karafka/karafka) gem and is recommended for using as a transport with [sbmt-outbox][https://github.com/SberMarket-Tech/sbmt-outbox] gem.
+# Sbmt-KafkaConsumer
+
+This gem is used for consuming Kafka messages. It represents a wrapper over [Karafka](https://github.com/karafka/karafka) gem and is recommended for using as a transport with [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox) gem.
 
 ## Installation
 
