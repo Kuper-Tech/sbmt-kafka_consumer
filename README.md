@@ -3,7 +3,7 @@
 
 # Sbmt-KafkaConsumer
 
-This gem is used for consuming Kafka messages. It represents a wrapper over [Karafka](https://github.com/karafka/karafka) gem and is recommended for using as a transport with [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox) gem.
+This gem is used to consume Kafka messages. It is a wrapper over the [Karafka](https://github.com/karafka/karafka) gem, and is recommended for use as a transport with the [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox) gem.
 
 ## Installation
 
@@ -21,9 +21,7 @@ bundle install
 
 ## Auto configuration
 
-We recommend going through configuration and files creation with the following Rails generators.
-
-Each generator can be run using the `--help` option to learn more about the available arguments.
+We recommend going through the configuration and file creation process using the following Rails generators. Each generator can be run by using the `--help` option to learn more about the available arguments.
 
 ### Initial configuration
 
@@ -33,7 +31,7 @@ If you plug the gem into your application for the first time, you can generate t
 rails g kafka_consumer:install
 ```
 
-In the result, the `config/kafka_consumer.yml` file will be created.
+As the result, the `config/kafka_consumer.yml` file will be created.
 
 ### Consumer class
 
@@ -45,7 +43,7 @@ rails g kafka_consumer:consumer MaybeNamespaced::Name
 
 ### Inbox consumer
 
-To generate an inbox consumer for using with gem [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox) run the following command:
+To generate an Inbox consumer for use with gem [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox), run the following command:
 
 ```shell
 rails g kafka_consumer:inbox_consumer MaybeNamespaced::Name some-consumer-group some-topic
@@ -53,7 +51,7 @@ rails g kafka_consumer:inbox_consumer MaybeNamespaced::Name some-consumer-group 
 
 ## Manual configuration
 
-The `config/kafka_consumer.yml` file is a main config for the gem.
+The `config/kafka_consumer.yml` file is a main configuration for the gem.
 
 Example config with a full set of options:
 
@@ -219,7 +217,7 @@ metrics:
 
 ### `Kafkafile`
 
-You can create `Kafkafile` in the root of the app to set up additional configuration for your needs.
+You can create a `Kafkafile` in the root of your app to configure additional settings for your needs.
 
 Example:
 
@@ -245,7 +243,7 @@ Where:
 
 [Concurrency and Multithreading](https://karafka.io/docs/Concurrency-and-multithreading/).
 
-Don't forget to correctly calculate and set the size of the ActiveRecord connection pool:
+Don't forget to properly calculate and set the size of the ActiveRecord connection pool:
 - each thread will utilize one db connection from the pool
 - an application can have monitoring threads which can use db connections from the pool
 
