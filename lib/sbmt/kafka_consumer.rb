@@ -9,6 +9,12 @@ require "thor"
 require "dry/types"
 require "dry-struct"
 
+begin
+  require "sbmt/outbox"
+rescue LoadError
+  # sbmt-outbox is an optional dependency
+end
+
 require "anyway/rails" if defined?(Rails)
 require_relative "kafka_consumer/railtie" if defined?(Rails::Railtie)
 
