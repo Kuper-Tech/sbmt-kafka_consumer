@@ -14,10 +14,6 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
     travel_to Time.now.utc # rubocop:disable Rails/TravelToWithoutBlock
   end
 
-  after do
-    travel_back
-  end
-
   context "without polls" do
     it "returns error" do
       expect(probe).to eq [
