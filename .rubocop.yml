@@ -19,6 +19,8 @@ AllCops:
   SuggestExtensions: false
   TargetRubyVersion: 2.7
   TargetRailsVersion: 5.2
+  Exclude:
+    - spec/internal/pkg/**/*
 
 RSpec/FilePath:
   Enabled: false

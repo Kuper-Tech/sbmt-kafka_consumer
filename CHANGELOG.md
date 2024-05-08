@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.0.1] - 2024-05-08
+
+### Fixed
+
+- Limit the Karafka version to less than `2.4` because they dropped the consumer group mapping
+
 ## [2.0.0] - 2024-01-30
 
 ### Changed
