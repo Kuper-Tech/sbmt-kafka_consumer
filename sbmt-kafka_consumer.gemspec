@@ -31,7 +31,7 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rails", ">= 5.2"
+  spec.add_dependency "rails", ">= 6.0"
   spec.add_dependency "zeitwerk", "~> 2.3"
   spec.add_dependency "karafka", "~> 2.2", "< 2.4" # [Breaking] Drop the concept of consumer group mapping.
   spec.add_dependency "yabeda", ">= 0.11"
