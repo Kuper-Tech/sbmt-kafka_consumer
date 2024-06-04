@@ -13,7 +13,8 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
 
         "KAFKA_CONSUMER_KAFKA__SERVERS" => "server1:9092,server2:9092",
 
-        "KAFKA_CONSUMER_CLIENT_ID" => "client-id"
+        "KAFKA_CONSUMER_CLIENT_ID" => "client-id",
+        "KAFKA_CONSUMER_PARTITION_ASSIGNMENT_STRATEGY" => "cooperative-sticky"
       }
     }
     let(:config) { described_class.new }
@@ -36,6 +37,7 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
             "sasl.mechanism": "PLAIN",
             "sasl.password": "password",
             "sasl.username": "username",
+            "partition.assignment.strategy": "cooperative-sticky",
             # loaded from kafka_consumer.yml
             "allow.auto.create.topics": true
           ))
@@ -170,6 +172,36 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
         with_env(env) do
           expect(config.probes.port).to eq 8080
           expect(config.metrics.port).to eq 9090
+        end
+      end
+    end
+
+    context "with partition assignment for topic" do
+      let(:config) {
+        described_class.new(consumer_groups: {
+          group_id_1: {
+            name: "cg_with_single_topic",
+            topics: [
+              {
+                name: "topic_with_inbox_items",
+                consumer: {
+                  klass: "Sbmt::KafkaConsumer::InboxConsumer",
+                  init_attrs:
+                    {name: "test_items"},
+                  inbox_item: "TestInboxItem"
+                },
+                kafka_options: {
+                  "partition.assignment.strategy": "cooperative-sticky"
+                }
+              }
+            ]
+          }
+        })
+      }
+
+      it "raises error" do
+        with_env(default_env) do
+          expect { config }.to raise_error(/Using the partition.assignment.strategy option for individual topics is not supported/)
         end
       end
     end
