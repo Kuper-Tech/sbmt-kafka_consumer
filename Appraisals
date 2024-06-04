@@ -17,6 +17,7 @@ versions_map.each do |rails_version, ruby_versions|
 
     appraise "rails-#{rails_version}" do
       gem "rails", "~> #{rails_version}.0"
+      gem "ffi", "< 1.17" if ruby_version == "2.7"
     end
   end
 end
