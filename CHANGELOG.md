@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.2.0] - 2024-05-13
+
+### Changed
+
+- Drop support for Rails 5.2
+- Add support for Ruby 3.3
+
 ## [2.1.0] - 2024-05-13
 
 ### Added
