@@ -69,6 +69,7 @@ default: &default
   pause_timeout: 1
   pause_max_timeout: 30
   pause_with_exponential_backoff: true
+  partition_assignment_strategy: cooperative-sticky
   auth:
     kind: plaintext
   kafka:
@@ -155,6 +156,7 @@ auth:
 The `servers` key is required and should be in rdkafka format: without `kafka://` prefix, for example: `srv1:port1,srv2:port2,...`.
 
 The `kafka_config` section may contain any [rdkafka option](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md). Also, `kafka_options` may be redefined for each topic.
+Please note that the `partition.assignment.strategy` option within kafka_options is not supported for topics; instead, use the global option partition_assignment_strategy. 
 
 ### `consumer_groups` config section
 

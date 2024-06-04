@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.3.0] - 2024-05-30
+
+### Added
+
+- New config option `partition_assignment_strategy`
+
+### Changed
+
+- Raise an exception when using the `partition.assignment.strategy` option within `kafka_options` for topics.
+
 ## [2.2.0] - 2024-05-13
 
 ### Changed

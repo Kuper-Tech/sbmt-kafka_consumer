@@ -25,7 +25,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
 
   attr_config :client_id,
     :pause_timeout, :pause_max_timeout, :pause_with_exponential_backoff,
-    :max_wait_time, :shutdown_timeout,
+    :max_wait_time, :shutdown_timeout, :partition_assignment_strategy,
     concurrency: 4, auth: {}, kafka: {}, consumer_groups: {}, probes: {}, metrics: {},
     deserializer_class: "::Sbmt::KafkaConsumer::Serialization::NullDeserializer",
     monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::TracingMonitor",
@@ -45,6 +45,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
     pause_with_exponential_backoff: :boolean,
     max_wait_time: :integer,
     shutdown_timeout: :integer,
+    partition_assignment_strategy: :string,
     concurrency: :integer
 
   coerce_types kafka: coerce_to(Kafka)
@@ -54,7 +55,10 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
   coerce_types consumer_groups: coerce_to_array_of(ConsumerGroup)
 
   def to_kafka_options
-    kafka.to_kafka_options
+    {
+      "partition.assignment.strategy": partition_assignment_strategy
+    }.compact
+      .merge(kafka.to_kafka_options)
       .merge(auth.to_kafka_options)
   end
 
@@ -64,6 +68,9 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
     consumer_groups.each do |cg|
       raise_validation_error "consumer group #{cg.id} must have at least one topic defined" if cg.topics.blank?
       cg.topics.each do |t|
+        if t.kafka_options.key?(:"partition.assignment.strategy")
+          raise_validation_error "Using the partition.assignment.strategy option for individual topics is not supported due to consuming issues. Use the global option `partition_assignment_strategy` instead"
+        end
         raise_validation_error "topic #{cg.id}.topics.name[#{t.name}] contains invalid consumer class: no const #{t.consumer.klass} defined" unless t.consumer.klass.safe_constantize
         raise_validation_error "topic #{cg.id}.topics.name[#{t.name}] contains invalid deserializer class: no const #{t.deserializer.klass} defined" unless t.deserializer&.klass&.safe_constantize
       end

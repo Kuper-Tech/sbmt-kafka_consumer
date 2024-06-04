@@ -6,6 +6,8 @@ default: &default
   pause_timeout: 1
   pause_max_timeout: 30
   pause_with_exponential_backoff: true
+## available strategies: range, roundrobin, cooperative-sticky
+#  partition_assignment_strategy: "range,roundrobin"
   auth:
     kind: plaintext
   kafka:
