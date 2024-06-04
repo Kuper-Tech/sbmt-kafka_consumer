@@ -7,7 +7,14 @@ describe Sbmt::KafkaConsumer::Instrumentation::SentryTracer do
   let(:trace_id) { "trace-id" }
   let(:caller) { double("consumer instance") }
   let(:message) { OpenStruct.new(topic: "topic", offset: 0, partition: 1, metadata: {topic: "topic"}, payload: "message payload") }
+  let(:batch_messages) {
+    [
+      OpenStruct.new(topic: "topic", offset: 0, partition: 1, metadata: {topic: "topic"}, payload: "message payload"),
+      OpenStruct.new(topic: "another_topic", offset: 1, partition: 2, metadata: {topic: "another_topic"}, payload: "another message payload")
+    ]
+  }
   let(:event_payload) { OpenStruct.new(caller: caller, message: message, trace_id: trace_id, type: nil) }
+  let(:event_payload_with_batch) { OpenStruct.new(caller: caller, messages: batch_messages, trace_id: trace_id, type: nil) }
 
   before do
     allow(caller).to receive(:messages).and_return([message])
@@ -88,6 +95,75 @@ describe Sbmt::KafkaConsumer::Instrumentation::SentryTracer do
 
         expect do
           described_class.new("consumer.consumed_one", event_payload).trace { raise "error" }
+        end.to raise_error("error")
+      end
+    end
+
+    context "when event is consumer.consumed_batch" do
+      before { allow(Sentry).to receive(:initialized?).and_return(true) }
+
+      it "traces message" do
+        expect(Sentry).to receive(:get_current_scope).and_return(Sentry::Scope.new)
+        expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
+
+        expect(sentry_transaction).to receive(:is_a?).and_return(Sentry::Span)
+        expect(sentry_transaction).to receive(:set_http_status).with(200)
+        expect(sentry_transaction).to receive(:finish)
+
+        described_class.new("consumer.consumed_batch", event_payload_with_batch).trace {}
+      end
+
+      context "with scope" do
+        let(:sentry_scope) { instance_double(Sentry::Scope) }
+
+        before do
+          allow(sentry_scope).to receive(:transaction_name)
+          allow(sentry_scope).to receive(:set_span)
+          allow(sentry_scope).to receive(:clear)
+          allow(sentry_transaction).to receive(:set_http_status)
+          allow(sentry_transaction).to receive(:finish)
+        end
+
+        context "when custom consumer class is used" do
+          let(:custom_class) { stub_const("SomeModule::CustomConsumerClass", Class.new(Sbmt::KafkaConsumer::BaseConsumer)) }
+          let(:caller) { custom_class.consumer_klass.new }
+
+          it "sets proper params" do
+            expect(Sentry).to receive(:get_current_scope).and_return(sentry_scope)
+            expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
+
+            expect(sentry_scope).to receive(:set_transaction_name).with("Sbmt/KafkaConsumer/SomeModule::CustomConsumerClass")
+            expect(sentry_scope).to receive(:set_tags).with(hash_including(first_offset: 0, last_offset: 1, topic: "topic", trace_id: "trace-id"))
+
+            described_class.new("consumer.consumed_batch", event_payload_with_batch).trace {}
+          end
+        end
+
+        context "when base consumer class is used" do
+          let(:caller) { Sbmt::KafkaConsumer::BaseConsumer.consumer_klass.new }
+
+          it "sets proper params" do
+            expect(Sentry).to receive(:get_current_scope).and_return(sentry_scope)
+            expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
+
+            expect(sentry_scope).to receive(:set_transaction_name).with("Sbmt/KafkaConsumer/Sbmt::KafkaConsumer::BaseConsumer")
+            expect(sentry_scope).to receive(:set_tags).with(hash_including(first_offset: 0, last_offset: 1, topic: "topic", trace_id: "trace-id"))
+
+            described_class.new("consumer.consumed_batch", event_payload_with_batch).trace {}
+          end
+        end
+      end
+
+      it "traces message when error is raised" do
+        expect(Sentry).to receive(:get_current_scope).and_return(Sentry::Scope.new)
+        expect(Sentry).to receive(:start_transaction).and_return(sentry_transaction)
+
+        expect(sentry_transaction).to receive(:is_a?).and_return(Sentry::Span)
+        expect(sentry_transaction).to receive(:set_http_status).with(500)
+        expect(sentry_transaction).to receive(:finish)
+
+        expect do
+          described_class.new("consumer.consumed_batch", event_payload_with_batch).trace { raise "error" }
         end.to raise_error("error")
       end
     end

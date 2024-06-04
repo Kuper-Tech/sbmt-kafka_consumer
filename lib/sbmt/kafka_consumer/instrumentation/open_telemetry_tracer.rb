@@ -20,6 +20,7 @@ module Sbmt
 
         def trace(&block)
           return handle_consumed_one(&block) if @event_id == "consumer.consumed_one"
+          return handle_consumed_batch(&block) if @event_id == "consumer.consumed_batch"
           return handle_inbox_consumed_one(&block) if @event_id == "consumer.inbox.consumed_one"
           return handle_error(&block) if @event_id == "error.occurred"
 
@@ -40,6 +41,23 @@ module Sbmt
             tracer.in_span("consume #{message.topic}", links: links, attributes: consumer_attrs(consumer, message), kind: :consumer) do
               yield
             end
+          end
+        end
+
+        def handle_consumed_batch
+          return yield unless enabled?
+
+          consumer = @payload[:caller]
+          messages = @payload[:messages]
+
+          links = messages.filter_map do |m|
+            parent_context = ::OpenTelemetry.propagation.extract(m.headers, getter: ::OpenTelemetry::Context::Propagation.text_map_getter)
+            span_context = ::OpenTelemetry::Trace.current_span(parent_context).context
+            ::OpenTelemetry::Trace::Link.new(span_context) if span_context.valid?
+          end
+
+          tracer.in_span("consume batch", links: links, attributes: batch_attrs(consumer, messages), kind: :consumer) do
+            yield
           end
         end
 
@@ -90,6 +108,19 @@ module Sbmt
           attributes["messaging.kafka.message_key"] = message_key if message_key
 
           attributes.compact
+        end
+
+        def batch_attrs(consumer, messages)
+          message = messages.first
+          {
+            "messaging.system" => "kafka",
+            "messaging.destination" => message.topic,
+            "messaging.destination_kind" => "topic",
+            "messaging.kafka.consumer_group" => consumer.topic.consumer_group.id,
+            "messaging.batch_size" => messages.count,
+            "messaging.first_offset" => messages.first.offset,
+            "messaging.last_offset" => messages.last.offset
+          }.compact
         end
 
         def extract_message_key(key)

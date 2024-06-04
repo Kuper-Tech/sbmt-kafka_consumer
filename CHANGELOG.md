@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.1.0] - 2024-05-13
+
+### Added
+
+- Implemented method `export_batch` for processing messages in batches
+
 ## [2.0.1] - 2024-05-08
 
 ### Fixed
