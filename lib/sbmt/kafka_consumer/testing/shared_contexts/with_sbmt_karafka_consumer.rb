@@ -28,15 +28,14 @@ RSpec.shared_context "with sbmt karafka consumer" do
 
   def publish_to_sbmt_karafka(raw_payload, opts = {})
     message = Karafka::Messages::Message.new(raw_payload, Karafka::Messages::Metadata.new(metadata_defaults.merge(opts)))
-    consumer.messages = Karafka::Messages::Messages.new(
-      [message],
-      Karafka::Messages::BatchMetadata.new(
-        topic: test_topic.name,
-        partition: 0,
-        processed_at: Time.zone.now,
-        created_at: Time.zone.now
-      )
-    )
+    consumer.messages = consumer_messages([message])
+  end
+
+  def publish_to_sbmt_karafka_batch(raw_payloads, opts = {})
+    messages = raw_payloads.map do |p|
+      Karafka::Messages::Message.new(p, Karafka::Messages::Metadata.new(metadata_defaults.merge(opts)))
+    end
+    consumer.messages = consumer_messages(messages)
   end
 
   # @return [Hash] message default options
@@ -57,5 +56,19 @@ RSpec.shared_context "with sbmt karafka consumer" do
     instance.client = kafka_client
     instance.singleton_class.include Karafka::Processing::Strategies::Default
     instance
+  end
+
+  private
+
+  def consumer_messages(messages)
+    Karafka::Messages::Messages.new(
+      messages,
+      Karafka::Messages::BatchMetadata.new(
+        topic: test_topic.name,
+        partition: 0,
+        processed_at: Time.zone.now,
+        created_at: Time.zone.now
+      )
+    )
   end
 end

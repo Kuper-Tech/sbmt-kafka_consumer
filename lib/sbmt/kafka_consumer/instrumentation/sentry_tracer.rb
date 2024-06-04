@@ -9,34 +9,48 @@ module Sbmt
       class SentryTracer < ::Sbmt::KafkaConsumer::Instrumentation::Tracer
         CONSUMER_ERROR_TYPES = %w[
           consumer.base.consume_one
+          consumer.base.consumed_batch
           consumer.inbox.consume_one
         ].freeze
 
         def trace(&block)
           return handle_consumed_one(&block) if @event_id == "consumer.consumed_one"
+          return handle_consumed_batch(&block) if @event_id == "consumer.consumed_batch"
           return handle_error(&block) if @event_id == "error.occurred"
 
           yield
         end
 
         def handle_consumed_one
-          return yield unless ::Sentry.initialized?
+          message = {
+            trace_id: @payload[:trace_id],
+            topic: @payload[:message].topic,
+            offset: @payload[:message].offset
+          }
 
-          consumer = @payload[:caller]
-          message = @payload[:message]
-          trace_id = @payload[:trace_id]
-
-          scope, transaction = start_transaction(trace_id, consumer, message)
-
-          begin
+          with_sentry_transaction(
+            @payload[:caller],
+            message
+          ) do
             yield
-          rescue
-            finish_transaction(transaction, 500)
-            raise
           end
+        end
 
-          finish_transaction(transaction, 200)
-          scope.clear
+        def handle_consumed_batch
+          message_first = @payload[:messages].first
+          message = {
+            trace_id: @payload[:trace_id],
+            topic: message_first.topic,
+            first_offset: message_first.offset,
+            last_offset: @payload[:messages].last.offset
+          }
+
+          with_sentry_transaction(
+            @payload[:caller],
+            message
+          ) do
+            yield
+          end
         end
 
         def handle_error
@@ -64,9 +78,9 @@ module Sbmt
 
         private
 
-        def start_transaction(trace_id, consumer, message)
+        def start_transaction(consumer, message)
           scope = ::Sentry.get_current_scope
-          scope.set_tags(trace_id: trace_id, topic: message.topic, offset: message.offset)
+          scope.set_tags(message)
           scope.set_transaction_name("Sbmt/KafkaConsumer/#{consumer.class.name}")
 
           transaction = ::Sentry.start_transaction(name: scope.transaction_name, op: "kafka-consumer")
@@ -96,6 +110,22 @@ module Sbmt
           # payload triggers deserialization error
           # so in that case we return raw_payload
           message.raw_payload
+        end
+
+        def with_sentry_transaction(consumer, message)
+          return yield unless ::Sentry.initialized?
+
+          scope, transaction = start_transaction(consumer, message)
+
+          begin
+            yield
+          rescue
+            finish_transaction(transaction, 500)
+            raise
+          end
+
+          finish_transaction(transaction, 200)
+          scope.clear
         end
       end
     end

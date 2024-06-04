@@ -231,6 +231,22 @@ require_relative "config/environment"
 some-extra-configuration
 ```
 
+### `Export batch`
+
+To process messages in batches, you need to add the `export_batch` method in the consumer
+
+```ruby
+# app/consumers/some_consumer.rb
+class SomeConsumer < Sbmt::KafkaConsumer::BaseConsumer
+  def export_batch(messages)
+    # some code 
+  end
+end
+```
+__CAUTION__:
+- ⚠️ Inbox does not support batch insertion.
+- ⚠️ If you want to use this feature, you need to process the stack atomically (eg: insert it into clickhouse in one request).
+
 ## CLI
 
 Run the following command to execute a server
@@ -259,6 +275,7 @@ Also pay attention to the number of processes of the server:
 
 To test your consumer with Rspec, please use [this shared context](./lib/sbmt/kafka_consumer/testing/shared_contexts/with_sbmt_karafka_consumer.rb)
 
+### for payload
 ```ruby
 require "sbmt/kafka_consumer/testing"
 
@@ -267,6 +284,20 @@ RSpec.describe OrderCreatedConsumer do
 
   it "works" do
     publish_to_sbmt_karafka(payload, deserializer: deserializer)
+    expect { consume_with_sbmt_karafka }.to change(Order, :count).by(1)
+  end
+end
+```
+
+### for payloads
+```ruby
+require "sbmt/kafka_consumer/testing"
+
+RSpec.describe OrderCreatedConsumer do
+  include_context "with sbmt karafka consumer"
+
+  it "works" do
+    publish_to_sbmt_karafka_batch(payloads, deserializer: deserializer)
     expect { consume_with_sbmt_karafka }.to change(Order, :count).by(1)
   end
 end

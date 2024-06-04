@@ -17,10 +17,24 @@ module Sbmt
 
       def consume
         ::Rails.application.executor.wrap do
-          messages.each do |message|
-            with_instrumentation(message) { do_consume(message) }
+          if export_batch?
+            with_batch_instrumentation(messages) do
+              export_batch(messages)
+              mark_as_consumed!(messages.last)
+            end
+          else
+            messages.each do |message|
+              with_instrumentation(message) { do_consume(message) }
+            end
           end
         end
+      end
+
+      def export_batch?
+        if @export_batch_memoized.nil?
+          @export_batch_memoized = respond_to?(:export_batch)
+        end
+        @export_batch_memoized
       end
 
       private
@@ -49,6 +63,25 @@ module Sbmt
             else
               raise ex
             end
+          end
+        end
+      end
+
+      def with_batch_instrumentation(messages)
+        @trace_id = SecureRandom.base58
+
+        logger.tagged(
+          trace_id: trace_id,
+          first_offset: messages.first.metadata.offset,
+          last_offset: messages.last.metadata.offset
+        ) do
+          ::Sbmt::KafkaConsumer.monitor.instrument(
+            "consumer.consumed_batch",
+            caller: self,
+            messages: messages,
+            trace_id: trace_id
+          ) do
+            yield
           end
         end
       end
