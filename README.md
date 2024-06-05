@@ -233,14 +233,14 @@ require_relative "config/environment"
 some-extra-configuration
 ```
 
-### `Export batch`
+### `Process batch`
 
-To process messages in batches, you need to add the `export_batch` method in the consumer
+To process messages in batches, you need to add the `process_batch` method in the consumer
 
 ```ruby
 # app/consumers/some_consumer.rb
 class SomeConsumer < Sbmt::KafkaConsumer::BaseConsumer
-  def export_batch(messages)
+  def process_batch(messages)
     # some code 
   end
 end
