@@ -17,9 +17,9 @@ module Sbmt
 
       def consume
         ::Rails.application.executor.wrap do
-          if export_batch?
+          if process_batch?
             with_batch_instrumentation(messages) do
-              export_batch(messages)
+              process_batch(messages)
               mark_as_consumed!(messages.last)
             end
           else
@@ -30,11 +30,11 @@ module Sbmt
         end
       end
 
-      def export_batch?
-        if @export_batch_memoized.nil?
-          @export_batch_memoized = respond_to?(:export_batch)
+      def process_batch?
+        if @process_batch_memoized.nil?
+          @process_batch_memoized = respond_to?(:process_batch)
         end
-        @export_batch_memoized
+        @process_batch_memoized
       end
 
       private

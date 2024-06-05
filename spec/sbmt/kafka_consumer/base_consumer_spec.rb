@@ -97,8 +97,8 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
     let(:consumer_class) do
       Class.new(described_class.consumer_klass) do
         attr_reader :consumed
-        def export_batch(messages)
-          Rails.logger.info "Export batch #{messages.count} messages"
+        def process_batch(messages)
+          Rails.logger.info "Process batch #{messages.count} messages"
           @consumed = true
         end
 
@@ -119,7 +119,7 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
     it "consumes" do
       consume_with_sbmt_karafka
       expect(consumer).to be_consumed
-      expect(Rails.logger).to have_received(:info).with(/Export batch/)
+      expect(Rails.logger).to have_received(:info).with(/Process batch/)
     end
   end
 end

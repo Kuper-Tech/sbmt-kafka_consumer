@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.3.1] - 2024-06-05
+
+### Fixed
+
+- Rename from `export_batch` to `process_batch`
+
 ## [2.3.0] - 2024-05-30
 
 ### Added
