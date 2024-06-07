@@ -5,9 +5,10 @@ module Sbmt
     class BaseConsumer < Karafka::BaseConsumer
       attr_reader :trace_id
 
-      def self.consumer_klass(skip_on_error: false)
+      def self.consumer_klass(skip_on_error: false, middlewares: [])
         Class.new(self) do
           const_set(:SKIP_ON_ERROR, skip_on_error)
+          const_set(:MIDDLEWARES, middlewares.map(&:constantize))
 
           def self.name
             superclass.name
@@ -93,13 +94,17 @@ module Sbmt
         # so we trigger it explicitly to catch undeserializable message early
         message.payload
 
-        process_message(message)
+        call_middlewares(message, middlewares) { process_message(message) }
 
         mark_as_consumed!(message)
       end
 
       def skip_on_error
         self.class::SKIP_ON_ERROR
+      end
+
+      def middlewares
+        self.class::MIDDLEWARES
       end
 
       # can be overridden in consumer to enable message logging
@@ -131,6 +136,21 @@ module Sbmt
 
       def message_payload(message)
         message.payload || message.raw_payload
+      end
+
+      def call_middlewares(message, middlewares)
+        return yield if middlewares.empty?
+
+        chain = middlewares.map { |middleware_class| middleware_class.new }
+
+        traverse_chain = proc do
+          if chain.empty?
+            yield
+          else
+            chain.shift.call(message, &traverse_chain)
+          end
+        end
+        traverse_chain.call
       end
     end
   end

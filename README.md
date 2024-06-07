@@ -183,12 +183,45 @@ consumer_groups:
 #### `consumer.init_attrs` options for `BaseConsumer`
 
 - `skip_on_error` - optional, default false, omit consumer errors in message processing and commit the offset to Kafka
+- `middlewares` - optional, default [], type String, add middleware before message processing
+
+```yaml
+init_attrs:
+  middlewares: ['SomeMiddleware']
+```
+
+```ruby
+class SomeMiddleware
+  def call(message)
+    yield if message.payload.id.to_i % 2 == 0
+  end
+end
+```
+__CAUTION__:
+- ⚠️ `yield` is mandatory for all middleware, as it returns control to the `process_message` method.
 
 #### `consumer.init_attrs` options for `InboxConsumer`
 
 - `inbox_item` - required, name of the inbox item class
 - `event_name` - optional, default nil, used when the inbox item keep several event types
 - `skip_on_error` - optional, default false, omit consumer errors in message processing and commit the offset to Kafka
+- `middlewares` - optional, default [], type String, add middleware before message processing
+
+```yaml
+init_attrs:
+  middlewares: ['SomeMiddleware']
+```
+
+```ruby
+class SomeMiddleware
+  def call(message)
+    yield if message.payload.id.to_i % 2 == 0
+  end
+end
+```
+__CAUTION__:
+- ⚠️ `yield` is mandatory for all middleware, as it returns control to the `process_message` method.
+- ⚠️ Doesn't work with `process_batch`.
 
 #### `deserializer.init_attrs` options
 
