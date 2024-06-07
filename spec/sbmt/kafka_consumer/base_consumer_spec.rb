@@ -2,6 +2,28 @@
 
 require "rails_helper"
 
+class MyMiddleware
+  def call(message)
+    yield
+  end
+end
+
+class MyMiddleware1
+  def call(message)
+    yield
+  end
+end
+
+class SkipMessageMiddleware
+  def call(message); end
+end
+
+class MiddlewareError
+  def call(message)
+    raise exception_class, "Middleware error"
+  end
+end
+
 describe Sbmt::KafkaConsumer::BaseConsumer do
   include_context "with sbmt karafka consumer"
 
@@ -89,6 +111,96 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
         expect(Rails.logger).to receive(:error).twice
 
         consume_with_sbmt_karafka
+      end
+    end
+
+    context "when used middlewares" do
+      let(:consumer_class) do
+        base_klass = described_class.consumer_klass(middlewares: middlewares)
+        Class.new(base_klass) do
+          def process_message(_message)
+            @consumed = true
+          end
+
+          def consumed?
+            !!@consumed
+          end
+        end
+      end
+      let(:consumer) { build_consumer(consumer_class.new) }
+
+      context "when middleware condition calls message processing" do
+        let(:middlewares) { ["SkipMessageMiddleware"] }
+
+        it "calls middleware before processing message" do
+          expect(consumer).not_to receive(:process_message)
+          expect(consumer).to receive(:mark_as_consumed!).once.and_call_original
+
+          consume_with_sbmt_karafka
+          expect(consumer).not_to be_consumed
+        end
+      end
+
+      context "when middlewares are present" do
+        let(:middlewares) { ["MyMiddleware"] }
+
+        it "calls middleware before processing message" do
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "when multiple middlewares are present" do
+        let(:middlewares) { %w[MyMiddleware MyMiddleware1] }
+
+        it "calls each middleware in order before processing message" do
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "when no middlewares are present" do
+        let(:consumer_class) do
+          Class.new(described_class.consumer_klass) do
+            def process_message(_message)
+              @consumed = true
+            end
+
+            def consumed?
+              !!@consumed
+            end
+          end
+        end
+        let(:consumer) { build_consumer(consumer_class.new) }
+
+        it "does not call any middleware" do
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "when middleware raises exception" do
+        let(:exception_class) { StandardError }
+        let(:middlewares) { ["MiddlewareError"] }
+        let(:consumer_class) do
+          Class.new(described_class.consumer_klass(skip_on_error: true, middlewares: middlewares)) do
+            def process_message(_message)
+              @consumed = true
+            end
+
+            def consumed?
+              !!@consumed
+            end
+          end
+        end
+        let(:consumer) { build_consumer(consumer_class.new) }
+
+        it "skips message if middleware raises exception and skip_on_error is set" do
+          expect(Rails.logger).to receive(:warn).once.with(/skipping unprocessable message/)
+
+          consume_with_sbmt_karafka
+          expect(consumer).not_to be_consumed
+        end
       end
     end
   end
