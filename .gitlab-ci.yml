@@ -23,7 +23,7 @@ tests:
     POSTGRES_HOST_AUTH_METHOD: trust
     DATABASE_URL: postgres://postgres:secret@postgres:5432
   before_script:
-    - gem install bundler -v 2.3.26
+    - gem install bundler -v 2.4.22
     - bin/setup
   script:
     - bundle exec appraisal rspec --format RspecJunitFormatter --out test-results/rspec_$RUBY_VERSION.xml --format documentation

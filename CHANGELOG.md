@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.23.1] - 2024-06-17
+
+### Fixed
+
+- Fixed display of metrics `kafka_api_calls`  and `kafka_api_errors`
 
 ## [0.23.0] - 2024-01-12
 
