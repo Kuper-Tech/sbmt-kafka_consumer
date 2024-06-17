@@ -5,7 +5,7 @@ services:
       dockerfile: Dockerfile
       args:
         RUBY_VERSION: ${RUBY_VERSION:-3.1}
-        BUNDLER_VERSION: 2.3.26
+        BUNDLER_VERSION: 2.4.22
     image: sbmt-kafka-consumer-dev:0.1.0-ruby_${RUBY_VERSION:-3.1}
     environment:
       HISTFILE: /app/tmp/.bash_history

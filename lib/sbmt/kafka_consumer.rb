@@ -8,6 +8,7 @@ require "anyway_config"
 require "thor"
 require "dry/types"
 require "dry-struct"
+require "ostruct"
 
 require "anyway/rails" if defined?(Rails)
 require_relative "kafka_consumer/railtie" if defined?(Rails::Railtie)
