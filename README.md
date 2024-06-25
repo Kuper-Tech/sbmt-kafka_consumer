@@ -75,6 +75,7 @@ default: &default
       liveness:
         enabled: true
         timeout: 15
+        max_error_count: 15 # default 10
       readiness:
         enabled: true
         path: "/readiness/kafka_consumer"

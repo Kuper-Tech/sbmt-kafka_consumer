@@ -19,6 +19,7 @@ module Sbmt
         end
 
         def probe_error(extra_meta = {})
+          KafkaConsumer.logger.error("probe error meta: #{meta.merge(extra_meta).inspect}")
           [500, HEADERS, [meta.merge(extra_meta).to_json]]
         end
 

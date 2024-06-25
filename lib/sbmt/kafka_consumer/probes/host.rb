@@ -23,7 +23,7 @@ module Sbmt
               liveness = config[:liveness]
               if liveness[:enabled]
                 c.probe liveness[:path], Sbmt::KafkaConsumer::Instrumentation::LivenessListener.new(
-                  timeout_sec: liveness[:timeout]
+                  timeout_sec: liveness[:timeout], max_error_count: liveness[:max_error_count]
                 )
               end
 

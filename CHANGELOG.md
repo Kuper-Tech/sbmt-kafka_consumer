@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.24.0] - 2024-06-24
+
+### Added
+
+- Added option `max_error_count` for liveness probes, which is triggered when `librdkafka.error`
+
 ## [0.23.1] - 2024-06-17
 
 ### Fixed
