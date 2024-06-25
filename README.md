@@ -92,6 +92,7 @@ default: &default
         enabled: true
         path: "/liveness"
         timeout: 15
+        max_error_count: 15 # default 10
   metrics: # optional section
     port: 9090
     path: "/metrics"

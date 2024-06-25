@@ -8,4 +8,5 @@ class Sbmt::KafkaConsumer::Config::Probes::LivenessProbe < Dry::Struct
     .optional
     .default("/liveness")
   attribute :timeout, Sbmt::KafkaConsumer::Types::Coercible::Integer.optional.default(10)
+  attribute :max_error_count, Sbmt::KafkaConsumer::Types::Coercible::Integer.optional.default(10)
 end

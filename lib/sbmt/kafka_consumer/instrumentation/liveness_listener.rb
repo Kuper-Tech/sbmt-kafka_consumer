@@ -7,9 +7,14 @@ module Sbmt
         include ListenerHelper
         include KafkaConsumer::Probes::Probe
 
-        def initialize(timeout_sec: 10)
+        ERROR_TYPE = "Liveness probe error"
+
+        def initialize(timeout_sec: 10, max_error_count: 10)
           @consumer_groups = Karafka::App.routes.map(&:name)
           @timeout_sec = timeout_sec
+          @max_error_count = max_error_count
+          @error_count = 0
+          @error_backtrace = nil
           @polls = {}
 
           setup_subscription
@@ -18,14 +23,29 @@ module Sbmt
         def probe(_env)
           now = current_time
           timed_out_polls = select_timed_out_polls(now)
-          return probe_ok groups: meta_from_polls(polls, now) if timed_out_polls.empty?
 
-          probe_error failed_groups: meta_from_polls(timed_out_polls, now)
+          if timed_out_polls.empty? && @error_count < @max_error_count
+            probe_ok groups: meta_from_polls(polls, now) if timed_out_polls.empty?
+          elsif @error_count >= @max_error_count
+            probe_error error_type: ERROR_TYPE, failed_librdkafka: {error_count: @error_count, error_backtrace: @error_backtrace}
+          else
+            probe_error error_type: ERROR_TYPE, failed_groups: meta_from_polls(timed_out_polls, now)
+          end
         end
 
         def on_connection_listener_fetch_loop(event)
           consumer_group = event.payload[:subscription_group].consumer_group
           polls[consumer_group.name] = current_time
+        end
+
+        def on_error_occurred(event)
+          type = event[:type]
+
+          return unless type == "librdkafka.error"
+          error = event[:error]
+
+          @error_backtrace ||= (error.backtrace || []).join("\n")
+          @error_count += 1
         end
 
         private
