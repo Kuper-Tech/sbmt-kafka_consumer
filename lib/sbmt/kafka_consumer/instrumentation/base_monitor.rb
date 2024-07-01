@@ -10,6 +10,8 @@ module Sbmt
           consumer.consumed_one
           consumer.inbox.consumed_one
           consumer.consumed_batch
+          consumer.process_message
+          consumer.mark_as_consumed
         ].freeze
 
         def initialize
