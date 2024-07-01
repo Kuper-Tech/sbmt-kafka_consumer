@@ -32,6 +32,14 @@ module Sbmt
           logger.info("Successfully consumed message in #{event.payload[:time]} ms")
         end
 
+        def on_consumer_mark_as_consumed(event)
+          logger.info("Processing message in #{event.payload[:time]} ms")
+        end
+
+        def on_consumer_process_message(event)
+          logger.info("Commit offset in #{event.payload[:time]} ms")
+        end
+
         # InboxConsumer events
         def on_consumer_inbox_consumed_one(event)
           logger.tagged(status: event[:status]) do
