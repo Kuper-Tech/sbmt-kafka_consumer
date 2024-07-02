@@ -6,6 +6,11 @@ module Sbmt
   module KafkaConsumer
     module Instrumentation
       class OpenTelemetryTracer < ::Sbmt::KafkaConsumer::Instrumentation::Tracer
+        CONSUMED_EVENTS = %w[
+          consumer.process_message
+          consumer.mark_as_consumed
+        ].freeze
+
         class << self
           def enabled?
             !!@enabled
@@ -21,6 +26,7 @@ module Sbmt
         def trace(&block)
           return handle_consumed_one(&block) if @event_id == "consumer.consumed_one"
           return handle_inbox_consumed_one(&block) if @event_id == "consumer.inbox.consumed_one"
+          return handle_common_event(&block) if CONSUMED_EVENTS.include?(@event_id)
           return handle_error(&block) if @event_id == "error.occurred"
 
           yield
@@ -58,6 +64,16 @@ module Sbmt
 
           tracer.in_span("inbox #{inbox_name} process", attributes: inbox_attributes, kind: :consumer) do
             yield
+          end
+        end
+
+        def handle_common_event(&block)
+          return yield unless enabled?
+
+          if @payload[:inbox_name].present?
+            handle_inbox_consumed_one(&block)
+          else
+            handle_consumed_one(&block)
           end
         end
 

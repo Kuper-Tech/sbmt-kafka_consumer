@@ -9,6 +9,8 @@ module Sbmt
         SBMT_KAFKA_CONSUMER_EVENTS = %w[
           consumer.consumed_one
           consumer.inbox.consumed_one
+          consumer.process_message
+          consumer.mark_as_consumed
         ].freeze
 
         def initialize

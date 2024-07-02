@@ -9,7 +9,32 @@ describe Sbmt::KafkaConsumer::Instrumentation::OpenTelemetryTracer do
   let(:consumer_group) { OpenStruct.new(id: consumer_group_name) }
   let(:consumer_topic) { OpenStruct.new(consumer_group: consumer_group) }
   let(:consumer) { OpenStruct.new(topic: consumer_topic, inbox_name: "inbox/name", event_name: nil) }
-  let(:event_payload) { OpenStruct.new(caller: consumer, message: message, inbox_name: "inbox/name", event_name: nil, status: "failure") }
+  let(:event_payload) { OpenStruct.new(caller: consumer, message: message, event_name: nil, status: "failure") }
+  let(:event_inbox_payload) { OpenStruct.new(caller: consumer, message: message, inbox_name: "inbox/name", event_name: nil, status: "failure") }
+
+  shared_examples "traces message" do |event_name, span_name|
+    it "traces #{event_name} message" do
+      expect(tracer).to receive(:in_span).with(span_name, links: nil, kind: :consumer, attributes: {
+        "messaging.destination" => topic_name,
+        "messaging.destination_kind" => "topic",
+        "messaging.kafka.consumer_group" => consumer_group_name,
+        "messaging.kafka.offset" => 0,
+        "messaging.kafka.partition" => 1,
+        "messaging.system" => "kafka"
+      })
+      described_class.new(event_name, event_payload).trace {}
+    end
+  end
+
+  shared_examples "traces message with inbox" do |event_name, span_name|
+    it "traces #{event_name} message" do
+      expect(tracer).to receive(:in_span).with(span_name, kind: :consumer, attributes: {
+        "inbox.inbox_name" => "inbox/name",
+        "inbox.status" => "failure"
+      })
+      described_class.new(event_name, event_inbox_payload).trace {}
+    end
+  end
 
   describe "when disabled" do
     before { described_class.enabled = false }
@@ -32,24 +57,12 @@ describe Sbmt::KafkaConsumer::Instrumentation::OpenTelemetryTracer do
       allow(instrumentation_instance).to receive(:tracer).and_return(tracer)
     end
 
-    it "traces message" do
-      expect(tracer).to receive(:in_span).with("consume topic", links: nil, kind: :consumer, attributes: {
-        "messaging.destination" => topic_name,
-        "messaging.destination_kind" => "topic",
-        "messaging.kafka.consumer_group" => consumer_group_name,
-        "messaging.kafka.offset" => 0,
-        "messaging.kafka.partition" => 1,
-        "messaging.system" => "kafka"
-      })
-      described_class.new("consumer.consumed_one", event_payload).trace {}
-    end
+    it_behaves_like "traces message", "consumer.consumed_one", "consume topic"
+    it_behaves_like "traces message", "consumer.process_message", "consume topic"
+    it_behaves_like "traces message", "consumer.mark_as_consumed", "consume topic"
 
-    it "traces inbox message" do
-      expect(tracer).to receive(:in_span).with("inbox inbox/name process", kind: :consumer, attributes: {
-        "inbox.inbox_name" => "inbox/name",
-        "inbox.status" => "failure"
-      })
-      described_class.new("consumer.inbox.consumed_one", event_payload).trace {}
-    end
+    it_behaves_like "traces message with inbox", "consumer.inbox.consumed_one", "inbox inbox/name process"
+    it_behaves_like "traces message with inbox", "consumer.process_message", "inbox inbox/name process"
+    it_behaves_like "traces message with inbox", "consumer.mark_as_consumed", "inbox inbox/name process"
   end
 end

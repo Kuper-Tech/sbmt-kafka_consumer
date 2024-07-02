@@ -43,6 +43,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
     it "creates inbox item" do
       expect(kafka_client).to receive(:mark_as_consumed!)
       expect(Rails.logger).to receive(:info).with(/Successfully consumed/).twice
+      expect(Rails.logger).to receive(:info).with(/Processing message/)
+      expect(Rails.logger).to receive(:info).with(/Commit offset/)
       expect { consume_with_sbmt_karafka }
         .to change(TestInboxItem, :count).by(1)
         .and increment_yabeda_counter(Yabeda.kafka_consumer.inbox_consumes)
@@ -160,6 +162,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   context "with poisoned message" do
     before do
       allow(Rails.logger).to receive(:info).with(/Successfully consumed/)
+      allow(Rails.logger).to receive(:info).with(/Processing message/)
+      allow(Rails.logger).to receive(:info).with(/Commit offset/)
       allow(Rails.logger).to receive(:error)
     end
 
@@ -249,6 +253,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
     it "merges with default inbox-item attributes" do
       expect(kafka_client).to receive(:mark_as_consumed!)
       expect(Rails.logger).to receive(:info).with(/Successfully consumed/).twice
+      allow(Rails.logger).to receive(:info).with(/Processing message/)
+      allow(Rails.logger).to receive(:info).with(/Commit offset/)
       expect { consume_with_sbmt_karafka }.to change(TestInboxItem, :count).by(1)
       expect(TestInboxItem.last.event_name).to eq("custom-value")
     end
