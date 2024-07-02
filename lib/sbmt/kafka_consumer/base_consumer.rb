@@ -37,7 +37,7 @@ module Sbmt
             "consumer.consumed_one",
             caller: self, message: message, trace_id: trace_id
           ) do
-            do_consume(message)
+            yield
           rescue SkipUndeserializableMessage => ex
             instrument_error(ex, message)
             logger.warn("skipping undeserializable message: #{ex.message}")
@@ -53,6 +53,23 @@ module Sbmt
         end
       end
 
+      def with_common_instrumentation(name, message)
+        @trace_id = SecureRandom.base58
+
+        logger.tagged(
+          trace_id: trace_id
+        ) do
+          ::Sbmt::KafkaConsumer.monitor.instrument(
+            "consumer.#{name}",
+            caller: self,
+            message: message,
+            trace_id: trace_id
+          ) do
+            yield
+          end
+        end
+      end
+
       def do_consume(message)
         log_message(message) if log_payload?
 
@@ -60,9 +77,13 @@ module Sbmt
         # so we trigger it explicitly to catch undeserializable message early
         message.payload
 
-        process_message(message)
+        with_common_instrumentation("process_message", message) do
+          process_message(message)
+        end
 
-        mark_as_consumed!(message)
+        with_common_instrumentation("mark_as_consumed", message) do
+          mark_as_consumed!(message)
+        end
       end
 
       def skip_on_error

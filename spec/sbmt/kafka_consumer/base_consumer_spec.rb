@@ -54,6 +54,8 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
 
   it "logs message" do
     expect(Rails.logger).to receive(:info).with(/Successfully consumed message/)
+    expect(Rails.logger).to receive(:info).with(/Processing message/)
+    expect(Rails.logger).to receive(:info).with(/Commit offset/)
     expect(Rails.logger).to receive(:info).with(/#{payload}/)
 
     consume_with_sbmt_karafka

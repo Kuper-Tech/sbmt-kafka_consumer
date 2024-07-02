@@ -12,8 +12,14 @@ module Sbmt
           consumer.inbox.consume_one
         ].freeze
 
+        EVENTS = %w[
+          consumer.consumed_one
+          consumer.process_message
+          consumer.mark_as_consumed
+        ].freeze
+
         def trace(&block)
-          return handle_consumed_one(&block) if @event_id == "consumer.consumed_one"
+          return handle_consumed_one(&block) if EVENTS.include?(@event_id)
           return handle_error(&block) if @event_id == "error.occurred"
 
           yield

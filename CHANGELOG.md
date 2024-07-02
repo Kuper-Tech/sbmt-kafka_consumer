@@ -13,6 +13,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.25.0] - 2024-07-02
+
+### Added
+
+- Added instrumentation for methods `process_message` and `mark_as_consumed!`
+
+### Fixed
+
+- From `do_consume(message)` to `yield`
+
 ## [0.24.0] - 2024-06-24
 
 ### Added
