@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.6.1] - 2024-07-05
+
+### Fixed
+
+- Use the current `trace_id` instead of creating a new one
+
 ## [2.6.0] - 2024-07-01
 
 ### Added
