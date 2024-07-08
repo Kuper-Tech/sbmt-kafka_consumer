@@ -3,8 +3,6 @@
 module Sbmt
   module KafkaConsumer
     class BaseConsumer < SbmtKarafka::BaseConsumer
-      attr_reader :trace_id
-
       def self.consumer_klass(skip_on_error: false)
         Class.new(self) do
           const_set(:SKIP_ON_ERROR, skip_on_error)
@@ -26,8 +24,6 @@ module Sbmt
       private
 
       def with_instrumentation(message)
-        @trace_id = SecureRandom.base58
-
         logger.tagged(
           trace_id: trace_id,
           topic: message.metadata.topic, partition: message.metadata.partition,
@@ -54,8 +50,6 @@ module Sbmt
       end
 
       def with_common_instrumentation(name, message)
-        @trace_id = SecureRandom.base58
-
         logger.tagged(
           trace_id: trace_id
         ) do
@@ -119,6 +113,10 @@ module Sbmt
 
       def message_payload(message)
         message.payload || message.raw_payload
+      end
+
+      def trace_id
+        @trace_id ||= SecureRandom.base58
       end
     end
   end
