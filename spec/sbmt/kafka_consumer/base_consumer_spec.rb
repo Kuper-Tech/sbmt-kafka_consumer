@@ -116,6 +116,32 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       end
     end
 
+    context "when cooperative_sticky is true" do
+      before do
+        allow(consumer).to receive(:cooperative_sticky?).and_return(true)
+      end
+
+      it "calls mark_as_consumed" do
+        expect(consumer).to receive(:mark_as_consumed).once
+        expect(consumer).not_to receive(:mark_as_consumed!)
+
+        consume_with_sbmt_karafka
+      end
+    end
+
+    context "when cooperative_sticky is false" do
+      before do
+        allow(consumer).to receive(:cooperative_sticky?).and_return(false)
+      end
+
+      it "calls mark_as_consumed!" do
+        expect(consumer).to receive(:mark_as_consumed!).once.and_call_original
+        expect(consumer).not_to receive(:mark_as_consumed)
+
+        consume_with_sbmt_karafka
+      end
+    end
+
     context "when used middlewares" do
       let(:consumer_class) do
         base_klass = described_class.consumer_klass(middlewares: middlewares)
@@ -136,7 +162,7 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
 
         it "calls middleware before processing message" do
           expect(consumer).not_to receive(:process_message)
-          expect(consumer).to receive(:mark_as_consumed!).once.and_call_original
+          expect(consumer).to receive(:mark_message).once.and_call_original
 
           consume_with_sbmt_karafka
           expect(consumer).not_to be_consumed

@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.7.0] - 2024-07-30
+
+### Changed
+
+- When using strategy `cooperative-sticky`, method `mark_as_consumed` is used ([more details](https://github.com/karafka/karafka/wiki/FAQ#why-when-using-cooperative-sticky-rebalance-strategy-all-topics-get-revoked-on-rebalance))
+
 ## [2.6.1] - 2024-07-05
 
 ### Fixed
