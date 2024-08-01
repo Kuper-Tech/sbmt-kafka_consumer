@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.7.1] - 2024-08-01
+
+### Fixed
+
+- Add mock `mark_as_consumed` for tests
+
 ## [2.7.0] - 2024-07-30
 
 ### Changed
