@@ -23,6 +23,7 @@ RSpec.shared_context "with sbmt karafka consumer" do
   before {
     Sbmt::KafkaConsumer::ClientConfigurer.configure!
     allow(kafka_client).to receive(:mark_as_consumed!).and_return(true)
+    allow(kafka_client).to receive(:mark_as_consumed).and_return(true)
   }
 
   def publish_to_sbmt_karafka(raw_payload, opts = {})
