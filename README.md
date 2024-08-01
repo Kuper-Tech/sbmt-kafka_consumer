@@ -28,6 +28,7 @@ default: &default
   pause_timeout: 1
   pause_max_timeout: 30
   pause_with_exponential_backoff: true
+  partition_assignment_strategy: cooperative-sticky
   auth:
     kind: plaintext
   kafka:

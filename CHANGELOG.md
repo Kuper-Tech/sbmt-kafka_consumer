@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+
+## [0.26.0] - 2024-07-31
+
+### Added
+
+- New config option `partition_assignment_strategy`
+
+### Changed
+
+- When using strategy `cooperative-sticky`, method `mark_as_consumed` is used ([more details](https://github.com/karafka/karafka/wiki/FAQ#why-when-using-cooperative-sticky-rebalance-strategy-all-topics-get-revoked-on-rebalance))
+
+- Raise an exception when using the `partition.assignment.strategy` option within `kafka_options` for topics.
+
 ## [0.25.1] - 2024-07-08
 
 ### Fixed
