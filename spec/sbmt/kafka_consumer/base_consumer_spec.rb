@@ -99,7 +99,7 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
     end
 
     it "calls mark_as_consumed" do
-      expect(consumer).to receive(:mark_as_consumed).once
+      expect(consumer).to receive(:mark_as_consumed).once.and_call_original
       expect(consumer).not_to receive(:mark_as_consumed!)
 
       consume_with_sbmt_karafka
