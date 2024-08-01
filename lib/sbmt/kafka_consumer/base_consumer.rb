@@ -76,7 +76,7 @@ module Sbmt
         end
 
         with_common_instrumentation("mark_as_consumed", message) do
-          mark_as_consumed!(message)
+          mark_message(message)
         end
       end
 
@@ -117,6 +117,22 @@ module Sbmt
 
       def trace_id
         @trace_id ||= SecureRandom.base58
+      end
+
+      def config
+        @config ||= Sbmt::KafkaConsumer::Config.new
+      end
+
+      def cooperative_sticky?
+        config.partition_assignment_strategy == "cooperative-sticky"
+      end
+
+      def mark_message(message)
+        if cooperative_sticky?
+          mark_as_consumed(message)
+        else
+          mark_as_consumed!(message)
+        end
       end
     end
   end

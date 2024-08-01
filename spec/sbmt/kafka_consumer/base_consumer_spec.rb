@@ -92,4 +92,30 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       consume_with_sbmt_karafka
     end
   end
+
+  context "when cooperative_sticky is true" do
+    before do
+      allow(consumer).to receive(:cooperative_sticky?).and_return(true)
+    end
+
+    it "calls mark_as_consumed" do
+      expect(consumer).to receive(:mark_as_consumed).once
+      expect(consumer).not_to receive(:mark_as_consumed!)
+
+      consume_with_sbmt_karafka
+    end
+  end
+
+  context "when cooperative_sticky is false" do
+    before do
+      allow(consumer).to receive(:cooperative_sticky?).and_return(false)
+    end
+
+    it "calls mark_as_consumed!" do
+      expect(consumer).to receive(:mark_as_consumed!).once.and_call_original
+      expect(consumer).not_to receive(:mark_as_consumed)
+
+      consume_with_sbmt_karafka
+    end
+  end
 end
