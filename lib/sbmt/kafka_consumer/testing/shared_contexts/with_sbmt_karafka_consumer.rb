@@ -2,7 +2,7 @@
 
 RSpec.shared_context "with sbmt karafka consumer" do
   subject(:consume_with_sbmt_karafka) do
-    coordinator.increment
+    coordinator.increment(:consume)
     consumer.on_consume
   end
 
@@ -28,27 +28,27 @@ RSpec.shared_context "with sbmt karafka consumer" do
   }
 
   def publish_to_sbmt_karafka(raw_payload, opts = {})
-    message = Karafka::Messages::Message.new(raw_payload, Karafka::Messages::Metadata.new(metadata_defaults.merge(opts)))
+    message = Karafka::Messages::Message.new(raw_payload, Karafka::Messages::Metadata.new(build_metadata_hash(opts)))
     consumer.messages = consumer_messages([message])
   end
 
   def publish_to_sbmt_karafka_batch(raw_payloads, opts = {})
     messages = raw_payloads.map do |p|
-      Karafka::Messages::Message.new(p, Karafka::Messages::Metadata.new(metadata_defaults.merge(opts)))
+      Karafka::Messages::Message.new(p, Karafka::Messages::Metadata.new(build_metadata_hash(opts)))
     end
     consumer.messages = consumer_messages(messages)
   end
 
   # @return [Hash] message default options
-  def metadata_defaults
+  def build_metadata_hash(opts)
     {
-      deserializer: null_deserializer,
-      headers: {},
-      key: nil,
-      offset: 0,
-      partition: 0,
-      received_at: Time.current,
-      topic: test_topic.name
+      deserializers: test_topic.deserializers(payload: opts[:deserializer] || null_deserializer),
+      raw_headers: opts[:headers] || {},
+      raw_key: opts[:key],
+      offset: opts[:offset] || 0,
+      partition: opts[:partition] || 0,
+      received_at: opts[:received_at] || Time.current,
+      topic: opts[:topic] || test_topic.name
     }
   end
 

@@ -9,7 +9,11 @@ FactoryBot.define do
     sequence(:last_offset) { |nr| nr }
     topic { "topic" }
     partition { 0 }
-    deserializer { ->(message) { message.raw_payload } }
+    deserializers {
+      {
+        payload: ->(message) { message.raw_payload }
+      }
+    }
     created_at { Time.now.utc }
     scheduled_at { Time.now.utc }
     processed_at { Time.now.utc }

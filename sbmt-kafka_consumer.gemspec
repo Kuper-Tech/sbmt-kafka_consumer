@@ -6,12 +6,12 @@ Gem::Specification.new do |spec|
   spec.name = "sbmt-kafka_consumer"
   spec.license = "MIT"
   spec.version = Sbmt::KafkaConsumer::VERSION
-  spec.authors = ["Sbermarket Ruby-Platform Team"]
+  spec.authors = ["Kuper Ruby-Platform Team"]
 
   spec.summary = "Ruby gem for consuming Kafka messages"
   spec.description = "This gem is used for consuming Kafka messages. It represents a wrapper over Karafka gem and is recommended for using as a transport with sbmt-outbox"
-  spec.homepage = "https://github.com/SberMarket-Tech/sbmt-kafka_consumer"
-  spec.required_ruby_version = ">= 2.7.0"
+  spec.homepage = "https://github.com/Kuper-Tech/sbmt-kafka_consumer"
+  spec.required_ruby_version = ">= 3.0.0"
 
   spec.metadata["allowed_push_host"] = "https://rubygems.org"
 
@@ -31,9 +31,9 @@ Gem::Specification.new do |spec|
   spec.executables = spec.files.grep(%r{\Aexe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_dependency "rails", ">= 6.0"
+  spec.add_dependency "rails", ">= 6.1"
   spec.add_dependency "zeitwerk", "~> 2.3"
-  spec.add_dependency "karafka", "~> 2.2", "< 2.4" # [Breaking] Drop the concept of consumer group mapping.
+  spec.add_dependency "karafka", "~> 2.4"
   spec.add_dependency "yabeda", ">= 0.11"
   spec.add_dependency "anyway_config", ">= 2.4.0"
   spec.add_dependency "thor"

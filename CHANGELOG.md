@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.0.0] - 2024-09-04
+
+## BREAKING
+
+- Drop support for Ruby 2.7
+- Drop support for Rails 6.0
+- Add support for Karafka 2.4
+
+### Fixed
+
+- Support consumer group mappers to support backward compatibility of consumer group naming
+
 ## [2.7.1] - 2024-08-01
 
 ### Fixed

@@ -7,7 +7,11 @@ FactoryBot.define do
     topic { "topic" }
     sequence(:offset) { |nr| nr }
     partition { 0 }
-    deserializer { ->(message) { message.raw_payload } }
+    deserializers {
+      {
+        payload: ->(message) { message.raw_payload }
+      }
+    }
     timestamp { Time.now.utc }
   end
 end
