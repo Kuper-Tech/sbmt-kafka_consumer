@@ -6,10 +6,8 @@ class Sbmt::KafkaConsumer::ClientConfigurer
     Karafka::App.setup do |karafka_config|
       karafka_config.monitor = config.monitor_class.classify.constantize.new
       karafka_config.logger = Sbmt::KafkaConsumer.logger
-      karafka_config.deserializer = config.deserializer_class.classify.constantize.new
 
       karafka_config.client_id = config.client_id
-      karafka_config.consumer_mapper = config.consumer_mapper_class.classify.constantize.new
       karafka_config.kafka = config.to_kafka_options
 
       karafka_config.pause_timeout = config.pause_timeout * 1_000 if config.pause_timeout.present?
@@ -43,13 +41,16 @@ class Sbmt::KafkaConsumer::ClientConfigurer
 
     raise "No configured consumer groups found, exiting" if target_consumer_groups.blank?
 
+    consumer_mapper = config.consumer_mapper_class.classify.constantize.new
+
     # clear routes in case CLI runner tries to reconfigure them
     # but railtie initializer had already executed and did the same
     # otherwise we'll get duplicate routes error from sbmt-karafka internal config validation process
     Karafka::App.routes.clear
     Karafka::App.routes.draw do
       target_consumer_groups.each do |cg|
-        consumer_group cg.name do
+        group_id = consumer_mapper.call(cg.name)
+        consumer_group group_id do
           cg.topics.each do |t|
             topic t.name do
               active t.active
@@ -66,7 +67,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
 
   def self.routes
     Karafka::App.routes.map do |cg|
-      topics = cg.topics.map { |t| {name: t.name, deserializer: t.deserializer} }
+      topics = cg.topics.map { |t| {name: t.name, deserializer: t.deserializers.payload} }
       {group: cg.id, topics: topics}
     end
   end

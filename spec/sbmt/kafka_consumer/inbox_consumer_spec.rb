@@ -56,7 +56,7 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       expect(TestInboxItem.last.options)
         .to include(
           {
-            group_id: "some_name_test_group",
+            group_id: "test_group",
             partition: 10,
             source: "KAFKA",
             topic: "test_topic"

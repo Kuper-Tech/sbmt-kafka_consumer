@@ -1,9 +1,9 @@
 [![Gem Version](https://badge.fury.io/rb/sbmt-kafka_consumer.svg)](https://badge.fury.io/rb/sbmt-kafka_consumer)
-[![Build Status](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/SberMarket-Tech/sbmt-kafka_consumer/actions?query=branch%3Amaster)
+[![Build Status](https://github.com/Kuper-Tech/sbmt-kafka_consumer/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/Kuper-Tech/sbmt-kafka_consumer/actions?query=branch%3Amaster)
 
 # Sbmt-KafkaConsumer
 
-This gem is used to consume Kafka messages. It is a wrapper over the [Karafka](https://github.com/karafka/karafka) gem, and is recommended for use as a transport with the [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox) gem.
+This gem is used to consume Kafka messages. It is a wrapper over the [Karafka](https://github.com/karafka/karafka) gem, and is recommended for use as a transport with the [sbmt-outbox](https://github.com/Kuper-Tech/sbmt-outbox) gem.
 
 ## Installation
 
@@ -21,7 +21,7 @@ bundle install
 
 ## Demo
 
-Learn how to use this gem and how it works with Ruby on Rails at here https://github.com/SberMarket-Tech/outbox-example-apps
+Learn how to use this gem and how it works with Ruby on Rails at here https://github.com/Kuper-Tech/outbox-example-apps
 
 ## Auto configuration
 
@@ -47,7 +47,7 @@ rails g kafka_consumer:consumer MaybeNamespaced::Name
 
 ### Inbox consumer
 
-To generate an Inbox consumer for use with gem [sbmt-outbox](https://github.com/SberMarket-Tech/sbmt-outbox), run the following command:
+To generate an Inbox consumer for use with gem [sbmt-outbox](https://github.com/Kuper-Tech/sbmt-outbox), run the following command:
 
 ```shell
 rails g kafka_consumer:inbox_consumer MaybeNamespaced::Name some-consumer-group some-topic
