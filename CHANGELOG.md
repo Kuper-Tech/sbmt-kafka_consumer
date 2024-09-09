@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.8.0] - 2024-09-09
+
+### Fixed
+
+- Refactor consumer class initialization
+
 ## [2.7.1] - 2024-08-01
 
 ### Fixed

@@ -27,6 +27,20 @@ end
 describe Sbmt::KafkaConsumer::BaseConsumer do
   include_context "with sbmt karafka consumer"
 
+  context "with class_attribute params" do
+    it "child class does not overwrite parent's attrs" do
+      parent_class = described_class.consumer_klass(skip_on_error: false)
+      expect(parent_class.skip_on_error).to be(false)
+      expect(parent_class.name).to eq(described_class.name)
+
+      child_class = parent_class.consumer_klass(skip_on_error: true)
+      expect(child_class.skip_on_error).to be(true)
+      expect(child_class.name).to eq(described_class.name)
+
+      expect(parent_class.skip_on_error).to be(false)
+    end
+  end
+
   context "when the consumer processes one message at a time" do
     let(:consumer_class) do
       Class.new(described_class.consumer_klass) do
@@ -56,8 +70,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
         end
       end
     end
-
-    let(:consumer) { build_consumer(consumer_class.new) }
 
     let(:payload) { "test-payload" }
     let(:headers) { {"Test-Header" => "test-header-value"} }
@@ -107,7 +119,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
           end
         end
       end
-      let(:consumer) { build_consumer(consumer_class.new) }
 
       it "skips message if skip_on_error is set" do
         expect(Rails.logger).to receive(:error).twice
@@ -155,7 +166,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
           end
         end
       end
-      let(:consumer) { build_consumer(consumer_class.new) }
 
       context "when middleware condition calls message processing" do
         let(:middlewares) { ["SkipMessageMiddleware"] }
@@ -199,7 +209,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
             end
           end
         end
-        let(:consumer) { build_consumer(consumer_class.new) }
 
         it "does not call any middleware" do
           consume_with_sbmt_karafka
@@ -221,7 +230,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
             end
           end
         end
-        let(:consumer) { build_consumer(consumer_class.new) }
 
         it "skips message if middleware raises exception and skip_on_error is set" do
           expect(Rails.logger).to receive(:warn).once.with(/skipping unprocessable message/)
@@ -248,7 +256,6 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       end
     end
 
-    let(:consumer) { build_consumer(consumer_class.new) }
     let(:payload) { "test-payload" }
 
     before do
