@@ -3,15 +3,20 @@
 module Sbmt
   module KafkaConsumer
     class BaseConsumer < Karafka::BaseConsumer
-      def self.consumer_klass(skip_on_error: false, middlewares: [])
-        Class.new(self) do
-          const_set(:SKIP_ON_ERROR, skip_on_error)
-          const_set(:MIDDLEWARES, middlewares.map(&:constantize))
+      class_attribute :skip_on_error, instance_writer: false, default: false
+      class_attribute :middlewares, instance_writer: false, default: []
 
+      def self.consumer_klass(skip_on_error: nil, middlewares: nil)
+        klass = Class.new(self) do
           def self.name
             superclass.name
           end
         end
+
+        # defaults are set in class_attribute definition
+        klass.skip_on_error = skip_on_error if skip_on_error
+        klass.middlewares = middlewares.map(&:constantize) if middlewares
+        klass
       end
 
       def consume
@@ -110,14 +115,6 @@ module Sbmt
         with_common_instrumentation("mark_as_consumed", message) do
           mark_message(message)
         end
-      end
-
-      def skip_on_error
-        self.class::SKIP_ON_ERROR
-      end
-
-      def middlewares
-        self.class::MIDDLEWARES
       end
 
       # can be overridden in consumer to enable message logging

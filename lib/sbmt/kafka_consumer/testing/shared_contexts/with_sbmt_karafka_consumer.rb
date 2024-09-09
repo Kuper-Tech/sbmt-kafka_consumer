@@ -16,9 +16,8 @@ RSpec.shared_context "with sbmt karafka consumer" do
   let(:kafka_client) { instance_double(Karafka::Connection::Client) }
   let(:null_deserializer) { Sbmt::KafkaConsumer::Serialization::NullDeserializer.new }
 
-  let(:consumer) {
-    build_consumer(described_class.new)
-  }
+  let(:consumer_class) { described_class.consumer_klass }
+  let(:consumer) { build_consumer(consumer_class.new) }
 
   before {
     Sbmt::KafkaConsumer::ClientConfigurer.configure!

@@ -5,7 +5,7 @@ require "rails_helper"
 describe Sbmt::KafkaConsumer::InboxConsumer do
   include_context "with sbmt karafka consumer"
 
-  let(:klass) do
+  let(:consumer_class) do
     described_class.consumer_klass(
       name: "test_items",
       event_name: "test-event-name",
@@ -15,7 +15,6 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   end
 
   let(:skip_on_error) { false }
-  let(:consumer) { build_consumer(klass.new) }
   let(:create_item_result) { Dry::Monads::Result::Success }
   let(:logger) { double(ActiveSupport::TaggedLogging) }
   let(:uuid) { "test-uuid-1" }
@@ -240,14 +239,13 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
   end
 
   context "when extra_message_attrs is used" do
-    let(:consumer) do
-      consumer_class = Class.new(klass) do
+    let(:consumer_class) do
+      klass = super()
+      Class.new(klass) do
         def extra_message_attrs(_message)
           {event_name: "custom-value"}
         end
       end
-
-      build_consumer(consumer_class.new)
     end
 
     it "merges with default inbox-item attributes" do

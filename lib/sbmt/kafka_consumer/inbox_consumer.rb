@@ -6,17 +6,20 @@ module Sbmt
       IDEMPOTENCY_HEADER_NAME = "Idempotency-Key"
       DEFAULT_SOURCE = "KAFKA"
 
-      def self.consumer_klass(inbox_item:, event_name: nil, skip_on_error: false, name: nil, middlewares: [])
-        Class.new(self) do
-          const_set(:INBOX_ITEM_CLASS_NAME, inbox_item)
-          const_set(:EVENT_NAME, event_name)
-          const_set(:SKIP_ON_ERROR, skip_on_error)
-          const_set(:MIDDLEWARES, middlewares.map(&:constantize))
+      class_attribute :inbox_item_class, instance_writer: false, default: nil
+      class_attribute :event_name, instance_writer: false, default: nil
 
-          def self.name
-            superclass.name
-          end
-        end
+      def self.consumer_klass(inbox_item:, event_name: nil, skip_on_error: nil, name: nil, middlewares: nil)
+        # defaults are set in class_attribute definition
+        klass = super(skip_on_error: skip_on_error, middlewares: middlewares)
+        klass.inbox_item_class = inbox_item.constantize
+        klass.event_name = event_name if event_name
+        klass
+      end
+
+      def initialize
+        raise Sbmt::KafkaConsumer::Error, "inbox_item param is not set" if inbox_item_class.blank?
+        super
       end
 
       def extra_message_attrs(_message)
@@ -99,14 +102,6 @@ module Sbmt
 
       def message_uuid(message)
         message.metadata.headers.fetch(IDEMPOTENCY_HEADER_NAME, nil).presence
-      end
-
-      def inbox_item_class
-        @inbox_item_class ||= self.class::INBOX_ITEM_CLASS_NAME.constantize
-      end
-
-      def event_name
-        @event_name ||= self.class::EVENT_NAME
       end
 
       def inbox_name
