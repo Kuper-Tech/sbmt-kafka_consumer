@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.1.0] - 2024-09-09
+
+### Fixed
+
+- Refactor consumer class initialization
+
 ## [3.0.0] - 2024-09-04
 
 ## BREAKING
@@ -24,6 +30,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Fixed
 
 - Support consumer group mappers to support backward compatibility of consumer group naming
+
+## [2.8.0] - 2024-09-09
+
+### Fixed
+
+- Refactor consumer class initialization
 
 ## [2.7.1] - 2024-08-01
 
