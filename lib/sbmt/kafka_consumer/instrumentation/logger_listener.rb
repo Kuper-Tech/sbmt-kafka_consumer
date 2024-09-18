@@ -20,30 +20,56 @@ module Sbmt
 
           logger.tagged(
             type: type,
+            stacktrace: log_backtrace(error),
             **tags
           ) do
             logger.error(error_message(error))
-            log_backtrace(error)
           end
         end
 
         # BaseConsumer events
         def on_consumer_consumed_one(event)
-          logger.info("Successfully consumed message in #{event.payload[:time]} ms")
+          log_with_tags(log_tags(event), "Successfully consumed message")
         end
 
         def on_consumer_mark_as_consumed(event)
-          logger.info("Processing message in #{event.payload[:time]} ms")
+          log_with_tags(log_tags(event), "Processing message")
         end
 
         def on_consumer_process_message(event)
-          logger.info("Commit offset in #{event.payload[:time]} ms")
+          log_with_tags(log_tags(event), "Commit offset")
         end
 
         # InboxConsumer events
         def on_consumer_inbox_consumed_one(event)
-          logger.tagged(status: event[:status]) do
-            logger.info("Successfully consumed message with uuid: #{event[:message_uuid]} in #{event.payload[:time]} ms")
+          log_tags = log_tags(event).merge!(status: event[:status])
+          msg = "Successfully consumed message with uuid: #{event[:message_uuid]}"
+
+          log_with_tags(log_tags, msg)
+        end
+
+        private
+
+        def log_tags(event)
+          metadata = event.payload[:message].metadata
+
+          {
+            kafka: {
+              topic: metadata.topic,
+              partition: metadata.partition,
+              key: metadata.key,
+              offset: metadata.offset,
+              consumer_group: event.payload[:caller].topic.consumer_group.id,
+              consume_duration_ms: event.payload[:time]
+            }
+          }
+        end
+
+        def log_with_tags(log_tags, msg)
+          return unless logger.respond_to?(:tagged)
+
+          logger.tagged(log_tags) do
+            logger.send(:info, msg)
           end
         end
       end
