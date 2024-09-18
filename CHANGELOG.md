@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.2.0] - 2024-09-17
+
+### Added
+
+- For synchronous messages and errors, we place logs in tags
+
 ## [3.1.0] - 2024-09-09
 
 ### Fixed

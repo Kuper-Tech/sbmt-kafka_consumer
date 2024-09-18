@@ -45,9 +45,7 @@ module Sbmt
 
       def with_instrumentation(message)
         logger.tagged(
-          trace_id: trace_id,
-          topic: message.metadata.topic, partition: message.metadata.partition,
-          key: message.metadata.key, offset: message.metadata.offset
+          trace_id: trace_id
         ) do
           ::Sbmt::KafkaConsumer.monitor.instrument(
             "consumer.consumed_one",
