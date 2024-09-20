@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.2.1] - 2024-09-20
+
+### Fixed
+ 
+- Limit Karafka version to less than 2.4.12 since `bootstrap.servers` has been made required
+
 ## [3.2.0] - 2024-09-17
 
 ### Added
