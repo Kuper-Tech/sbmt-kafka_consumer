@@ -162,7 +162,11 @@ module Sbmt
       end
 
       def trace_id
-        @trace_id ||= SecureRandom.base58
+        return nil unless defined?(::OpenTelemetry)
+
+        context = ::OpenTelemetry::Trace.current_span.context
+
+        context.valid? ? context.hex_trace_id : nil
       end
 
       def config
