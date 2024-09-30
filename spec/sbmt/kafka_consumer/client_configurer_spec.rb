@@ -15,7 +15,17 @@ describe Sbmt::KafkaConsumer::ClientConfigurer do
         hash_including(
           active: true,
           initial_offset: "earliest",
-          kafka: {"auto.offset.reset": "latest"},
+          kafka: hash_including(
+            "auto.offset.reset": "latest",
+            "allow.auto.create.topics": true,
+            "bootstrap.servers": "kafka:9092",
+            "heartbeat.interval.ms": 5000,
+            "reconnect.backoff.max.ms": 3000,
+            "security.protocol": "plaintext",
+            "session.timeout.ms": 30000,
+            "socket.connection.setup.timeout.ms": 5000,
+            "socket.timeout.ms": 30000
+          ),
           manual_offset_management: {active: true},
           max_messages: 100,
           max_wait_time: 1000,

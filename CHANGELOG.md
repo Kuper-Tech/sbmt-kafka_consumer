@@ -13,10 +13,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
-## [3.2.3] - 2024-09-30
+## [3.3.0] - 2024-09-30
+
+### Added
+
+- inheritance of kafka settings for topic
 
 ### Fixed
  
+- support `karafka 2.4.12`
 - properly report metrics for consumer offset lag when partition fetch assignment was lost
 
 ## [3.2.2] - 2024-09-23
