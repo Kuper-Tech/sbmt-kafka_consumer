@@ -88,6 +88,16 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
                       "partition" => 0,
                       "consumer_lag" => 0
                     },
+                    "1" => {
+                      "partition" => 1,
+                      "consumer_lag" => 10,
+                      "fetch_state" => "stopped"
+                    },
+                    "2" => {
+                      "partition" => 2,
+                      "consumer_lag" => 10,
+                      "fetch_state" => "none"
+                    },
                     "-1" => {
                       "partition" => -1,
                       "consumer_lag" => -1

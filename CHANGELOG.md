@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.2.3] - 2024-09-30
+
+### Fixed
+ 
+- properly report metrics for consumer offset lag when partition fetch assignment was lost
+
 ## [3.2.2] - 2024-09-23
 
 ### Fixed
