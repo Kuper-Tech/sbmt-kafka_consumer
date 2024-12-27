@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.3.2] - 2024-12-27
+
+### Fixed
+
+- Fix gemspec URL
+
 ## [3.3.1] - 2024-12-26
 
 ### Fixed
