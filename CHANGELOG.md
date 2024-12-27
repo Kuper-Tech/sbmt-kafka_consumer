@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [0.26.2] - 2024-12-26
+
+### Fixed
+
+- Fix initialize yabeda metrics
+
 ## [0.26.1] - 2024-08-01
 
 ### Fixed
