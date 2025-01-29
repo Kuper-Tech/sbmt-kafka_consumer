@@ -28,6 +28,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::LoggerListener do
     it "logs error when consumer.base.consume_one event occurred" do
       allow(event).to receive(:[]).with(:error).and_return(error)
       allow(event).to receive(:[]).with(:type).and_return("consumer.base.consume_one")
+      allow(event).to receive(:[]).with(:log_level).and_return(:error)
 
       expect(logger).to receive(:tagged).with(hash_including(
         type: "consumer.base.consume_one",
@@ -43,6 +44,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::LoggerListener do
       allow(event).to receive(:[]).with(:error).and_return(error)
       allow(event).to receive(:[]).with(:type).and_return("consumer.inbox.consume_one")
       allow(event).to receive(:[]).with(:status).and_return(status)
+      allow(event).to receive(:[]).with(:log_level).and_return(:error)
 
       expect(logger).to receive(:tagged).with(hash_including(
         type: "consumer.inbox.consume_one",
@@ -51,6 +53,21 @@ describe Sbmt::KafkaConsumer::Instrumentation::LoggerListener do
       )).and_yield
 
       expect(logger).to receive(:error).with(error_message)
+
+      described_class.new.on_error_occurred(event)
+    end
+
+    it "logs warnings" do
+      allow(event).to receive(:[]).with(:error).and_return("test error")
+      allow(event).to receive(:[]).with(:type).and_return("consumer.base.consume_one")
+      allow(event).to receive(:[]).with(:log_level).and_return(:warn)
+
+      expect(logger).to receive(:tagged).with(hash_including(
+        type: "consumer.base.consume_one",
+        stacktrace: "some backtrace"
+      )).and_yield
+
+      expect(logger).to receive(:warn).with(error_message)
 
       described_class.new.on_error_occurred(event)
     end

@@ -138,7 +138,8 @@ module Sbmt
           error: error,
           caller: self,
           message: message,
-          type: "consumer.base.consume_one"
+          type: "consumer.base.consume_one",
+          log_level: :error
         )
       end
 

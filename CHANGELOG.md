@@ -13,6 +13,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.4.0] - 2025-01-27
+
+### Added
+
+- Added support for warning log level in LoggerListener error handling
+- Consider duplicate messages as warnings in logs
+
+### Changed
+
+### Fixed
+
 ## [3.3.2] - 2024-12-27
 
 ### Fixed
@@ -32,20 +43,20 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - inheritance of kafka settings for topic
 
 ### Fixed
- 
+
 - support `karafka 2.4.12`
 - properly report metrics for consumer offset lag when partition fetch assignment was lost
 
 ## [3.2.2] - 2024-09-23
 
 ### Fixed
- 
+
 - log OTEL `trace_id`
 
 ## [3.2.1] - 2024-09-20
 
 ### Fixed
- 
+
 - Limit Karafka version to less than 2.4.12 since `bootstrap.servers` has been made required
 
 ## [3.2.0] - 2024-09-17
