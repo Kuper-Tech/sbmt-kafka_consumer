@@ -56,7 +56,7 @@ module Sbmt
         item = result.success
         item.track_metrics_after_consume if item.respond_to?(:track_metrics_after_consume)
       rescue ActiveRecord::RecordNotUnique
-        instrument_error("Skipped duplicate message for #{inbox_name}, message_uuid: #{message_uuid(message)}", message, "duplicate")
+        instrument_warn("Skipped duplicate message for #{inbox_name}, message_uuid: #{message_uuid(message)}", message, "duplicate")
       rescue => ex
         if skip_on_error
           logger.warn("skipping unprocessable message for #{inbox_name}, message_uuid: #{message_uuid(message)}")
@@ -108,7 +108,7 @@ module Sbmt
         inbox_item_class.box_name
       end
 
-      def instrument_error(error, message, status = "failure")
+      def instrument_error(error, message, status = "failure", log_level: :error)
         ::Sbmt::KafkaConsumer.monitor.instrument(
           "error.occurred",
           error: error,
@@ -117,8 +117,13 @@ module Sbmt
           inbox_name: inbox_name,
           event_name: event_name,
           status: status,
-          type: "consumer.inbox.consume_one"
+          type: "consumer.inbox.consume_one",
+          log_level: log_level
         )
+      end
+
+      def instrument_warn(*args, **kwargs)
+        instrument_error(*args, **kwargs, log_level: :warn)
       end
     end
   end

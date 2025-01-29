@@ -6,6 +6,7 @@ module Sbmt
       class LoggerListener < Karafka::Instrumentation::LoggerListener
         include ListenerHelper
         CUSTOM_ERROR_TYPES = %w[consumer.base.consume_one consumer.inbox.consume_one].freeze
+        VALID_LOG_LEVELS = %i[error warn].freeze
 
         def on_error_occurred(event)
           type = event[:type]
@@ -23,7 +24,12 @@ module Sbmt
             stacktrace: log_backtrace(error),
             **tags
           ) do
-            logger.error(error_message(error))
+            log_level = event[:log_level] || :error
+            if VALID_LOG_LEVELS.include?(log_level)
+              logger.public_send(log_level, error_message(error))
+            else
+              raise "Invalid log level #{log_level}"
+            end
           end
         end
 
