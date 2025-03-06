@@ -165,7 +165,10 @@ module Sbmt
               offset_lag = partition_statistics["consumer_lag"]
               next if offset_lag == -1
 
-              next unless partition_owned?(partition_statistics)
+              unless partition_owned?(partition_statistics)
+                # reset offset lag after cg rebalance
+                offset_lag = 0
+              end
 
               Yabeda.kafka_consumer.offset_lag
                 .set({

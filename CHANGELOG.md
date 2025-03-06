@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.4.1] - 2025-03-06
+
+### Fixed
+- reset consumer offset lag metric to zero after cg rebalance to avoid reporting stale metrics
+
 ## [3.4.0] - 2025-01-27
 
 ### Added
