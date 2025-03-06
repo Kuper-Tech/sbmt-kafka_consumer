@@ -165,6 +165,11 @@ module Sbmt
               offset_lag = partition_statistics["consumer_lag"]
               next if offset_lag == -1
 
+              unless partition_owned?(partition_statistics)
+                # reset offset lag after cg rebalance
+                offset_lag = 0
+              end
+
               Yabeda.kafka_consumer.offset_lag
                 .set({
                   client: SbmtKarafka::App.config.client_id,
@@ -179,6 +184,13 @@ module Sbmt
 
         def time_elapsed_sec(event)
           (event.payload[:time] || 0) / 1000.0
+        end
+
+        def partition_owned?(partition_statistics)
+          return false if partition_statistics["fetch_state"] == "stopped"
+          return false if partition_statistics["fetch_state"] == "none"
+
+          true
         end
       end
     end
