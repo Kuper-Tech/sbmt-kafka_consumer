@@ -86,7 +86,17 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
                   "partitions" => {
                     "0" => {
                       "partition" => 0,
-                      "consumer_lag" => 0
+                      "consumer_lag" => 10
+                    },
+                    "1" => {
+                      "partition" => 1,
+                      "consumer_lag" => 10,
+                      "fetch_state" => "stopped"
+                    },
+                    "2" => {
+                      "partition" => 2,
+                      "consumer_lag" => 10,
+                      "fetch_state" => "none"
                     },
                     "-1" => {
                       "partition" => -1,
@@ -103,9 +113,10 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
       it "reports topic metrics" do
         expect {
           described_class.new.send(:report_rdkafka_stats, event, async: false)
-        }.to update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag)
-          .with_tags(client: "some-name", group_id: "consumer-group-id",
-            partition: "0", topic: "topic_with_json_data")
+        }.to update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag).with_tags(client: "some-name", group_id: "consumer-group-id", partition: "0", topic: "topic_with_json_data").with(10)
+          .and update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag).with_tags(client: "some-name", group_id: "consumer-group-id", partition: "1", topic: "topic_with_json_data").with(0)
+          .and update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag).with_tags(client: "some-name", group_id: "consumer-group-id", partition: "2", topic: "topic_with_json_data").with(0)
+          .and not_update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag).with_tags(partition: "-1")
       end
     end
   end
