@@ -11,16 +11,14 @@ module Sbmt
           consumer.mark_as_consumed
         ].freeze
 
+        delegate :enabled?, to: :class
+
         class << self
           def enabled?
             !!@enabled
           end
 
           attr_writer :enabled
-        end
-
-        def enabled?
-          self.class.enabled?
         end
 
         def trace(&block)
