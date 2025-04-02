@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.4.2] - 2025-04-02
+
+### Fixed
+- Properly resolve constant `YabedaConfigurer`
+
 ## [3.4.1] - 2025-03-06
 
 ### Fixed
