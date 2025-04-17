@@ -13,7 +13,7 @@ describe Sbmt::KafkaConsumer::Config::Probes do
           liveness: {
             enabled: true,
             path: "/liveness",
-            timeout: 10
+            timeout: 300
           },
           readiness: {
             enabled: true,

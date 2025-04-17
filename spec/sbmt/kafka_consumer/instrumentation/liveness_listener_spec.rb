@@ -15,16 +15,14 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
   end
 
   context "without polls" do
-    it "returns error" do
+    it "returns ok" do
       expect(probe).to eq [
-        500,
+        200,
         {"Content-Type" => "application/json"},
         [
           {
-            error_type: Sbmt::KafkaConsumer::Instrumentation::LivenessListener::ERROR_TYPE,
-            failed_groups:
-              {"CONSUMER_GROUP" =>
-                 {had_poll: false}}
+            timed_out_polls: false,
+            errors_count: 0
           }.to_json
         ]
       ]
@@ -37,7 +35,6 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
 
     before do
       service.on_connection_listener_fetch_loop(event)
-      travel 1.second
     end
 
     it "returns ok" do
@@ -46,13 +43,8 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
         {"Content-Type" => "application/json"},
         [
           {
-            groups: {
-              "CONSUMER_GROUP" => {
-                had_poll: true,
-                last_poll_at: 1.second.ago.utc,
-                seconds_since_last_poll: 1
-              }
-            }
+            timed_out_polls: false,
+            errors_count: 0
           }.to_json
         ]
       ]
@@ -61,26 +53,20 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
     context "with timed out polls" do
       before do
         service.on_connection_listener_fetch_loop(event)
-        travel 15.seconds
+        allow(service).to receive(:monotonic_now).and_wrap_original do |meth|
+          meth.call + 315 * 1000
+        end
       end
 
       it "returns error" do
-        expect(probe).to eq [
-          500,
-          {"Content-Type" => "application/json"},
-          [
-            {
-              error_type: Sbmt::KafkaConsumer::Instrumentation::LivenessListener::ERROR_TYPE,
-              failed_groups: {
-                "CONSUMER_GROUP" => {
-                  had_poll: true,
-                  last_poll_at: 15.seconds.ago.utc,
-                  seconds_since_last_poll: 15
-                }
-              }
-            }.to_json
-          ]
-        ]
+        res = probe
+        expect(res[0]).to eq 500
+        expect(res[1]).to eq({"Content-Type" => "application/json"})
+        expect(JSON.parse(res[2][0]).symbolize_keys).to match(
+          a_hash_including(error_type: Sbmt::KafkaConsumer::Instrumentation::LivenessListener::ERROR_TYPE,
+            timed_out_polls: true,
+            errors_count: 0)
+        )
       end
     end
   end
@@ -109,10 +95,9 @@ describe Sbmt::KafkaConsumer::Instrumentation::LivenessListener do
           [
             {
               error_type: Sbmt::KafkaConsumer::Instrumentation::LivenessListener::ERROR_TYPE,
-              failed_librdkafka: {
-                error_count: 10,
-                error_backtrace: "line 1\nline 2"
-              }
+              timed_out_polls: false,
+              error_count: 10,
+              error_backtrace: "line 1\nline 2"
             }.to_json
           ]
         ]
