@@ -91,7 +91,7 @@ default: &default
       liveness:
         enabled: true
         path: "/liveness"
-        timeout: 15
+        timeout: 300
         max_error_count: 15 # default 10
   metrics: # optional section
     port: 9090
@@ -157,7 +157,7 @@ auth:
 The `servers` key is required and should be in rdkafka format: without `kafka://` prefix, for example: `srv1:port1,srv2:port2,...`.
 
 The `kafka_config` section may contain any [rdkafka option](https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md). Also, `kafka_options` may be redefined for each topic.
-Please note that the `partition.assignment.strategy` option within kafka_options is not supported for topics; instead, use the global option partition_assignment_strategy. 
+Please note that the `partition.assignment.strategy` option within kafka_options is not supported for topics; instead, use the global option partition_assignment_strategy.
 
 ### `consumer_groups` config section
 
@@ -275,7 +275,7 @@ To process messages in batches, you need to add the `process_batch` method in th
 # app/consumers/some_consumer.rb
 class SomeConsumer < Sbmt::KafkaConsumer::BaseConsumer
   def process_batch(messages)
-    # some code 
+    # some code
   end
 end
 ```

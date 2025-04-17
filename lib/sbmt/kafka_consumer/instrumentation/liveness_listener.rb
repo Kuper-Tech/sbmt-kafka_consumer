@@ -9,33 +9,35 @@ module Sbmt
 
         ERROR_TYPE = "Liveness probe error"
 
-        def initialize(timeout_sec: 10, max_error_count: 10)
-          @consumer_groups = Karafka::App.routes.map(&:name)
-          @timeout_sec = timeout_sec
+        def initialize(timeout_sec: 300, max_error_count: 10)
+          @timeout_sec = timeout_sec * 1000
           @max_error_count = max_error_count
           @error_count = 0
           @error_backtrace = nil
           @polls = {}
-
+          @mutex = Mutex.new
           setup_subscription
         end
 
         def probe(_env)
-          now = current_time
-          timed_out_polls = select_timed_out_polls(now)
+          now = monotonic_now
+          has_timed_out_polls = polls.values.any? { |tick| (now - tick) > timeout_sec }
 
-          if timed_out_polls.empty? && @error_count < @max_error_count
-            probe_ok groups: meta_from_polls(polls, now) if timed_out_polls.empty?
+          if !has_timed_out_polls && @error_count < @max_error_count
+            probe_ok timed_out_polls: false, errors_count: @error_count
           elsif @error_count >= @max_error_count
-            probe_error error_type: ERROR_TYPE, failed_librdkafka: {error_count: @error_count, error_backtrace: @error_backtrace}
+            probe_error error_type: ERROR_TYPE, timed_out_polls: false, error_count: @error_count, error_backtrace: @error_backtrace
           else
-            probe_error error_type: ERROR_TYPE, failed_groups: meta_from_polls(timed_out_polls, now)
+            probe_error error_type: ERROR_TYPE, timed_out_polls: true, errors_count: @error_count, polls: polls
           end
         end
 
         def on_connection_listener_fetch_loop(event)
-          consumer_group = event.payload[:subscription_group].consumer_group
-          polls[consumer_group.name] = current_time
+          now = monotonic_now
+          KafkaConsumer.logger.debug("on_connection_listener_fetch_loop: now=#{now}, thread_id=#{thread_id}")
+          mutex.synchronize do
+            polls[thread_id] = monotonic_now
+          end
         end
 
         def on_error_occurred(event)
@@ -50,36 +52,14 @@ module Sbmt
 
         private
 
-        attr_reader :polls, :timeout_sec, :consumer_groups
+        attr_reader :polls, :timeout_sec, :mutex
 
-        def current_time
-          Time.now.utc
+        def monotonic_now
+          ::Process.clock_gettime(::Process::CLOCK_MONOTONIC, :float_millisecond)
         end
 
-        def select_timed_out_polls(now)
-          raise "consumer_groups are empty. Please set them up" if consumer_groups.empty?
-
-          consumer_groups.each_with_object({}) do |group, hash|
-            last_poll_at = polls[group]
-            next if last_poll_at && last_poll_at + timeout_sec >= now
-
-            hash[group] = last_poll_at
-          end
-        end
-
-        def meta_from_polls(polls, now)
-          polls.each_with_object({}) do |(group, last_poll_at), hash|
-            if last_poll_at.nil?
-              hash[group] = {had_poll: false}
-              next
-            end
-
-            hash[group] = {
-              had_poll: true,
-              last_poll_at: last_poll_at,
-              seconds_since_last_poll: (now - last_poll_at).to_i
-            }
-          end
+        def thread_id
+          Thread.current.object_id
         end
 
         def setup_subscription

@@ -20,7 +20,7 @@ RSpec.describe Sbmt::KafkaConsumer::Probes::Host do
 
     before do
       allow(Thread).to receive(:new).and_yield
-      allow(Rack::Handler::WEBrick).to receive(:run)
+      allow(described_class.webrick).to receive(:run)
       allow_any_instance_of(Rack::Builder).to receive(:use)
       allow(HttpHealthCheck).to receive(:run_server_async)
       allow(Yabeda::Prometheus::Exporter).to receive(:new)
@@ -41,7 +41,7 @@ RSpec.describe Sbmt::KafkaConsumer::Probes::Host do
 
       it "calls WEBrick.run with the correct parameters" do
         described_class.run_async
-        expect(Rack::Handler::WEBrick).to have_received(:run) do |rack_builder, **options|
+        expect(described_class.webrick).to have_received(:run) do |rack_builder, **options|
           expect(options[:Host]).to eq "0.0.0.0"
           expect(options[:Port]).to eq 8080
           expect(rack_builder).to have_received(:use).with(Yabeda::Prometheus::Exporter, path: "/metrics")
@@ -53,7 +53,7 @@ RSpec.describe Sbmt::KafkaConsumer::Probes::Host do
 
         it "calls WEBrick.run with the correct parameters" do
           described_class.run_async
-          expect(Rack::Handler::WEBrick).to have_received(:run) do |rack_builder, **options|
+          expect(described_class.webrick).to have_received(:run) do |rack_builder, **options|
             expect(options[:Host]).to eq "0.0.0.0"
             expect(options[:Port]).to eq 8080
             expect(rack_builder).to have_received(:use).with(Yabeda::Prometheus::Exporter, path: "/custom_metrics_path")
@@ -81,7 +81,7 @@ RSpec.describe Sbmt::KafkaConsumer::Probes::Host do
 
       it "calls WEBrick.run for metrics with the correct parameters" do
         described_class.run_async
-        expect(Rack::Handler::WEBrick).to have_received(:run) do |rack_builder, **options|
+        expect(described_class.webrick).to have_received(:run) do |rack_builder, **options|
           expect(options[:Host]).to eq "0.0.0.0"
           expect(options[:Port]).to eq 9090
           expect(rack_builder).to have_received(:use).with(Yabeda::Prometheus::Exporter, path: "/metrics")
@@ -93,7 +93,7 @@ RSpec.describe Sbmt::KafkaConsumer::Probes::Host do
 
         it "calls WEBrick.run for metrics with the correct parameters" do
           described_class.run_async
-          expect(Rack::Handler::WEBrick).to have_received(:run) do |rack_builder, **options|
+          expect(described_class.webrick).to have_received(:run) do |rack_builder, **options|
             expect(options[:Host]).to eq "0.0.0.0"
             expect(options[:Port]).to eq 9090
             expect(rack_builder).to have_received(:use).with(Yabeda::Prometheus::Exporter, path: "/custom_metrics_path")

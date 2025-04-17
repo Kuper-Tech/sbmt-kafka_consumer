@@ -2,10 +2,12 @@ inherit_mode:
   merge:
     - Exclude
 
-require:
+plugins:
   - rubocop-performance
   - rubocop-rails
   - rubocop-rspec
+
+require:
   - standard
 
 inherit_gem:
@@ -21,9 +23,6 @@ AllCops:
   TargetRailsVersion: 6.0
   Exclude:
     - spec/internal/pkg/**/*
-
-RSpec/FilePath:
-  Enabled: false
 
 RSpec/VerifiedDoubles:
   Exclude:

@@ -9,9 +9,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Increase default timeout to 300 seconds for better accommodation of temporary delays.
+- Make liveness probe listener thread-safe using a mutex.
+- Use monotonic clock for more accurate time measurements in liveness checks.
+- Simplify liveness status checking logic.
+- Support Rack v3
+
 ### Changed
 
 ### Fixed
+
+## [3.5.0] - 2025-04-17
+
+### Added
+
+- Increase default timeout to 300 seconds for better accommodation of temporary delays.
+- Make liveness probe listener thread-safe using a mutex.
+- Use monotonic clock for more accurate time measurements in liveness checks.
+- Simplify liveness status checking logic.
+- Support Rack v3
 
 ## [3.4.2] - 2025-04-02
 
