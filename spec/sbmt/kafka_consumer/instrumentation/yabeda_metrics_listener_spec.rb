@@ -46,7 +46,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
           .and measure_yabeda_histogram(Yabeda.kafka_api.response_size).with_tags(tags)
           .and increment_yabeda_counter(Yabeda.kafka_api.calls).with_tags(tags)
           .and increment_yabeda_counter(Yabeda.kafka_api.errors).with_tags(tags)
-          .and not_increment_yabeda_counter(Yabeda.kafka_consumer.consumer_group_rebalances)
+          .and not_update_yabeda_gauge(Yabeda.kafka_consumer.group_rebalances)
           .and not_update_yabeda_gauge(Yabeda.kafka_consumer.offset_lag)
       end
     end
@@ -69,7 +69,7 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
       it "reports consumer group metrics" do
         expect {
           described_class.new.send(:report_rdkafka_stats, event, async: false)
-        }.to increment_yabeda_counter(Yabeda.kafka_consumer.consumer_group_rebalances)
+        }.to update_yabeda_gauge(Yabeda.kafka_consumer.group_rebalances)
           .with_tags(client: "some-name", group_id: "consumer-group-id", state: "up")
       end
     end

@@ -9,15 +9,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Increase default timeout to 300 seconds for better accommodation of temporary delays.
-- Make liveness probe listener thread-safe using a mutex.
-- Use monotonic clock for more accurate time measurements in liveness checks.
-- Simplify liveness status checking logic.
-- Support Rack v3
-
 ### Changed
 
 ### Fixed
+
+## [3.5.1] - 2025-04-18
+
+### Fixed
+
+- Rename `yabeda_kafka_consumer_consumer_group_rebalances` gauge to `yabeda_kafka_consumer_group_rebalances`
+- Change type of `yabeda_kafka_consumer_group_rebalances` from `Counter` to `Gauge`
 
 ## [3.5.0] - 2025-04-17
 

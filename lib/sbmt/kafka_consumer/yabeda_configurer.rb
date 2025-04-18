@@ -30,7 +30,7 @@ module Sbmt
           end
 
           group :kafka_consumer do
-            counter :consumer_group_rebalances,
+            gauge :group_rebalances,
               tags: %i[client group_id state],
               comment: "Consumer group rebalances"
 
