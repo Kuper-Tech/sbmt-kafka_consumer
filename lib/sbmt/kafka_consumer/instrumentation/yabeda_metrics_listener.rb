@@ -150,8 +150,8 @@ module Sbmt
             state: group_stats["state"]
           }
 
-          Yabeda.kafka_consumer.consumer_group_rebalances
-            .increment(cg_tags, by: group_stats["rebalance_cnt"])
+          Yabeda.kafka_consumer.group_rebalances
+            .set(cg_tags, group_stats["rebalance_cnt"])
         end
 
         def report_topic_stats(group_id, topic_stats)
