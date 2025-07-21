@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.5.2] - 2025-07-21
+
+### Changed
+
+- Add Rack 3 support: unfreeze headers hash in probes response.
+
 ## [3.5.1] - 2025-04-18
 
 ### Fixed
