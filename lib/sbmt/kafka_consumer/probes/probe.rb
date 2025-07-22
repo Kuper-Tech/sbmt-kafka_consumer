@@ -4,7 +4,7 @@ module Sbmt
   module KafkaConsumer
     module Probes
       module Probe
-        HEADERS = {"Content-Type" => "application/json"}.freeze
+        HEADERS = {"Content-Type" => "application/json"}
 
         def call(env)
           with_error_handler { probe(env) }
