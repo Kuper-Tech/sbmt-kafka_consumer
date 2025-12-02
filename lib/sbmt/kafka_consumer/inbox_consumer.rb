@@ -9,9 +9,9 @@ module Sbmt
       class_attribute :inbox_item_class, instance_writer: false, default: nil
       class_attribute :event_name, instance_writer: false, default: nil
 
-      def self.consumer_klass(inbox_item:, event_name: nil, skip_on_error: nil, name: nil, middlewares: nil)
+      def self.consumer_klass(inbox_item:, event_name: nil, skip_on_error: nil, name: nil, middlewares: nil, batch_middlewares: nil)
         # defaults are set in class_attribute definition
-        klass = super(skip_on_error: skip_on_error, middlewares: middlewares)
+        klass = super(skip_on_error: skip_on_error, middlewares: middlewares, batch_middlewares: batch_middlewares)
         klass.inbox_item_class = inbox_item.constantize
         klass.event_name = event_name if event_name
         klass

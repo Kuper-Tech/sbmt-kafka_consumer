@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [2.9.0] - 2026-02-10
+
+### Added
+
+- Allow middleware configuration for all consumers
+- Added option `batch_midlewares` to add middleware before message batch processing
+
 ## [2.8.0] - 2024-09-09
 
 ### Fixed

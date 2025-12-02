@@ -5,6 +5,7 @@ module Sbmt
     module Instrumentation
       class LoggerListener < Karafka::Instrumentation::LoggerListener
         include ListenerHelper
+
         CUSTOM_ERROR_TYPES = %w[consumer.base.consume_one consumer.inbox.consume_one].freeze
 
         def on_error_occurred(event)

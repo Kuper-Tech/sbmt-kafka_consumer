@@ -34,3 +34,7 @@ Style/SingleLineMethods:
 
 Style/EmptyMethod:
   Enabled: false
+
+Rails/Exit:
+  Exclude:
+    - spec/rails_helper.rb

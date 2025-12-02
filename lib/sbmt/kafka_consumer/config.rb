@@ -27,6 +27,7 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
     :pause_timeout, :pause_max_timeout, :pause_with_exponential_backoff,
     :max_wait_time, :shutdown_timeout, :partition_assignment_strategy,
     concurrency: 4, auth: {}, kafka: {}, consumer_groups: {}, probes: {}, metrics: {},
+    process_message_middlewares: [], process_batch_middlewares: [],
     deserializer_class: "::Sbmt::KafkaConsumer::Serialization::NullDeserializer",
     monitor_class: "::Sbmt::KafkaConsumer::Instrumentation::TracingMonitor",
     logger_class: "::Sbmt::KafkaConsumer::Logger",
@@ -38,6 +39,8 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
 
   on_load :validate_consumer_groups
   on_load :set_default_metrics_port
+  on_load :set_process_message_middlewares
+  on_load :set_process_batch_middlewares
 
   coerce_types client_id: :string,
     pause_timeout: :integer,
@@ -79,5 +82,13 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
 
   def set_default_metrics_port
     self.metrics = metrics.new(port: probes.port) unless metrics.port
+  end
+
+  def set_process_message_middlewares
+    self.process_message_middlewares = Sbmt::KafkaConsumer.process_message_middlewares || []
+  end
+
+  def set_process_batch_middlewares
+    self.process_batch_middlewares = Sbmt::KafkaConsumer.process_batch_middlewares || []
   end
 end

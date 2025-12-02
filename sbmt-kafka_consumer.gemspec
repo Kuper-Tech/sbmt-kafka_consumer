@@ -6,14 +6,14 @@ Gem::Specification.new do |spec|
   spec.name = "sbmt-kafka_consumer"
   spec.license = "MIT"
   spec.version = Sbmt::KafkaConsumer::VERSION
-  spec.authors = ["Sbermarket Ruby-Platform Team"]
+  spec.authors = ["Kuper Ruby-Platform Team"]
 
   spec.summary = "Ruby gem for consuming Kafka messages"
   spec.description = "This gem is used for consuming Kafka messages. It represents a wrapper over Karafka gem and is recommended for using as a transport with sbmt-outbox"
-  spec.homepage = "https://github.com/SberMarket-Tech/sbmt-kafka_consumer"
+  spec.homepage = "https://github.com/Kuper-Tech/sbmt-kafka_consumer"
   spec.required_ruby_version = ">= 2.7.0"
 
-  spec.metadata["allowed_push_host"] = "https://rubygems.org"
+  spec.metadata["allowed_push_host"] = ENV.fetch("NEXUS_URL", "https://rubygems.org")
 
   spec.metadata["homepage_uri"] = spec.homepage
   spec.metadata["source_code_uri"] = spec.homepage
