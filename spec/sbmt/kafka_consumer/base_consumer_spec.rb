@@ -24,6 +24,12 @@ class MiddlewareError
   end
 end
 
+class MyMiddlewareWithTwoParams
+  def call(message, consumer)
+    yield
+  end
+end
+
 describe Sbmt::KafkaConsumer::BaseConsumer do
   include_context "with sbmt karafka consumer"
 
@@ -93,6 +99,12 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       expect(Rails.logger).to receive(:info).with(/Commit offset/)
       expect(Rails.logger).to receive(:info).with(/#{payload}/)
 
+      consume_with_sbmt_karafka
+      expect(consumer).to be_consumed
+    end
+
+    it "calls global middlewares" do
+      expect_any_instance_of(TestGlobalProcessMessageMiddleware).to receive(:call).and_call_original
       consume_with_sbmt_karafka
       expect(consumer).to be_consumed
     end
@@ -238,6 +250,26 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
           expect(consumer).not_to be_consumed
         end
       end
+
+      context "when middleware takes two params" do
+        let(:middlewares) { %w[MyMiddleware MyMiddlewareWithTwoParams] }
+
+        it "calls middlewares" do
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "with global middlewares" do
+        let(:middlewares) { ["MyMiddleware"] }
+
+        it "calls middlewares before processing message" do
+          expect_any_instance_of(TestGlobalProcessMessageMiddleware).to receive(:call).and_call_original
+          expect_any_instance_of(MyMiddleware).to receive(:call).and_call_original
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
     end
   end
 
@@ -267,6 +299,69 @@ describe Sbmt::KafkaConsumer::BaseConsumer do
       consume_with_sbmt_karafka
       expect(consumer).to be_consumed
       expect(Rails.logger).to have_received(:info).with(/Process batch/)
+    end
+
+    it "calls global middlewares" do
+      expect_any_instance_of(TestGlobalProcessBatchMiddleware).to receive(:call).and_call_original
+      consume_with_sbmt_karafka
+      expect(consumer).to be_consumed
+    end
+
+    context "when used middlewares" do
+      let(:consumer_class) do
+        base_klass = described_class.consumer_klass(middlewares: middlewares, batch_middlewares: batch_middlewares)
+        Class.new(base_klass) do
+          def process_batch(_messages)
+            @consumed = true
+          end
+
+          def consumed?
+            !!@consumed
+          end
+        end
+      end
+      let(:middlewares) { [] }
+
+      context "when middlewares are present" do
+        let(:batch_middlewares) { ["MyMiddleware"] }
+
+        it "calls middleware before processing messages" do
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "when middleware takes two params" do
+        let(:batch_middlewares) { %w[MyMiddleware MyMiddlewareWithTwoParams] }
+
+        it "calls middlewares" do
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "with global middlewares" do
+        let(:batch_middlewares) { ["MyMiddleware"] }
+
+        it "calls middlewares before processing message" do
+          expect_any_instance_of(TestGlobalProcessBatchMiddleware).to receive(:call).and_call_original
+          expect_any_instance_of(MyMiddleware).to receive(:call).and_call_original
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
+
+      context "with both types of middlewares" do
+        let(:batch_middlewares) { ["MyMiddleware"] }
+        let(:middlewares) { ["MyMiddleware1"] }
+
+        it "calls only batch middlewares" do
+          expect_any_instance_of(MyMiddleware).to receive(:call).and_call_original
+          expect_any_instance_of(MyMiddleware1).not_to receive(:call)
+          consume_with_sbmt_karafka
+          expect(consumer).to be_consumed
+        end
+      end
     end
   end
 end

@@ -26,6 +26,14 @@ module Sbmt
       def logger
         @logger ||= Rails.logger
       end
+
+      def process_message_middlewares
+        @process_message_middlewares ||= []
+      end
+
+      def process_batch_middlewares
+        @process_batch_middlewares ||= []
+      end
     end
 
     class Error < StandardError; end

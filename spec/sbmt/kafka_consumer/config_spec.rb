@@ -52,6 +52,8 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
         expect(config.logger_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::LoggerListener")
         expect(config.metrics_listener_class).to eq("::Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener")
         expect(config.consumer_mapper_class).to eq("::Sbmt::KafkaConsumer::Routing::KarafkaV1ConsumerMapper")
+        expect(config.process_message_middlewares).to eq([TestGlobalProcessMessageMiddleware])
+        expect(config.process_batch_middlewares).to eq([TestGlobalProcessBatchMiddleware])
       end
     end
 
