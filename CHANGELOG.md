@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Allow middleware configuration for all consumers
 - Added option `batch_midlewares` to add middleware before message batch processing
 
+### Fixed
+
+- Change docker images for kafka and zookeeper
+
 ## [2.8.0] - 2024-09-09
 
 ### Fixed
