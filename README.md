@@ -185,10 +185,12 @@ consumer_groups:
 
 - `skip_on_error` - optional, default false, omit consumer errors in message processing and commit the offset to Kafka
 - `middlewares` - optional, default [], type String, add middleware before message processing
+- `batch_middlewares` - optional, default [], type String, add middleware before batch message processing
 
 ```yaml
 init_attrs:
   middlewares: ['SomeMiddleware']
+  batch_middlewares: ['SomeBatchMiddleware']
 ```
 
 ```ruby
@@ -197,9 +199,16 @@ class SomeMiddleware
     yield if message.payload.id.to_i % 2 == 0
   end
 end
+
+class SomeBatchMiddleware
+  def call(message, consumer)
+    yield
+  end
+end
 ```
 __CAUTION__:
-- ⚠️ `yield` is mandatory for all middleware, as it returns control to the `process_message` method.
+- ⚠️ `yield` is mandatory for all middleware, as it returns control to the `process_message/process_batch` method.
+- ⚠️ all middlewares must take either 1 or 2 parameters.
 
 #### `consumer.init_attrs` options for `InboxConsumer`
 
@@ -207,10 +216,12 @@ __CAUTION__:
 - `event_name` - optional, default nil, used when the inbox item keep several event types
 - `skip_on_error` - optional, default false, omit consumer errors in message processing and commit the offset to Kafka
 - `middlewares` - optional, default [], type String, add middleware before message processing
+- `batch_middlewares` - optional, default [], type String, add middleware before batch message processing
 
 ```yaml
 init_attrs:
   middlewares: ['SomeMiddleware']
+  batch_middlewares: ['SomeBatchMiddleware']
 ```
 
 ```ruby
@@ -219,14 +230,39 @@ class SomeMiddleware
     yield if message.payload.id.to_i % 2 == 0
   end
 end
+
+class SomeBatchMiddleware
+  def call(message, consumer)
+    yield
+  end
+end
 ```
 __CAUTION__:
 - ⚠️ `yield` is mandatory for all middleware, as it returns control to the `process_message` method.
-- ⚠️ Doesn't work with `process_batch`.
+- ⚠️ all middlewares must take either 1 or 2 parameters.
 
 #### `deserializer.init_attrs` options
 
 - `skip_decoding_error` — don't raise an exception when cannot deserialize the message
+
+### Middlewares for all consumersа
+
+To add middleware for all consumers, define them in the configuration
+
+```ruby
+# config/initializers/kafka_consumer.rb
+
+Sbmt::KafkaConsumer.process_message_middlewares.push(
+  SomeMiddleware
+)
+
+Sbmt::KafkaConsumer.process_batch_middlewares(
+  SomeBatchMiddleware
+)
+```
+__CAUTION__:
+- ⚠️ `yield` is mandatory for all middleware, as it returns control to the `process_message` method.
+- ⚠️ all middlewares must take either 1 or 2 parameters.
 
 ### `probes` config section
 

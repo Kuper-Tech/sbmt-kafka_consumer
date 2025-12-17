@@ -2,6 +2,12 @@
 
 require "rails_helper"
 
+class MyMiddleware
+  def call(message)
+    yield
+  end
+end
+
 describe Sbmt::KafkaConsumer::InboxConsumer do
   include_context "with sbmt karafka consumer"
 
@@ -10,7 +16,9 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       name: "test_items",
       event_name: "test-event-name",
       inbox_item: "TestInboxItem",
-      skip_on_error: skip_on_error
+      skip_on_error: skip_on_error,
+      middlewares: middlewares,
+      batch_middlewares: batch_middlewares
     )
   end
 
@@ -27,6 +35,8 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       "Sequence-ID" => 3
     }
   end
+  let(:middlewares) { [] }
+  let(:batch_middlewares) { [] }
 
   before do
     publish_to_sbmt_karafka(
@@ -255,6 +265,16 @@ describe Sbmt::KafkaConsumer::InboxConsumer do
       expect(Rails.logger).to receive(:info).with(/Commit offset/)
       expect { consume_with_sbmt_karafka }.to change(TestInboxItem, :count).by(1)
       expect(TestInboxItem.last.event_name).to eq("custom-value")
+    end
+  end
+
+  context "when middlewares are present" do
+    let(:middlewares) { ["MyMiddleware"] }
+
+    it "calls middlewares with additional options" do
+      expect_any_instance_of(TestGlobalProcessMessageMiddleware).to receive(:call).and_call_original
+      expect_any_instance_of(MyMiddleware).to receive(:call).and_call_original
+      consume_with_sbmt_karafka
     end
   end
 end

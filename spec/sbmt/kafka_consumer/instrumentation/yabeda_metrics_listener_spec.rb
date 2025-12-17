@@ -125,11 +125,12 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
     let(:topic) { OpenStruct.new(consumer_group: OpenStruct.new(id: "group_id")) }
     let(:consumer) { OpenStruct.new(topic: topic, messages: messages) }
     let(:event) { Karafka::Core::Monitoring::Event.new("consumer.consumed", caller: consumer, time: 10) }
-
-    tags = {
-      client: "some-name", group_id: "group_id",
-      partition: 0, topic: "topic"
-    }
+    let(:tags) do
+      {
+        client: "some-name", group_id: "group_id",
+        partition: 0, topic: "topic"
+      }
+    end
 
     it "reports batch consuming metrics" do
       expect { described_class.new.on_consumer_consumed(event) }
@@ -143,11 +144,12 @@ describe Sbmt::KafkaConsumer::Instrumentation::YabedaMetricsListener do
     let(:topic) { OpenStruct.new(consumer_group: OpenStruct.new(id: "group_id")) }
     let(:consumer) { OpenStruct.new(topic: topic, messages: messages) }
     let(:event) { Karafka::Core::Monitoring::Event.new("consumer.consumed", caller: consumer, time: 10) }
-
-    tags = {
-      client: "some-name", group_id: "group_id",
-      partition: 0, topic: "topic"
-    }
+    let(:tags) do
+      {
+        client: "some-name", group_id: "group_id",
+        partition: 0, topic: "topic"
+      }
+    end
 
     it "reports consumed message metrics" do
       expect { described_class.new.on_consumer_consumed_one(event) }

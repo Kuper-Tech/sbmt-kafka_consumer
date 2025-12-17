@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ">= 6.1"
   spec.add_dependency "zeitwerk", "~> 2.3"
-  spec.add_dependency "karafka", "~> 2.4"
+  spec.add_dependency "karafka", "~> 2.4.0"
   spec.add_dependency "yabeda", ">= 0.11"
   spec.add_dependency "anyway_config", ">= 2.4.0"
   spec.add_dependency "thor"
