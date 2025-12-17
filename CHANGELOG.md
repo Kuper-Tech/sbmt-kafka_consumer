@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.6.1] - 2025-12-17
+
+### Fixed
+
+- Change docker images for kafka and zookeeper
+
 ## [3.6.0] - 2025-12-02
 
 ### Added
