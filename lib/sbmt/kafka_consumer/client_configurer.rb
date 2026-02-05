@@ -19,7 +19,7 @@ class Sbmt::KafkaConsumer::ClientConfigurer
 
       karafka_config.pause_with_exponential_backoff = config.pause_with_exponential_backoff if config.pause_with_exponential_backoff.present?
 
-      karafka_config.concurrency = (opts[:concurrency]) || config.concurrency
+      karafka_config.concurrency = opts[:concurrency] || config.concurrency
 
       # Do not validate topics naming consistency
       # see https://github.com/karafka/karafka/wiki/FAQ#why-am-i-seeing-a-needs-to-be-consistent-namespacing-style-error

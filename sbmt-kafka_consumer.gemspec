@@ -32,6 +32,7 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency "rails", ">= 6.0"
+  spec.add_dependency "rack", "~> 2.0"
   spec.add_dependency "zeitwerk", "~> 2.3"
   spec.add_dependency "karafka", "~> 2.2", "< 2.4" # [Breaking] Drop the concept of consumer group mapping.
   spec.add_dependency "yabeda", ">= 0.11"

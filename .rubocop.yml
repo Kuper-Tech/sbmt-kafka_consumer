@@ -22,9 +22,6 @@ AllCops:
   Exclude:
     - spec/internal/pkg/**/*
 
-RSpec/FilePath:
-  Enabled: false
-
 RSpec/VerifiedDoubles:
   Exclude:
     - spec/**/*_spec.rb

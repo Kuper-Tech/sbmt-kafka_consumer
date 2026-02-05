@@ -13,6 +13,7 @@ require "rspec"
 require "rspec_junit_formatter"
 require "yabeda"
 require "yabeda/rspec"
+require "ostruct"
 
 RSpec::Matchers.define_negated_matcher :not_change, :change
 RSpec::Matchers.define_negated_matcher :not_include, :include
