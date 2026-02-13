@@ -142,6 +142,27 @@ describe Sbmt::KafkaConsumer::Config, type: :config do
                   )
                 )
               ]
+            ),
+            Sbmt::KafkaConsumer::Config::ConsumerGroup.new(
+              id: "group_id_3",
+              name: "cg_with_topic_wildcard",
+              topics: [
+                Sbmt::KafkaConsumer::Config::Topic.new(
+                  regexp: /topic_with_wildcard\.\d+/,
+                  active: true,
+                  manual_offset_management: true,
+                  consumer: Sbmt::KafkaConsumer::Config::Consumer.new(
+                    klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer",
+                    init_attrs: {
+                      skip_on_error: true
+                    }
+                  ),
+                  deserializer: Sbmt::KafkaConsumer::Config::Deserializer.new(
+                    klass: "Sbmt::KafkaConsumer::Serialization::NullDeserializer",
+                    init_attrs: {}
+                  )
+                )
+              ]
             )
           ])
       end

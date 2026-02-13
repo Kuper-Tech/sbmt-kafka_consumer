@@ -3,7 +3,8 @@
 class Sbmt::KafkaConsumer::Config::Topic < Dry::Struct
   transform_keys(&:to_sym)
 
-  attribute :name, Sbmt::KafkaConsumer::Types::Strict::String
+  attribute? :name, Sbmt::KafkaConsumer::Types::Strict::String.optional
+  attribute? :regexp, Sbmt::KafkaConsumer::Types::Regexp.optional
   attribute :consumer, Sbmt::KafkaConsumer::Types::ConfigConsumer
   attribute :deserializer, Sbmt::KafkaConsumer::Types::ConfigDeserializer
     .optional

@@ -38,6 +38,8 @@ require "factory_bot_rails"
 require "dry-monads"
 require "dry/monads/result"
 
+Sbmt::KafkaConsumer::Routing::ListExistingTopics.cached_cluster_topics = %w[topic_with_wildcard.1 topic_with_wildcard.2]
+
 require "sbmt/kafka_consumer/testing"
 require "sbmt/kafka_consumer/instrumentation/sentry_tracer"
 require "sbmt/kafka_consumer/instrumentation/open_telemetry_loader"
@@ -63,6 +65,6 @@ RSpec.configure do |config|
   config.filter_rails_from_backtrace!
 end
 
-Sbmt::KafkaConsumer::ClientConfigurer.configure!
+Sbmt::KafkaConsumer::ClientConfigurer.configure!(skip_regexp_consumers_init: true)
 
 Dir["#{__dir__}/support/**/*.rb"].sort.each { |f| require f }

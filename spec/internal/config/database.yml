@@ -1,4 +1,4 @@
 test:
   adapter: postgresql
-  url: <%= ENV.fetch("DATABASE_URL") %>
+  url: <%= ENV.fetch("DATABASE_URL", "postgres://postgres:@postgres:5432") %>
   database: kafka_consumer_test

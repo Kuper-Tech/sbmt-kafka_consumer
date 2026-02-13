@@ -46,6 +46,14 @@ default: &default
         - name: topic-name-with.dots-dashes_and_underscores
           consumer:
             klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
+    group_id_3:
+      name: cg_with_topic_wildcard
+      topics:
+        - regexp: "topic_with_wildcard\\.\\d+"
+          consumer:
+            klass: "Sbmt::KafkaConsumer::SimpleLoggingConsumer"
+            init_attrs:
+              skip_on_error: true
 
   probes:
     port: <%= ENV.fetch('PROMETHEUS_EXPORTER_PORT') { '9394' } %>
