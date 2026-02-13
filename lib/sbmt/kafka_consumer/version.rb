@@ -2,6 +2,6 @@
 
 module Sbmt
   module KafkaConsumer
-    VERSION = "3.6.1"
+    VERSION = "3.7.0"
   end
 end

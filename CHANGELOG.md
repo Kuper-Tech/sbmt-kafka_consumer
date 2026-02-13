@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.7.0] - 2026-02-02
+
+### Added
+
+- Wildcard topic subscriptions
+
 ## [3.6.1] - 2025-12-17
 
 ### Fixed

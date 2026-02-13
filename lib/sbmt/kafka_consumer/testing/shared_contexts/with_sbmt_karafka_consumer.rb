@@ -15,12 +15,13 @@ RSpec.shared_context "with sbmt karafka consumer" do
   let(:test_topic) { Karafka::Routing::Topic.new(:test_topic, test_consumer_group) }
   let(:kafka_client) { instance_double(Karafka::Connection::Client) }
   let(:null_deserializer) { Sbmt::KafkaConsumer::Serialization::NullDeserializer.new }
+  let(:client_configurer_options) { {skip_regexp_consumers_init: true} }
 
   let(:consumer_class) { described_class.consumer_klass }
   let(:consumer) { build_consumer(consumer_class.new) }
 
   before {
-    Sbmt::KafkaConsumer::ClientConfigurer.configure!
+    Sbmt::KafkaConsumer::ClientConfigurer.configure!(**client_configurer_options)
     allow(kafka_client).to receive(:assignment_lost?).and_return(false)
     allow(kafka_client).to receive(:mark_as_consumed!).and_return(true)
     allow(kafka_client).to receive(:mark_as_consumed).and_return(true)

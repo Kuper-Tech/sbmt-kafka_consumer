@@ -71,6 +71,8 @@ class Sbmt::KafkaConsumer::Config < Anyway::Config
     consumer_groups.each do |cg|
       raise_validation_error "consumer group #{cg.id} must have at least one topic defined" if cg.topics.blank?
       cg.topics.each do |t|
+        raise_validation_error "#{cg.id}: no valid topics present: `name` or `regexp` field must be present" if t.name.blank? && t.regexp.blank?
+        raise_validation_error "#{cg.id}: only one of `name` or `regexp` fields must be set" if t.name.present? && t.regexp.present?
         if t.kafka_options.key?(:"partition.assignment.strategy")
           raise_validation_error "Using the partition.assignment.strategy option for individual topics is not supported due to consuming issues. Use the global option `partition_assignment_strategy` instead"
         end

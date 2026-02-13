@@ -5,6 +5,14 @@ module Sbmt
     module Types
       include Dry.Types
 
+      Regexp = Types.Nominal(::Regexp).constructor do |input|
+        if input.is_a?(::String)
+          ::Regexp.new(input)
+        else
+          input
+        end
+      end
+
       ConfigAttrs = Dry::Types["hash"].constructor { |hsh| hsh.deep_symbolize_keys }
 
       ConfigConsumer = Types.Constructor(Config::Consumer)

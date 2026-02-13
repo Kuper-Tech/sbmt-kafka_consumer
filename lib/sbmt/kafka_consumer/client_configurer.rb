@@ -3,6 +3,8 @@
 class Sbmt::KafkaConsumer::ClientConfigurer
   def self.configure!(**opts)
     config = Sbmt::KafkaConsumer::Config.new
+    Sbmt::KafkaConsumer::Routing::Wildcards::Feature.activate
+
     Karafka::App.setup do |karafka_config|
       karafka_config.monitor = config.monitor_class.classify.constantize.new
       karafka_config.logger = Sbmt::KafkaConsumer.logger
@@ -49,15 +51,29 @@ class Sbmt::KafkaConsumer::ClientConfigurer
     Karafka::App.routes.clear
     Karafka::App.routes.draw do
       target_consumer_groups.each do |cg|
+        next if opts[:skip_regexp_consumers_init] && cg.topics.all? { |topic| topic.regexp.present? }
+
         group_id = consumer_mapper.call(cg.name)
         consumer_group group_id do
           cg.topics.each do |t|
-            topic t.name do
-              active t.active
-              manual_offset_management t.manual_offset_management
-              consumer t.consumer.consumer_klass
-              deserializer t.deserializer.instantiate if t.deserializer.klass.present?
-              kafka t.kafka_options.merge(inherit: true) if t.kafka_options.present?
+            if t.regexp.present?
+              next if opts[:skip_regexp_consumers_init]
+
+              wildcard t.regexp do
+                active t.active
+                manual_offset_management t.manual_offset_management
+                consumer t.consumer.consumer_klass
+                deserializer t.deserializer.instantiate if t.deserializer.klass.present?
+                kafka t.kafka_options.merge(inherit: true) if t.kafka_options.present?
+              end
+            else
+              topic t.name do
+                active t.active
+                manual_offset_management t.manual_offset_management
+                consumer t.consumer.consumer_klass
+                deserializer t.deserializer.instantiate if t.deserializer.klass.present?
+                kafka t.kafka_options.merge(inherit: true) if t.kafka_options.present?
+              end
             end
           end
         end

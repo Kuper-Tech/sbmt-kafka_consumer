@@ -167,7 +167,9 @@ consumer_groups:
   group_id:
     name: some_group_name # required
     topics:
-    - name: some_topic_name # required
+    - name: some_topic_name
+      # or
+      regexp: wildcard_topic_name\\.\\d+
       active: true # optional, default true
       consumer:
         klass: SomeConsumerClass # required, a consumer class inherited from Sbmt::KafkaConsumer::BaseConsumer
@@ -180,6 +182,9 @@ consumer_groups:
       kafka_options: # optional, this section allows to redefine the root rdkafka options for each topic
         auto.offset.reset: latest
 ```
+
+IMPORTANT: either `name` or `regexp` option is required
+IMPORTANT: if using `regexp` option in specs consider setting `Sbmt::KafkaConsumer::Routing::ListExistingTopics.mocked_cluster_topics = ["cluster-cached-topic-name"]`
 
 #### `consumer.init_attrs` options for `BaseConsumer`
 
