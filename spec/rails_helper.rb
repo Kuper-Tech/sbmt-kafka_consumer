@@ -6,6 +6,7 @@ require "pathname"
 ENGINE_ROOT = Pathname.new(File.expand_path("..", __dir__))
 
 require "spec_helper"
+require "logger" # https://github.com/rails/rails/issues/54272
 require "combustion"
 
 RSpec::Matchers.define_negated_matcher :not_increment_yabeda_counter, :increment_yabeda_counter

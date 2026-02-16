@@ -19,9 +19,7 @@ module Sbmt
           attr_writer :enabled
         end
 
-        def enabled?
-          self.class.enabled?
-        end
+        delegate :enabled?, to: :class
 
         def trace(&block)
           return handle_consumed_one(&block) if @event_id == "consumer.consumed_one"
