@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.7.1] - 2026-02-17
+
+### Fixed
+
+- Add missing `require` for testing helper
+
 ## [3.7.0] - 2026-02-02
 
 ### Added
