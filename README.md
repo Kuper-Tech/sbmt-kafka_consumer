@@ -53,6 +53,50 @@ To generate an Inbox consumer for use with gem [sbmt-outbox](https://github.com/
 rails g kafka_consumer:inbox_consumer MaybeNamespaced::Name some-consumer-group some-topic
 ```
 
+### Regexp consumer
+
+To generate a regexp-topic consumer:
+
+```shell
+rails g kafka_consumer:regexp_consumer GROUP_KEY CONSUMER_KLASS TOPIC_REGEXP --env-prefix ENV_PREFIX
+```
+
+Where:
+- `GROUP_KEY` — YAML key for the consumer group (e.g. `order`)
+- `CONSUMER_KLASS` — consumer class name (e.g. `MyApp::OrderConsumer`)
+- `TOPIC_REGEXP` — topic regexp (e.g. `'my\.app\.order(\.\d+)?$'`)
+- `--env-prefix` (required) — prefix for the `ENV_PREFIX_CONSUMER_GROUP_NAME` and `ENV_PREFIX_TOPIC_REGEXP` environment variables
+- `--init-attrs key:value ...` — optional consumer `init_attrs` as `key:value` pairs; boolean values (`true`/`false`) are emitted unquoted
+- `--deserializer-klass` — optional deserializer class; omit to skip the `deserializer:` section
+
+If `config/kafka_consumer.yml` does not exist, the generator will offer to run `kafka_consumer:install` first.
+
+Examples:
+
+```shell
+# Consumer with init_attrs
+rails g kafka_consumer:regexp_consumer order \
+  "MyApp::OrderConsumer" \
+  'my\.app\.order(\.\d+)?$' \
+  --env-prefix MY_APP_ORDER \
+  --init-attrs inbox_item:OrderInboxItem
+
+# Consumer with deserializer
+rails g kafka_consumer:regexp_consumer events \
+  "MyApp::EventsConsumer" \
+  'my\.app\.events(\.\d+)?$' \
+  --env-prefix MY_APP_EVENTS \
+  --deserializer-klass "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+
+# Consumer with both
+rails g kafka_consumer:regexp_consumer order_init \
+  "MyApp::OrderInitConsumer" \
+  'my\.app\.order\.init(\.\d+)?$' \
+  --env-prefix MY_APP_ORDER_INIT \
+  --init-attrs envelope_schema:my.envelope data_schema:my.app.order.init skip_on_error:true \
+  --deserializer-klass "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+```
+
 ## Manual configuration
 
 The `config/kafka_consumer.yml` file is a main configuration for the gem.

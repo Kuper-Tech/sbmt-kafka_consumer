@@ -1,0 +1,29 @@
+Description:
+    Injects a regexp-based consumer group entry into config/kafka_consumer.yml.
+    If kafka_consumer.yml does not exist, offers to run kafka_consumer:install first.
+
+    Required positional args: GROUP_KEY, CONSUMER_KLASS, TOPIC_REGEXP
+    Required option: --env-prefix
+
+Example:
+    # Inbox consumer with init_attrs (no deserializer)
+    bin/rails generate kafka_consumer:regexp_consumer order \
+      "Ecom::EventStreaming::Kafka::RegularEventsInboxConsumer" \
+      'seeker\.paas-stand\.event-streaming\.order(\.\d+)?$' \
+      --env-prefix ES_ORDER \
+      --init-attrs inbox_item:EsOrderInboxItem
+
+    # Consumer with deserializer (no init_attrs)
+    bin/rails generate kafka_consumer:regexp_consumer init_exports \
+      "Ecom::EventStreaming::Kafka::ControlRequestsConsumer" \
+      'yc\.seeker\.paas-stand\.event-streaming\.control\.in(\.\d+)?' \
+      --env-prefix ES_CONTROL_REQUESTS \
+      --deserializer-klass "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
+
+    # Consumer with both init_attrs (including boolean) and deserializer
+    bin/rails generate kafka_consumer:regexp_consumer seeker_init_exports \
+      "SeekerInitEventsConsumer" \
+      'seeker\.paas-stand\.event-streaming\.order\.init(\.\d+)?$' \
+      --env-prefix ES_SEEKER_INIT_EXPORTS \
+      --init-attrs envelope_schema:cloud-events.init.envelope data_schema:seeker.paas-stand.event-streaming.order.init skip_on_error:true \
+      --deserializer-klass "Sbmt::KafkaConsumer::Serialization::JsonDeserializer"
