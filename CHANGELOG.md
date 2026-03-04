@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.8.0] - 2026-03-03
+
+### Added
+
+- `kafka_consumer:regexp_consumer` generator for injecting a regexp-based consumer group entry into `config/kafka_consumer.yml`; offers to run `kafka_consumer:install` if the config file is missing
+
 ## [3.7.1] - 2026-02-17
 
 ### Fixed

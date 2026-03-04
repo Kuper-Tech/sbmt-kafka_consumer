@@ -1,0 +1,16 @@
+    '<%= group_key %>':
+      name: <%%= ENV.fetch("<%= env_prefix %>_CONSUMER_GROUP_NAME", "<%= group_key %>") %><%%= ENV.fetch("CONSUMER_GROUP_SUFFIX", "") %>
+      topics:
+        - regexp: <%%= ENV.fetch("<%= env_prefix %>_TOPIC_REGEXP", '<%= topic_regexp %>') %>
+          consumer:
+            klass: "<%= consumer_klass %>"
+<%- unless init_attrs.empty? -%>
+            init_attrs:
+<%- init_attrs.each do |key, value| -%>
+              <%= key %>: <%= format_attr_value(value) %>
+<%- end -%>
+<%- end -%>
+<%- if deserializer_klass -%>
+          deserializer:
+            klass: "<%= deserializer_klass %>"
+<%- end -%>

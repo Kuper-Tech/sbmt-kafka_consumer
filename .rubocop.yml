@@ -28,6 +28,14 @@ RSpec/VerifiedDoubles:
   Exclude:
     - spec/**/*_spec.rb
 
+RSpec/SpecFilePathFormat:
+  Exclude:
+    - spec/generators/**/*
+
+RSpec/InstanceVariable:
+  Exclude:
+    - spec/generators/**/*
+
 Style/SingleLineMethods:
   Enabled: false
 

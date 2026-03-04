@@ -18,6 +18,23 @@ require "ostruct"
 RSpec::Matchers.define_negated_matcher :not_change, :change
 RSpec::Matchers.define_negated_matcher :not_include, :include
 
+require "logger"
+begin
+  # Rails 6.1
+  require "rails/generators/testing/behavior"
+rescue LoadError
+  # Rails 7+
+  require "rails/generators/testing/behaviour"
+  module Rails
+    module Generators
+      module Testing
+        Behavior = Behaviour # rubocop:disable Naming/ConstantName
+      end
+    end
+  end
+end
+require "rails/generators/testing/assertions"
+
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
