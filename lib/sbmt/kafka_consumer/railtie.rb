@@ -5,8 +5,9 @@ require "rails/railtie"
 module Sbmt
   module KafkaConsumer
     class Railtie < Rails::Railtie
-      initializer "sbmt_kafka_consumer_yabeda.configure_rails_initialization" do
-        YabedaConfigurer.configure
+      config.before_initialize do
+        require "sbmt/kafka_consumer/yabeda_configurer"
+        ::Sbmt::KafkaConsumer::YabedaConfigurer.configure
       end
 
       # it must be consistent with sbmt_karafka initializers' name
