@@ -12,7 +12,12 @@ RSpec.shared_context "with sbmt karafka consumer" do
     instance
   }
   let(:test_consumer_group) { Karafka::Routing::ConsumerGroup.new(:test_group) }
-  let(:test_topic) { Karafka::Routing::Topic.new(:test_topic, test_consumer_group) }
+  let(:test_topic) do
+    topic = Karafka::Routing::Topic.new(:test_topic, test_consumer_group)
+    topic.subscription_group_details = test_consumer_group.current_subscription_group_details
+    topic
+  end
+  let(:test_topics) { Karafka::Routing::Topics.new([test_topic]) }
   let(:kafka_client) { instance_double(Karafka::Connection::Client) }
   let(:null_deserializer) { Sbmt::KafkaConsumer::Serialization::NullDeserializer.new }
   let(:client_configurer_options) { {skip_regexp_consumers_init: true} }
@@ -22,6 +27,7 @@ RSpec.shared_context "with sbmt karafka consumer" do
 
   before {
     Sbmt::KafkaConsumer::ClientConfigurer.configure!(**client_configurer_options)
+    test_consumer_group.subscription_groups_builder.call(test_topics)
     allow(kafka_client).to receive(:assignment_lost?).and_return(false)
     allow(kafka_client).to receive(:mark_as_consumed!).and_return(true)
     allow(kafka_client).to receive(:mark_as_consumed).and_return(true)
