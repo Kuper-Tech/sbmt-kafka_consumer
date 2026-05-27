@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
   spec.summary = "Ruby gem for consuming Kafka messages"
   spec.description = "This gem is used for consuming Kafka messages. It represents a wrapper over Karafka gem and is recommended for using as a transport with sbmt-outbox"
   spec.homepage = "https://github.com/Kuper-Tech/sbmt-kafka_consumer"
-  spec.required_ruby_version = ">= 3.0.0"
+  spec.required_ruby_version = ">= 3.2.0"
 
   spec.metadata["allowed_push_host"] = ENV.fetch("NEXUS_URL", "https://rubygems.org")
 
@@ -33,7 +33,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "rails", ">= 6.1"
   spec.add_dependency "zeitwerk", "~> 2.3"
-  spec.add_dependency "karafka", "~> 2.4.0"
+  spec.add_dependency "karafka", "~> 2.5.1"
   spec.add_dependency "yabeda", ">= 0.11"
   spec.add_dependency "anyway_config", ">= 2.4.0"
   spec.add_dependency "thor"

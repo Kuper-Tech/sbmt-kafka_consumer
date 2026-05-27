@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.9.0] - 2026-05-26
+
+## BREAKING
+
+- Drop support for Ruby 3.0/3.1
+- Add support for Karafka 2.5
+
 ## [3.8.0] - 2026-03-03
 
 ### Added
