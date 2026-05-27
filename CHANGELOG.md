@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Fixed
 
+## [3.9.1] - 2026-05-27
+
+## Fixed
+
+- Update ruby version matrix for tests
+
 ## [3.9.0] - 2026-05-26
 
 ## BREAKING
